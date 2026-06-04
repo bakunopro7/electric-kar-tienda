@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>electrick-Kar — Favoritos</title>
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/styles.css">
+<style>
+.fav-head { background:#fff; border-bottom:1px solid var(--gray-200); }
+.fav-head .wrap { padding:28px 28px 30px; }
+.crumbs { font-size:13px; color:var(--gray-500); display:flex; gap:8px; align-items:center; }
+.crumbs a:hover { color:var(--blue-700); } .crumbs svg { width:13px;height:13px; }
+.fav-title { display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-top:14px; }
+.fav-title .ic { width:48px; height:48px; border-radius:13px; background:#fde4e7; color:var(--red); display:grid; place-items:center; }
+.fav-title .ic svg { width:24px; height:24px; }
+.fav-title h1 { font-size:clamp(26px,3.4vw,38px); }
+.fav-title p { color:var(--gray-500); font-size:14.5px; margin-top:2px; }
+.fav-actions { margin-left:auto; display:flex; gap:10px; flex-wrap:wrap; }
+
+/* card favorito: añade fila de acciones */
+.fav-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:22px; }
+@media (max-width:1100px){ .fav-grid { grid-template-columns:repeat(3,1fr);} }
+@media (max-width:820px){ .fav-grid { grid-template-columns:repeat(2,1fr);} }
+@media (max-width:520px){ .fav-grid { grid-template-columns:1fr 1fr; gap:14px;} }
+
+.card-foot.fav-foot { flex-direction:column; align-items:stretch; gap:12px; }
+.fav-foot .price-row { display:flex; align-items:flex-end; justify-content:space-between; }
+.fav-foot .add-full { width:100%; }
+.stock-line { font-size:12.5px; font-weight:600; display:inline-flex; align-items:center; gap:6px; }
+.stock-line.ok { color:var(--green); } .stock-line.low { color:var(--volt-deep); } .stock-line.out { color:var(--gray-400); }
+.stock-line svg { width:13px; height:13px; }
+.card.removing { opacity:0; transform:scale(.92); transition:opacity .3s, transform .3s; }
+
+/* Empty state */
+.fav-empty { text-align:center; padding:70px 20px; background:#fff; border:1px solid var(--gray-200); border-radius:var(--r-lg); }
+.fav-empty .ic { width:92px; height:92px; border-radius:50%; background:var(--gray-50); color:var(--gray-300); display:grid; place-items:center; margin:0 auto 22px; }
+.fav-empty .ic svg { width:46px; height:46px; }
+.fav-empty h2 { font-family:var(--font-head); font-size:24px; }
+.fav-empty p { color:var(--gray-600); margin:10px 0 24px; max-width:40ch; margin-left:auto; margin-right:auto; }
+
+.demo-toggle { position:fixed; bottom:20px; right:20px; z-index:60; background:var(--navy-900); color:#fff; border:0; border-radius:var(--r-pill); padding:11px 18px; font-family:var(--font-head); font-weight:600; font-size:13px; box-shadow:var(--shadow-lg); display:flex; align-items:center; gap:8px; cursor:pointer; }
+.demo-toggle svg { width:15px; height:15px; color:var(--volt); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="topbar-left">
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h2l2.5 12h11l2-8H6"/><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/></svg> Envío gratis desde $999</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> Asesoría técnica gratuita</span>
+    </div>
+    <div class="topbar-right"><a href="#">Rastrear pedido</a><a href="#">Mayoreo</a><a href="electrick-Kar — FAQ.html">Ayuda</a></div>
+  </div>
+</div>
+
+<header class="header">
+  <div class="wrap">
+    <a href="electrick-Kar — Inicio.html" class="logo">
+      <span class="logo-mark"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4.5 13.5H11l-1 8.5 8.5-12H12l1-8z"/></svg></span>
+      <span class="logo-text">electrick<b>-Kar</b><span>Auto · Electric · Parts</span></span>
+    </a>
+    <form class="search" onsubmit="window.location.href='electrick-Kar — Búsqueda.html'; return false;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg>
+      <input type="text" placeholder="Busca baterías, luces LED, alternadores…">
+      <button type="submit">Buscar</button>
+    </form>
+    <div class="header-actions">
+      <a href="electrick-Kar — Acceso.html" class="icon-btn" aria-label="Cuenta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></a>
+      <a href="electrick-Kar — Favoritos.html" class="icon-btn" aria-label="Favoritos" style="background:var(--gray-100);color:var(--red)"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 14c1.5-1.5 3-3.3 3-5.5A4.5 4.5 0 0 0 12 5 4.5 4.5 0 0 0 2 8.5c0 2.2 1.5 4 3 5.5l7 7z"/></svg></a>
+      <a href="electrick-Kar — Carrito.html" class="icon-btn" aria-label="Carrito"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h3l2.5 13h11l2-9H6.5"/></svg><span class="count" data-cart-count>3</span></a>
+    </div>
+  </div>
+</header>
+
+<nav class="nav">
+  <div class="wrap">
+    <a href="electrick-Kar — Tienda.html" class="nav-all"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg> Categorías</a>
+    <div class="nav-links">
+      <a href="electrick-Kar — Tienda.html">Baterías</a>
+      <a href="electrick-Kar — Tienda.html">Iluminación LED</a>
+      <a href="electrick-Kar — Tienda.html">Audio &amp; Estéreo</a>
+      <a href="electrick-Kar — Tienda.html">Alternadores</a>
+      <a href="electrick-Kar — Destacados.html">Destacados</a>
+    </div>
+    <span class="nav-promo"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4.5 13.5H11l-1 8.5 8.5-12H12l1-8z"/></svg> Ofertas de temporada</span>
+  </div>
+</nav>
+
+<section class="fav-head">
+  <div class="wrap">
+    <div class="crumbs"><a href="electrick-Kar — Inicio.html">Inicio</a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg><a href="electrick-Kar — Cuenta.html">Mi cuenta</a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg><span>Favoritos</span></div>
+    <div class="fav-title">
+      <span class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 14c1.5-1.5 3-3.3 3-5.5A4.5 4.5 0 0 0 12 5 4.5 4.5 0 0 0 2 8.5c0 2.2 1.5 4 3 5.5l7 7z"/></svg></span>
+      <div>
+        <h1>Mis favoritos</h1>
+        <p><b id="favCount">6</b> productos guardados</p>
+      </div>
+      <div class="fav-actions">
+        <button class="btn btn-outline btn-sm" id="clearAll"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg> Vaciar lista</button>
+        <button class="btn btn-primary btn-sm" id="addAll"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h3l2.5 13h11l2-9H6.5"/></svg> Agregar todo al carrito</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<main class="wrap section" style="padding-top:34px">
+  <div class="fav-grid" id="favGrid"></div>
+
+  <div class="fav-empty" id="favEmpty" style="display:none">
+    <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M19 14c1.5-1.5 3-3.3 3-5.5A4.5 4.5 0 0 0 12 5 4.5 4.5 0 0 0 2 8.5c0 2.2 1.5 4 3 5.5l7 7z"/></svg></div>
+    <h2>Tu lista de favoritos está vacía</h2>
+    <p>Guarda los productos que te interesan tocando el corazón ♥ y los encontrarás aquí.</p>
+    <a href="electrick-Kar — Tienda.html" class="btn btn-primary">Explorar productos</a>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="footer-about">
+        <a href="electrick-Kar — Inicio.html" class="logo"><span class="logo-mark"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4.5 13.5H11l-1 8.5 8.5-12H12l1-8z"/></svg></span><span class="logo-text">electrick<b style="color:var(--sky)">-Kar</b></span></a>
+        <p>Tu tienda especializada en refacciones y accesorios eléctricos para automóviles.</p>
+      </div>
+      <div><h4>Tienda</h4><ul><li><a href="electrick-Kar — Tienda.html">Baterías</a></li><li><a href="electrick-Kar — Tienda.html">Iluminación LED</a></li><li><a href="electrick-Kar — Destacados.html">Destacados</a></li></ul></div>
+      <div><h4>Ayuda</h4><ul><li><a href="electrick-Kar — FAQ.html">Preguntas frecuentes</a></li><li><a href="#">Envíos</a></li><li><a href="#">Garantías</a></li></ul></div>
+      <div><h4>Contacto</h4><ul><li><a href="#">📞 55 1234 5678</a></li><li><a href="#">✉ hola@electrick-kar.com</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><span>© 2026 electrick-Kar. Todos los derechos reservados.</span>
+      <div class="pay-icons"><div class="ph" data-label="VISA"></div><div class="ph" data-label="MC"></div><div class="ph" data-label="AMEX"></div><div class="ph" data-label="PAYPAL"></div></div>
+    </div>
+  </div>
+</footer>
+
+<button class="demo-toggle" id="demoToggle"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4.5 13.5H11l-1 8.5 8.5-12H12l1-8z"/></svg> Ver lista vacía</button>
+
+<template id="__bundler_thumbnail">
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="#071f3d"/><path d="M54 22 38 56h14l-3 22 26-38H58l4-20z" fill="#ffd21a"/></svg>
+</template>
+
+<script src="assets/common.js"></script>
+<script>
+const FAVS = [
+  { cat:"Baterías", name:"Batería AGM 12V 70Ah Heavy Duty", price:"2,499", was:"2,990", r:"4.8", n:"212", flag:["volt","-16%"], stock:"ok" },
+  { cat:"Iluminación LED", name:"Kit Faros LED H4 8000LM 6500K", price:"899", was:"1,150", r:"4.9", n:"540", flag:["red","Top"], stock:"ok" },
+  { cat:"Audio", name:"Autoestéreo 2-DIN Pantalla 7″ CarPlay", price:"3,290", was:null, r:"4.7", n:"98", flag:["blue","Nuevo"], stock:"low" },
+  { cat:"Alternadores", name:"Alternador 90A Reforzado Universal", price:"1,750", was:"1,990", r:"4.6", n:"64", flag:null, stock:"ok" },
+  { cat:"Iluminación LED", name:"Barra LED 22″ Off-Road 120W", price:"1,290", was:null, r:"4.7", n:"126", flag:["blue","Nuevo"], stock:"out" },
+  { cat:"Cableado", name:"Kit Instalación Amplificador Calibre 8", price:"389", was:null, r:"4.6", n:"97", flag:null, stock:"ok" },
+];
+const star = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6.3 6.9 1-5 4.8 1.2 6.9L12 17.8 5.9 21l1.2-6.9-5-4.8 6.9-1z"/></svg>';
+const cartIc = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h3l2.5 13h11l2-9H6.5"/></svg>';
+const xIc = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function badge(f){ if(!f) return ""; const map={volt:"badge-volt",red:"badge-red",blue:"badge-blue"}; return `<span class="badge ${map[f[0]]}">${f[1]}</span>`; }
+const STOCK = {
+  ok:'<span class="stock-line ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> En stock</span>',
+  low:'<span class="stock-line low"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg> Últimas piezas</span>',
+  out:'<span class="stock-line out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><path d="M5 5l14 14"/></svg> Agotado</span>'
+};
+function render() {
+  const grid = document.getElementById("favGrid");
+  grid.innerHTML = FAVS.map((p, i) => `
+    <article class="card" data-i="${i}">
+      <div class="card-media">
+        <div class="card-flags">${badge(p.flag)}</div>
+        <button class="card-wish on" data-remove="${i}" aria-label="Quitar de favoritos" style="color:var(--red);border-color:var(--red)">${xIc}</button>
+        <a href="electrick-Kar — Producto.html"><div class="ph" data-label="Foto producto"></div></a>
+      </div>
+      <div class="card-body">
+        <span class="card-cat">${p.cat}</span>
+        <h3 class="card-title"><a href="electrick-Kar — Producto.html">${p.name}</a></h3>
+        <div class="stars">${star}${star}${star}${star}${star}<span>${p.r} (${p.n})</span></div>
+        <div class="card-foot fav-foot">
+          <div class="price-row">
+            <div class="price">${p.was?`<span class="was">$${p.was}</span>`:""}<span class="now">$${p.price}</span></div>
+            ${STOCK[p.stock]}
+          </div>
+          ${p.stock==="out"
+            ? '<button class="btn btn-outline btn-sm add-full" disabled style="opacity:.6;cursor:not-allowed">Avísame cuando llegue</button>'
+            : `<button class="btn btn-primary btn-sm add-full" data-add="${esc(p.name)}">${cartIc} Agregar al carrito</button>`}
+        </div>
+      </div>
+    </article>`).join("");
+  document.getElementById("favCount").textContent = FAVS.length;
+  document.getElementById("favEmpty").style.display = FAVS.length ? "none" : "block";
+  document.getElementById("favGrid").style.display = FAVS.length ? "" : "none";
+}
+render();
+
+// quitar de favoritos
+document.getElementById("favGrid").addEventListener("click", e => {
+  const btn = e.target.closest("[data-remove]");
+  if (!btn) return;
+  const card = btn.closest(".card");
+  card.classList.add("removing");
+  const idx = +btn.dataset.remove;
+  setTimeout(() => { FAVS.splice(idx, 1); render(); }, 300);
+});
+document.getElementById("clearAll").addEventListener("click", () => { FAVS.length = 0; render(); });
+
+// demo toggle vacío
+let forcedEmpty = false; let backup = null;
+document.getElementById("demoToggle").addEventListener("click", () => {
+  forcedEmpty = !forcedEmpty;
+  if (forcedEmpty) { backup = FAVS.splice(0, FAVS.length); }
+  else if (backup) { backup.forEach(x => FAVS.push(x)); backup = null; }
+  render();
+  document.getElementById("demoToggle").innerHTML = forcedEmpty
+    ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4.5 13.5H11l-1 8.5 8.5-12H12l1-8z"/></svg> Ver lista con productos'
+    : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4.5 13.5H11l-1 8.5 8.5-12H12l1-8z"/></svg> Ver lista vacía';
+});
+</script>
+</body>
+</html>

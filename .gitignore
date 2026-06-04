@@ -1,0 +1,27 @@
+# Dependencias
+**/node_modules/
+.pnpm-store/
+
+# Builds / salidas
+**/dist/
+electric-kar-front/.angular/
+*.tsbuildinfo
+
+# Prisma — cliente generado
+electric-kar/src/generated/
+electric-kar/generated/
+
+# Variables de entorno y secretos
+**/.env
+**/.env.*
+!**/.env.example
+
+# Logs y temporales
+*.log
+.DS_Store
+coverage/
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea/

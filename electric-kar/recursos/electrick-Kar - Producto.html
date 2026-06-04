@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>electrick-Kar — Producto</title>
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/styles.css">
+<style>
+.crumbs { font-size:13px; color:var(--gray-500); display:flex; gap:8px; align-items:center; padding:22px 0; }
+.crumbs a:hover { color:var(--blue-700); } .crumbs svg { width:13px;height:13px; }
+
+.pd { display:grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items:start; }
+@media (max-width: 880px){ .pd { grid-template-columns: 1fr; gap:32px; } }
+
+.gallery { position:sticky; top:100px; }
+.gallery-main { aspect-ratio: 1/1; border-radius:var(--r-lg); background:#fff; border:1px solid var(--gray-200); position:relative; overflow:hidden; }
+.gallery-main .ph { width:100%; height:100%; border:0; border-radius:0; }
+.gallery-main .badge { position:absolute; top:18px; left:18px; z-index:2; }
+.thumbs { display:flex; gap:12px; margin-top:14px; }
+.thumb { width:84px; height:84px; border-radius:12px; border:2px solid var(--gray-200); background:#fff; overflow:hidden; cursor:pointer; transition:var(--t); }
+.thumb .ph { width:100%; height:100%; border:0; border-radius:0; }
+.thumb.on, .thumb:hover { border-color:var(--blue-600); }
+
+.pd-cat { font-size:12.5px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--blue-600); }
+.pd h1 { font-size: clamp(26px,3.2vw,38px); margin:10px 0 14px; }
+.pd-meta { display:flex; align-items:center; gap:18px; flex-wrap:wrap; margin-bottom:22px; }
+.pd-meta .stars { font-size:14px; } .pd-meta .stars svg { width:16px; height:16px; }
+.pd-meta .sep { color:var(--gray-300); }
+.pd-stock { color:var(--green); font-weight:600; font-size:14px; display:inline-flex; align-items:center; gap:6px; }
+.pd-stock svg { width:16px; height:16px; }
+.pd-sku { color:var(--gray-500); font-size:13px; }
+
+.pd-price { display:flex; align-items:baseline; gap:14px; padding:22px 0; border-top:1px solid var(--gray-200); border-bottom:1px solid var(--gray-200); }
+.pd-price .now { font-family:var(--font-head); font-size:40px; font-weight:700; letter-spacing:-.02em; }
+.pd-price .was { font-size:20px; color:var(--gray-400); text-decoration:line-through; }
+.pd-price .save { background:var(--volt); color:var(--navy-900); font-family:var(--font-head); font-weight:700; font-size:13px; padding:5px 11px; border-radius:var(--r-pill); }
+.pd-msi { color:var(--gray-600); font-size:14px; margin-top:8px; } .pd-msi b { color:var(--blue-700); }
+
+.pd-desc { color:var(--gray-700); margin:22px 0; line-height:1.7; }
+.pd-list { list-style:none; padding:0; margin:0 0 24px; display:grid; gap:11px; }
+.pd-list li { display:flex; gap:10px; align-items:flex-start; font-size:14.5px; color:var(--gray-700); }
+.pd-list svg { width:18px; height:18px; color:var(--blue-600); flex-shrink:0; margin-top:2px; }
+
+.pd-opt { margin-bottom:20px; }
+.pd-opt label { font-family:var(--font-head); font-size:13px; font-weight:600; display:block; margin-bottom:10px; }
+.opt-chips { display:flex; gap:9px; flex-wrap:wrap; }
+.opt-chip { padding:10px 18px; border:1.5px solid var(--gray-200); border-radius:var(--r-pill); background:#fff; font-family:var(--font-head); font-size:14px; font-weight:600; color:var(--gray-700); cursor:pointer; transition:var(--t); }
+.opt-chip.on { border-color:var(--blue-700); background:var(--blue-100); color:var(--blue-700); }
+.opt-chip:hover { border-color:var(--blue-500); }
+
+.pd-buy { display:flex; gap:12px; align-items:stretch; margin-bottom:18px; }
+.qty { display:flex; align-items:center; border:1.5px solid var(--gray-200); border-radius:var(--r-pill); background:#fff; }
+.qty button { width:46px; height:54px; border:0; background:transparent; font-size:20px; color:var(--gray-600); }
+.qty button:hover { color:var(--blue-700); }
+.qty input { width:44px; border:0; text-align:center; font-family:var(--font-head); font-weight:700; font-size:16px; outline:none; background:transparent; }
+.pd-buy .btn-primary { flex:1; height:54px; }
+
+.pd-assure { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:24px; }
+.assure { display:flex; gap:11px; align-items:center; background:var(--gray-50); border:1px solid var(--gray-200); border-radius:var(--r); padding:14px; }
+.assure svg { width:22px; height:22px; color:var(--blue-700); flex-shrink:0; }
+.assure b { font-family:var(--font-head); font-size:13.5px; display:block; } .assure small { font-size:12px; color:var(--gray-500); }
+
+/* TABS */
+.tabs { border-top:1px solid var(--gray-200); margin-top:56px; }
+.tab-nav { display:flex; gap:6px; border-bottom:1px solid var(--gray-200); }
+.tab-nav button { border:0; background:transparent; padding:18px 22px; font-family:var(--font-head); font-weight:600; font-size:15px; color:var(--gray-500); border-bottom:2.5px solid transparent; margin-bottom:-1px; cursor:pointer; transition:var(--t); }
+.tab-nav button.on { color:var(--blue-700); border-color:var(--blue-700); }
+.tab-body { padding:32px 0; display:none; }
+.tab-body.on { display:block; }
+.spec-table { width:100%; border-collapse:collapse; max-width:680px; }
+.spec-table td { padding:13px 16px; font-size:14.5px; border-bottom:1px solid var(--gray-100); }
+.spec-table tr td:first-child { color:var(--gray-500); width:40%; font-weight:500; }
+.spec-table tr td:last-child { font-family:var(--font-head); font-weight:600; }
+.spec-table tr:nth-child(odd) { background:var(--gray-50); }
+
+.review { display:flex; gap:16px; padding:20px 0; border-bottom:1px solid var(--gray-100); max-width:760px; }
+.review-av { width:46px; height:46px; border-radius:50%; background:var(--blue-100); color:var(--blue-700); display:grid; place-items:center; font-family:var(--font-head); font-weight:700; flex-shrink:0; }
+.review b { font-family:var(--font-head); font-size:14.5px; } .review .stars svg { width:14px; height:14px; }
+.review p { margin:8px 0 0; color:var(--gray-700); font-size:14.5px; }
+.review-date { color:var(--gray-400); font-size:12.5px; }
+
+.related h2 { font-size:clamp(24px,3vw,32px); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="topbar-left">
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h2l2.5 12h11l2-8H6"/><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/></svg> Envío gratis desde $999</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> Asesoría técnica gratuita</span>
+    </div>
+    <div class="topbar-right"><a href="#">Rastrear pedido</a><a href="#">Mayoreo</a><a href="#">Ayuda</a></div>
+  </div>
+</div>
+
+<header class="header">
+  <div class="wrap">
+    <a href="electrick-Kar — Inicio.html" class="logo">
+      <span class="logo-mark"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4.5 13.5H11l-1 8.5 8.5-12H12l1-8z"/></svg></span>
+      <span class="logo-text">electrick<b>-Kar</b><span>Auto · Electric · Parts</span></span>
+    </a>
+    <form class="search" onsubmit="return false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg>
+      <input type="text" placeholder="Busca baterías, luces LED, alternadores…">
+      <button type="submit">Buscar</button>
+    </form>
+    <div class="header-actions">
+      <a href="electrick-Kar — Acceso.html" class="icon-btn" aria-label="Cuenta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></a>
+      <button class="icon-btn" aria-label="Favoritos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.5-1.5 3-3.3 3-5.5A4.5 4.5 0 0 0 12 5 4.5 4.5 0 0 0 2 8.5c0 2.2 1.5 4 3 5.5l7 7z"/></svg></button>
+      <a href="electrick-Kar — Carrito.html" class="icon-btn" aria-label="Carrito"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h3l2.5 13h11l2-9H6.5"/></svg><span class="count" data-cart-count>3</span></a>
+    </div>
+  </div>
+</header>
+
+<nav class="nav">
+  <div class="wrap">
+    <a href="electrick-Kar — Tienda.html" class="nav-all"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg> Categorías</a>
+    <div class="nav-links">
+      <a href="electrick-Kar — Tienda.html" class="active">Baterías</a>
+      <a href="electrick-Kar — Tienda.html">Iluminación LED</a>
+      <a href="electrick-Kar — Tienda.html">Audio &amp; Estéreo</a>
+      <a href="electrick-Kar — Tienda.html">Alternadores</a>
+      <a href="electrick-Kar — Tienda.html">Alarmas</a>
+      <a href="electrick-Kar — Tienda.html">Cableado</a>
+    </div>
+    <span class="nav-promo"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4.5 13.5H11l-1 8.5 8.5-12H12l1-8z"/></svg> Ofertas de temporada</span>
+  </div>
+</nav>
+
+<main class="wrap" style="padding-bottom:40px">
+  <div class="crumbs"><a href="electrick-Kar — Inicio.html">Inicio</a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg><a href="electrick-Kar — Tienda.html">Baterías</a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg><span>Batería AGM 12V 70Ah</span></div>
+
+  <div class="pd">
+    <!-- GALERÍA -->
+    <div class="gallery">
+      <div class="gallery-main">
+        <span class="badge badge-volt">-16%</span>
+        <div class="ph" data-label="Imagen principal del producto" id="mainImg"></div>
+      </div>
+      <div class="thumbs">
+        <div class="thumb on"><div class="ph" data-label="Vista 1"></div></div>
+        <div class="thumb"><div class="ph" data-label="Vista 2"></div></div>
+        <div class="thumb"><div class="ph" data-label="Vista 3"></div></div>
+        <div class="thumb"><div class="ph" data-label="Vista 4"></div></div>
+      </div>
+    </div>
+
+    <!-- INFO -->
+    <div class="pd-info">
+      <span class="pd-cat">Baterías · Bosch</span>
+      <h1>Batería AGM 12V 70Ah Heavy Duty</h1>
+      <div class="pd-meta">
+        <span class="stars"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6.3 6.9 1-5 4.8 1.2 6.9L12 17.8 5.9 21l1.2-6.9-5-4.8 6.9-1z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6.3 6.9 1-5 4.8 1.2 6.9L12 17.8 5.9 21l1.2-6.9-5-4.8 6.9-1z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6.3 6.9 1-5 4.8 1.2 6.9L12 17.8 5.9 21l1.2-6.9-5-4.8 6.9-1z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6.3 6.9 1-5 4.8 1.2 6.9L12 17.8 5.9 21l1.2-6.9-5-4.8 6.9-1z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6.3 6.9 1-5 4.8 1.2 6.9L12 17.8 5.9 21l1.2-6.9-5-4.8 6.9-1z"/></svg><span>4.8 · 212 reseñas</span></span>
+        <span class="sep">|</span>
+        <span class="pd-stock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg> En stock</span>
+        <span class="sep">|</span>
+        <span class="pd-sku">SKU: BAT-AGM-70</span>
+      </div>
+
+      <div class="pd-price">
+        <span class="now">$2,499</span>
+        <span class="was">$2,990</span>
+        <span class="save">Ahorras $491</span>
+      </div>
+      <p class="pd-msi">Hasta <b>12 meses sin intereses</b> · desde $208/mes</p>
+
+      <p class="pd-desc">Batería de tecnología AGM de alto rendimiento, ideal para autos con alta demanda eléctrica (start-stop, audio, accesorios). Mayor vida útil, libre de mantenimiento y resistente a vibraciones.</p>
+
+      <ul class="pd-list">
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg> Tecnología AGM libre de mantenimiento</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg> 760 A de corriente de arranque en frío (CCA)</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg> Compatible con sistemas Start-Stop</li>
+      </ul>
+
+      <div class="pd-opt">
+        <label>Capacidad</label>
+        <div class="opt-chips">
+          <span class="opt-chip">60 Ah</span>
+          <span class="opt-chip on">70 Ah</span>
+          <span class="opt-chip">90 Ah</span>
+          <span class="opt-chip">100 Ah</span>
+        </div>
+      </div>
+
+      <div class="pd-buy">
+        <div class="qty">
+          <button data-q="-1">−</button>
+          <input type="text" value="1" id="qty" readonly>
+          <button data-q="1">+</button>
+        </div>
+        <button class="btn btn-primary" data-add="Batería AGM 12V 70Ah" id="addMain">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h3l2.5 13h11l2-9H6.5"/></svg>
+          Agregar al carrito
+        </button>
+        <button class="icon-btn" style="border:1.5px solid var(--gray-200);width:54px;height:54px" aria-label="Favorito">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.5-1.5 3-3.3 3-5.5A4.5 4.5 0 0 0 12 5 4.5 4.5 0 0 0 2 8.5c0 2.2 1.5 4 3 5.5l7 7z"/></svg>
+        </button>
+      </div>
+      <a href="electrick-Kar — Carrito.html" class="btn btn-volt btn-block">Comprar ahora</a>
+
+      <div class="pd-assure">
+        <div class="assure"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/></svg><div><b>Garantía 18 meses</b><small>Respaldo de fábrica</small></div></div>
+        <div class="assure"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h2l2.5 12h11l2-8H6"/><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/></svg><div><b>Envío exprés</b><small>Recíbelo en 24-48 h</small></div></div>
+        <div class="assure"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.2-8.5"/><path d="M21 4v6h-6"/></svg><div><b>30 días de devolución</b><small>Compra sin riesgo</small></div></div>
+        <div class="assure"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg><div><b>Pago seguro</b><small>Datos protegidos</small></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab-nav">
+      <button class="on" data-tab="desc">Descripción</button>
+      <button data-tab="specs">Especificaciones</button>
+      <button data-tab="reviews">Reseñas (212)</button>
+      <button data-tab="ship">Envío y garantía</button>
+    </div>
+    <div class="tab-body on" id="desc">
+      <div style="max-width:720px">
+        <p style="color:var(--gray-700);line-height:1.8">La batería AGM Heavy Duty está diseñada para vehículos modernos con alto consumo eléctrico. Su tecnología de fibra de vidrio absorbente (AGM) ofrece arranques potentes incluso en climas extremos, mayor número de ciclos de carga y total seguridad al ser sellada y libre de derrames.</p>
+        <p style="color:var(--gray-700);line-height:1.8">Ideal para autos con sistema start-stop, equipos de audio de alta potencia o accesorios adicionales. Resistente a vibraciones y con una vida útil hasta 2 veces mayor que una batería convencional.</p>
+      </div>
+    </div>
+    <div class="tab-body" id="specs">
+      <table class="spec-table">
+        <tr><td>Voltaje</td><td>12 V</td></tr>
+        <tr><td>Capacidad</td><td>70 Ah</td></tr>
+        <tr><td>Tecnología</td><td>AGM (Absorbent Glass Mat)</td></tr>
+        <tr><td>Arranque en frío (CCA)</td><td>760 A</td></tr>
+        <tr><td>Bornes</td><td>Estándar · Positivo derecha</td></tr>
+        <tr><td>Dimensiones</td><td>278 × 175 × 190 mm</td></tr>
+        <tr><td>Peso</td><td>19.5 kg</td></tr>
+        <tr><td>Garantía</td><td>18 meses</td></tr>
+      </table>
+    </div>
+    <div class="tab-body" id="reviews">
+      <div class="review"><div class="review-av">JR</div><div><b>Jorge R.</b> <span class="stars" style="margin-left:8px"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6.3 6.9 1-5 4.8 1.2 6.9L12 17.8 5.9 21l1.2-6.9-5-4.8 6.9-1z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6.3 6.9 1-5 4.8 1.2 6.9L12 17.8 5.9 21l1.2-6.9-5-4.8 6.9-1z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6.3 6.9 1-5 4.8 1.2 6.9L12 17.8 5.9 21l1.2-6.9-5-4.8 6.9-1z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6.3 6.9 1-5 4.8 1.2 6.9L12 17.8 5.9 21l1.2-6.9-5-4.8 6.9-1z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6.3 6.9 1-5 4.8 1.2 6.9L12 17.8 5.9 21l1.2-6.9-5-4.8 6.9-1z"/></svg></span><div class="review-date">Hace 2 semanas · Compra verificada</div><p>Excelente batería, el auto arranca de inmediato incluso en frío. La instalación fue muy fácil y llegó rapidísimo.</p></div></div>
+      <div class="review"><div class="review-av">ML</div><div><b>María L.</b> <span class="stars" style="margin-left:8px"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6.3 6.9 1-5 4.8 1.2 6.9L12 17.8 5.9 21l1.2-6.9-5-4.8 6.9-1z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6.3 6.9 1-5 4.8 1.2 6.9L12 17.8 5.9 21l1.2-6.9-5-4.8 6.9-1z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6.3 6.9 1-5 4.8 1.2 6.9L12 17.8 5.9 21l1.2-6.9-5-4.8 6.9-1z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6.3 6.9 1-5 4.8 1.2 6.9L12 17.8 5.9 21l1.2-6.9-5-4.8 6.9-1z"/></svg></span><div class="review-date">Hace 1 mes · Compra verificada</div><p>Muy buena calidad y el soporte técnico me ayudó a elegir la correcta para mi camioneta. Recomendados.</p></div></div>
+    </div>
+    <div class="tab-body" id="ship">
+      <div style="max-width:720px;color:var(--gray-700);line-height:1.8">
+        <p><b style="font-family:var(--font-head)">Envío:</b> Exprés a todo el país en 24-48 h hábiles. Gratis en compras superiores a $999.</p>
+        <p><b style="font-family:var(--font-head)">Garantía:</b> 18 meses directamente con el fabricante por defectos de manufactura.</p>
+        <p><b style="font-family:var(--font-head)">Devoluciones:</b> 30 días para devolver el producto sin usar en su empaque original.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- RELACIONADOS -->
+  <div class="section related" style="padding-bottom:0">
+    <div class="section-head"><div><span class="eyebrow">También te puede interesar</span><h2>Productos relacionados</h2></div></div>
+    <div class="products-grid" id="related"></div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="footer-about">
+        <a href="electrick-Kar — Inicio.html" class="logo"><span class="logo-mark"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4.5 13.5H11l-1 8.5 8.5-12H12l1-8z"/></svg></span><span class="logo-text">electrick<b style="color:var(--sky)">-Kar</b></span></a>
+        <p>Tu tienda especializada en refacciones y accesorios eléctricos para automóviles.</p>
+      </div>
+      <div><h4>Tienda</h4><ul><li><a href="electrick-Kar — Tienda.html">Baterías</a></li><li><a href="electrick-Kar — Tienda.html">Iluminación LED</a></li><li><a href="electrick-Kar — Tienda.html">Audio &amp; Estéreo</a></li><li><a href="electrick-Kar — Tienda.html">Ofertas</a></li></ul></div>
+      <div><h4>Ayuda</h4><ul><li><a href="#">Rastrear pedido</a></li><li><a href="#">Envíos</a></li><li><a href="#">Devoluciones</a></li><li><a href="#">Garantías</a></li></ul></div>
+      <div><h4>Contacto</h4><ul><li><a href="#">📍 Av. Tecnología 1200, CDMX</a></li><li><a href="#">📞 55 1234 5678</a></li><li><a href="#">✉ hola@electrick-kar.com</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><span>© 2026 electrick-Kar. Todos los derechos reservados.</span>
+      <div class="pay-icons"><div class="ph" data-label="VISA"></div><div class="ph" data-label="MC"></div><div class="ph" data-label="AMEX"></div><div class="ph" data-label="PAYPAL"></div></div>
+    </div>
+  </div>
+</footer>
+
+<template id="__bundler_thumbnail">
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="#071f3d"/><path d="M54 22 38 56h14l-3 22 26-38H58l4-20z" fill="#ffd21a"/></svg>
+</template>
+
+<script src="assets/common.js"></script>
+<script>
+// thumbs
+document.querySelectorAll(".thumb").forEach(t => t.addEventListener("click", () => {
+  document.querySelectorAll(".thumb").forEach(x => x.classList.remove("on")); t.classList.add("on");
+}));
+// opciones
+document.querySelectorAll(".opt-chip").forEach(c => c.addEventListener("click", () => {
+  document.querySelectorAll(".opt-chip").forEach(x => x.classList.remove("on")); c.classList.add("on");
+}));
+// cantidad
+let q = 1; const qi = document.getElementById("qty");
+document.querySelectorAll(".qty button").forEach(b => b.addEventListener("click", () => {
+  q = Math.max(1, q + parseInt(b.dataset.q,10)); qi.value = q;
+  document.getElementById("addMain").dataset.qty = q;
+}));
+// tabs
+document.querySelectorAll(".tab-nav button").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll(".tab-nav button").forEach(x => x.classList.remove("on"));
+  document.querySelectorAll(".tab-body").forEach(x => x.classList.remove("on"));
+  b.classList.add("on"); document.getElementById(b.dataset.tab).classList.add("on");
+}));
+// relacionados
+const REL = [
+  { cat:"Baterías", name:"Batería Calcio 12V 60Ah", price:"1,890", was:null, r:"4.6", n:"88", flag:null },
+  { cat:"Baterías", name:"Cargador Inteligente 12/24V 10A", price:"1,150", was:null, r:"4.7", n:"45", flag:["blue","Nuevo"] },
+  { cat:"Cableado", name:"Cables Pasacorriente 4m 600A", price:"299", was:"399", r:"4.8", n:"320", flag:["volt","-25%"] },
+  { cat:"Sensores", name:"Medidor de Voltaje Digital USB", price:"189", was:null, r:"4.5", n:"112", flag:null },
+];
+const star = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6.3 6.9 1-5 4.8 1.2 6.9L12 17.8 5.9 21l1.2-6.9-5-4.8 6.9-1z"/></svg>';
+const heart = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.5-1.5 3-3.3 3-5.5A4.5 4.5 0 0 0 12 5 4.5 4.5 0 0 0 2 8.5c0 2.2 1.5 4 3 5.5l7 7z"/></svg>';
+const cart = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h3l2.5 13h11l2-9H6.5"/></svg>';
+function badge(f){ if(!f) return ""; const map={volt:"badge-volt",red:"badge-red",blue:"badge-blue"}; return `<span class="badge ${map[f[0]]}">${f[1]}</span>`; }
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+document.getElementById("related").innerHTML = REL.map(p => `
+  <article class="card">
+    <div class="card-media"><div class="card-flags">${badge(p.flag)}</div><button class="card-wish">${heart}</button><a href="electrick-Kar — Producto.html"><div class="ph" data-label="Foto producto"></div></a></div>
+    <div class="card-body"><span class="card-cat">${p.cat}</span><h3 class="card-title"><a href="electrick-Kar — Producto.html">${p.name}</a></h3>
+      <div class="stars">${star}${star}${star}${star}${star}<span>${p.r} (${p.n})</span></div>
+      <div class="card-foot"><div class="price">${p.was?`<span class="was">$${p.was}</span>`:""}<span class="now">$${p.price}</span></div><button class="add-btn" data-add="${esc(p.name)}">${cart}</button></div>
+    </div></article>`).join("");
+</script>
+</body>
+</html>

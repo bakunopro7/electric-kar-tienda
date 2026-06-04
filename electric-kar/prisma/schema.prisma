@@ -1,0 +1,494 @@
+// Prisma schema — electrick-Kar (refacciones eléctricas automotrices)
+// Modelo alineado con recursos/CATALOGO-DATOS.md (nombres en español).
+// Docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ===========================================================================
+// ENUMS (catálogos controlados)
+// ===========================================================================
+
+enum Rol {
+  SUPER
+  ADMIN
+  VENDEDOR
+  CONTADOR
+}
+
+enum EstadoUsuario {
+  ACTIVO
+  INVITADO
+  INACTIVO
+}
+
+enum SegmentoCliente {
+  NUEVO
+  FRECUENTE
+  MAYOREO
+}
+
+enum EstadoProducto {
+  PUBLICADO
+  BORRADOR
+  PROGRAMADO
+}
+
+enum ClaseEnvio {
+  ESTANDAR
+  VOLUMINOSO
+  FRAGIL
+}
+
+enum EstadoPedido {
+  NUEVO
+  PREPARACION
+  ENVIADO
+  ENTREGADO
+  CANCELADO
+}
+
+enum MetodoEntrega {
+  ENVIO
+  PICKUP
+}
+
+enum TipoCupon {
+  PORCENTAJE
+  MONTO_FIJO
+  ENVIO_GRATIS
+}
+
+enum AplicaCupon {
+  TIENDA
+  CATEGORIAS
+  PRODUCTOS
+}
+
+enum EstadoCupon {
+  ACTIVO
+  PROGRAMADO
+  POR_EXPIRAR
+  EXPIRADO
+}
+
+enum TipoComprobante {
+  I // Ingreso
+  E // Egreso
+  P // Pago
+}
+
+enum MetodoPagoSat {
+  PUE // Pago en una sola exhibición
+  PPD // Pago en parcialidades o diferido
+}
+
+enum EstadoCfdi {
+  TIMBRADA
+  POR_TIMBRAR
+  CANCELADA
+}
+
+enum MotivoCancelacion {
+  M01 // 01 Comprobante con errores con relación
+  M02 // 02 Comprobante con errores sin relación
+  M03 // 03 No se llevó a cabo la operación
+  M04 // 04 Operación nominativa en factura global
+}
+
+enum TipoActividad {
+  CREAR
+  EDITAR
+  ELIMINAR
+  ACCESO
+  FISCAL
+}
+
+enum TipoIntegracion {
+  PASARELA
+  PAC
+  PAQUETERIA
+}
+
+enum ModoIntegracion {
+  PRUEBAS
+  PRODUCCION
+}
+
+enum EstadoIntegracion {
+  CONECTADO
+  DESCONECTADO
+  ERROR
+}
+
+enum TiempoPreparacion {
+  DOS_HORAS
+  MISMO_DIA
+  VEINTICUATRO_HORAS
+}
+
+// ===========================================================================
+// USUARIOS DEL PANEL (personal)  +  SEGURIDAD
+// ===========================================================================
+
+model Usuario {
+  id           String              @id @default(uuid())
+  nombre       String
+  correo       String              @unique
+  password     String
+  rol          Rol                 @default(VENDEDOR)
+  estado       EstadoUsuario       @default(ACTIVO)
+  ultimoAcceso DateTime?
+  actividades  RegistroActividad[]
+  sesiones     Sesion[]
+  creadoEn     DateTime            @default(now())
+  actualizadoEn DateTime           @updatedAt
+}
+
+model RegistroActividad {
+  id          String        @id @default(uuid())
+  tipo        TipoActividad
+  descripcion String
+  usuario     Usuario?      @relation(fields: [usuarioId], references: [id], onDelete: SetNull)
+  usuarioId   String?
+  ip          String?
+  fecha       DateTime      @default(now())
+
+  @@index([usuarioId])
+  @@index([fecha])
+}
+
+model Sesion {
+  id          String   @id @default(uuid())
+  usuario     Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  usuarioId   String
+  dispositivo String?
+  ubicacion   String?
+  ip          String?
+  activa      Boolean  @default(true)
+  creadoEn    DateTime @default(now())
+
+  @@index([usuarioId])
+}
+
+// ===========================================================================
+// CLIENTES (tienda)  +  DIRECCIONES
+// ===========================================================================
+
+model Cliente {
+  id            String          @id @default(uuid())
+  nombre        String
+  correo        String          @unique
+  password      String
+  telefono      String?
+  segmento      SegmentoCliente @default(NUEVO)
+  rfc           String?
+  pedidosCount  Int             @default(0)
+  totalGastado  Decimal         @default(0) @db.Decimal(12, 2)
+  direcciones   Direccion[]
+  pedidos       Pedido[]
+  carrito       Carrito?
+  creadoEn      DateTime        @default(now())
+  actualizadoEn DateTime        @updatedAt
+}
+
+model Direccion {
+  id        String   @id @default(uuid())
+  cliente   Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  clienteId String
+  calle     String
+  interior  String?
+  colonia   String?
+  cp        String
+  ciudad    String?
+  estado    String?
+  creadoEn  DateTime @default(now())
+
+  @@index([clienteId])
+}
+
+// ===========================================================================
+// CATÁLOGO: CATEGORÍA, MARCA, PRODUCTO
+// ===========================================================================
+
+model Categoria {
+  id            String     @id @default(uuid())
+  nombre        String     @unique
+  slug          String     @unique
+  descripcion   String?
+  productos     Producto[]
+  creadoEn      DateTime   @default(now())
+  actualizadoEn DateTime   @updatedAt
+}
+
+model Marca {
+  id            String     @id @default(uuid())
+  nombre        String     @unique
+  slug          String     @unique
+  productos     Producto[]
+  creadoEn      DateTime   @default(now())
+  actualizadoEn DateTime   @updatedAt
+}
+
+model Producto {
+  id                String         @id @default(uuid())
+  nombre            String
+  sku               String         @unique
+  codigoBarras      String?
+  descripcion       String?
+  descripcionCorta  String?
+  categoria         Categoria?     @relation(fields: [categoriaId], references: [id], onDelete: SetNull)
+  categoriaId       String?
+  marca             Marca?         @relation(fields: [marcaId], references: [id], onDelete: SetNull)
+  marcaId           String?
+  precio            Decimal        @db.Decimal(12, 2)
+  precioComparativo Decimal?       @db.Decimal(12, 2)
+  costo             Decimal?       @db.Decimal(12, 2)
+  tasaIva           Int            @default(16) // 16 / 8 / 0
+  existencias       Int            @default(0)
+  stockMinimo       Int            @default(5)
+  seguirInventario  Boolean        @default(true)
+  permitirSinStock  Boolean        @default(false)
+  claveProdSat      String? // c_ClaveProdServ (catálogo SAT)
+  pesoKg            Decimal?       @db.Decimal(10, 3)
+  claseEnvio        ClaseEnvio     @default(ESTANDAR)
+  estado            EstadoProducto @default(BORRADOR)
+  etiquetas         String[]
+  imagenes          String[]
+  pedidoLineas      PedidoLinea[]
+  carritoItems      CarritoItem[]
+  creadoEn          DateTime       @default(now())
+  actualizadoEn     DateTime       @updatedAt
+
+  @@index([categoriaId])
+  @@index([marcaId])
+}
+
+// ===========================================================================
+// CARRITO (tienda)
+// ===========================================================================
+
+model Carrito {
+  id            String        @id @default(uuid())
+  cliente       Cliente       @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  clienteId     String        @unique
+  items         CarritoItem[]
+  creadoEn      DateTime      @default(now())
+  actualizadoEn DateTime      @updatedAt
+}
+
+model CarritoItem {
+  id            String   @id @default(uuid())
+  carrito       Carrito  @relation(fields: [carritoId], references: [id], onDelete: Cascade)
+  carritoId     String
+  producto      Producto @relation(fields: [productoId], references: [id], onDelete: Cascade)
+  productoId    String
+  cantidad      Int      @default(1)
+  creadoEn      DateTime @default(now())
+  actualizadoEn DateTime @updatedAt
+
+  @@unique([carritoId, productoId])
+  @@index([productoId])
+}
+
+// ===========================================================================
+// PEDIDOS
+// ===========================================================================
+
+model Pedido {
+  id            String        @id @default(uuid())
+  folio         String?       @unique // p.ej. #EK-204815
+  cliente       Cliente       @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  clienteId     String
+  fecha         DateTime      @default(now())
+  estado        EstadoPedido  @default(NUEVO)
+  subtotal      Decimal       @db.Decimal(12, 2)
+  descuento     Decimal       @default(0) @db.Decimal(12, 2)
+  cupon         Cupon?        @relation(fields: [cuponId], references: [id], onDelete: SetNull)
+  cuponId       String?
+  envio         Decimal       @default(0) @db.Decimal(12, 2)
+  iva           Decimal       @default(0) @db.Decimal(12, 2)
+  total         Decimal       @db.Decimal(12, 2)
+  metodoPago    MetodoPago?   @relation(fields: [metodoPagoId], references: [id], onDelete: SetNull)
+  metodoPagoId  String?
+  metodoEntrega MetodoEntrega @default(ENVIO)
+  paqueteria    String?
+  cfdi          Cfdi?
+  lineas        PedidoLinea[]
+  creadoEn      DateTime      @default(now())
+  actualizadoEn DateTime      @updatedAt
+
+  @@index([clienteId])
+  @@index([estado])
+}
+
+model PedidoLinea {
+  id             String   @id @default(uuid())
+  pedido         Pedido   @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  pedidoId       String
+  producto       Producto @relation(fields: [productoId], references: [id], onDelete: Restrict)
+  productoId     String
+  cantidad       Int
+  precioUnitario Decimal  @db.Decimal(12, 2)
+  importe        Decimal  @db.Decimal(12, 2)
+
+  @@index([pedidoId])
+  @@index([productoId])
+}
+
+// ===========================================================================
+// CUPONES
+// ===========================================================================
+
+model Cupon {
+  id               String      @id @default(uuid())
+  codigo           String      @unique
+  tipo             TipoCupon
+  valor            Decimal     @db.Decimal(12, 2)
+  compraMinima     Decimal     @default(0) @db.Decimal(12, 2)
+  limiteTotal      Int?
+  limitePorCliente Int         @default(1)
+  aplicaA          AplicaCupon @default(TIENDA)
+  soloPrimeraCompra Boolean    @default(false)
+  noAcumulable     Boolean     @default(false)
+  fechaInicio      DateTime
+  fechaFin         DateTime
+  usos             Int         @default(0)
+  estado           EstadoCupon @default(ACTIVO)
+  pedidos          Pedido[]
+  creadoEn         DateTime    @default(now())
+  actualizadoEn    DateTime    @updatedAt
+}
+
+// ===========================================================================
+// FACTURACIÓN ELECTRÓNICA (CFDI 4.0 · SAT)
+// ===========================================================================
+
+model Cfdi {
+  id                String             @id @default(uuid())
+  serieFolio        String? // p.ej. A-18451
+  uuidFiscal        String?            @unique // folio fiscal (timbre SAT)
+  pedido            Pedido             @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  pedidoId          String             @unique
+  emisorRfc         String
+  receptorNombre    String
+  receptorRfc       String
+  receptorCp        String
+  receptorRegimen   String // c_RegimenFiscal
+  usoCfdi           String // c_UsoCFDI
+  tipoComprobante   TipoComprobante    @default(I)
+  metodoPago        MetodoPagoSat      @default(PUE)
+  formaPago         String // c_FormaPago (01,03,04,28,99)
+  moneda            String             @default("MXN")
+  subtotal          Decimal            @db.Decimal(12, 2)
+  descuento         Decimal            @default(0) @db.Decimal(12, 2)
+  iva               Decimal            @db.Decimal(12, 2)
+  total             Decimal            @db.Decimal(12, 2)
+  fecha             DateTime           @default(now())
+  estado            EstadoCfdi         @default(POR_TIMBRAR)
+  motivoCancelacion MotivoCancelacion?
+  uuidSustituye     String?
+  lineas            CfdiLinea[]
+  complementos      ComplementoPago[]
+  creadoEn          DateTime           @default(now())
+  actualizadoEn     DateTime           @updatedAt
+}
+
+model CfdiLinea {
+  id             String  @id @default(uuid())
+  cfdi           Cfdi    @relation(fields: [cfdiId], references: [id], onDelete: Cascade)
+  cfdiId         String
+  claveProdSat   String // c_ClaveProdServ
+  claveUnidadSat String // c_ClaveUnidad
+  descripcion    String
+  cantidad       Int
+  precioUnitario Decimal @db.Decimal(12, 2)
+  importe        Decimal @db.Decimal(12, 2)
+
+  @@index([cfdiId])
+}
+
+model ComplementoPago {
+  id             String   @id @default(uuid())
+  cfdi           Cfdi     @relation(fields: [cfdiId], references: [id], onDelete: Cascade)
+  cfdiId         String
+  fechaPago      DateTime
+  formaPago      String
+  monto          Decimal  @db.Decimal(12, 2)
+  moneda         String   @default("MXN")
+  clabeOrdenante String?
+  bancoEmisor    String?
+  parcialidad    Int      @default(1)
+  saldoAnterior  Decimal  @db.Decimal(12, 2)
+  saldoInsoluto  Decimal  @db.Decimal(12, 2)
+  creadoEn       DateTime @default(now())
+
+  @@index([cfdiId])
+}
+
+// ===========================================================================
+// MÉTODOS DE PAGO / ENTREGA  +  INTEGRACIONES
+// ===========================================================================
+
+model MetodoPago {
+  id            String       @id @default(uuid())
+  codigo        String       @unique // card / spei / oxxo / pickup
+  nombre        String
+  comision      String? // esquema de comisión (ej. "3.6% + $3")
+  activo        Boolean      @default(true)
+  proveedor     Integracion? @relation(fields: [proveedorId], references: [id], onDelete: SetNull)
+  proveedorId   String?
+  pedidos       Pedido[]
+  creadoEn      DateTime     @default(now())
+  actualizadoEn DateTime     @updatedAt
+}
+
+model ConfigPickup {
+  id                String            @id @default(uuid())
+  sucursal          String
+  direccion         String
+  horario           String
+  tiempoPreparacion TiempoPreparacion @default(MISMO_DIA)
+  avisoListo        Boolean           @default(true)
+  creadoEn          DateTime          @default(now())
+  actualizadoEn     DateTime          @updatedAt
+}
+
+model Integracion {
+  id            String            @id @default(uuid())
+  tipo          TipoIntegracion
+  proveedor     String
+  modo          ModoIntegracion   @default(PRUEBAS)
+  credenciales  Json?
+  webhookUrl    String?
+  estado        EstadoIntegracion @default(DESCONECTADO)
+  opciones      Json?
+  metodosPago   MetodoPago[]
+  creadoEn      DateTime          @default(now())
+  actualizadoEn DateTime          @updatedAt
+
+  @@index([tipo])
+}
+
+// ===========================================================================
+// MENÚ DE NAVEGACIÓN (gestionable tipo CMS)
+// ===========================================================================
+
+model MenuItem {
+  id            String   @id @default(uuid())
+  label         String
+  url           String
+  orden         Int      @default(0)
+  visible       Boolean  @default(true)
+  creadoEn      DateTime @default(now())
+  actualizadoEn DateTime @updatedAt
+
+  @@index([orden])
+}
