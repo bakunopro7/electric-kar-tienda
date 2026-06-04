@@ -1,50 +1,137 @@
+export interface Autor {
+  nombre: string;
+  rol: string;
+  iniciales: string;
+}
+
 export interface Articulo {
   slug: string;
   titulo: string;
   categoria: string;
   fecha: string;
+  lectura: string;
   resumen: string;
+  destacado?: boolean;
+  etiqueta?: string;
+  autor: Autor;
   contenido: string[];
 }
 
+const AUTOR_DEFAULT: Autor = {
+  nombre: 'Carlos Téllez',
+  rol: 'Técnico eléctrico automotriz',
+  iniciales: 'CT',
+};
+
 export const ARTICULOS: Articulo[] = [
   {
-    slug: 'como-elegir-bateria',
-    titulo: 'Cómo elegir la batería correcta para tu auto',
+    slug: 'cuando-cambiar-bateria',
+    titulo: 'Cómo saber cuándo cambiar la batería de tu auto',
     categoria: 'Guías',
-    fecha: '2026-05-28',
+    fecha: '2 jun 2026',
+    lectura: '6 min de lectura',
+    destacado: true,
+    autor: AUTOR_DEFAULT,
     resumen:
-      'Voltaje, amperaje de arranque en frío (CCA) y tecnología AGM vs. convencional: todo lo que debes saber.',
+      'Señales de advertencia, pruebas que puedes hacer en casa y consejos para elegir la batería correcta según tu vehículo y clima.',
     contenido: [
-      'Elegir la batería correcta evita fallas de arranque y alarga la vida del sistema eléctrico. Lo primero es revisar el grupo (BCI) que recomienda el fabricante de tu auto.',
-      'El CCA (corriente de arranque en frío) es clave en climas fríos: a mayor CCA, más fuerza de arranque. Las baterías AGM ofrecen más ciclos y son ideales para autos con start-stop o mucho equipo eléctrico.',
-      'Si tienes dudas, nuestros técnicos te ayudan a identificar el modelo exacto según tu vehículo.',
+      'Una batería en mal estado da avisos: arranque lento, luces tenues al encender, el clic del marcha o el testigo de batería en el tablero. Si tiene más de 3-4 años, vigílala de cerca.',
+      'En casa puedes medir el voltaje en reposo (debe rondar 12.6 V) y al arrancar (no debería caer de 10 V). Si tienes multímetro, es la prueba más rápida.',
+      'Al reemplazarla, respeta el grupo (BCI) y el CCA que recomienda el fabricante; en climas fríos o autos con start-stop, una AGM rinde más.',
     ],
   },
   {
-    slug: 'leds-vs-halogenos',
-    titulo: 'Faros LED vs. halógenos: ¿cuál conviene?',
+    slug: 'instalar-faros-led',
+    titulo: 'Guía para instalar faros LED sin errores',
     categoria: 'Iluminación',
-    fecha: '2026-05-20',
+    fecha: '28 may 2026',
+    lectura: '4 min',
+    etiqueta: 'Guía',
+    autor: AUTOR_DEFAULT,
     resumen:
-      'Comparamos consumo, vida útil, temperatura de color y legalidad para que tomes la mejor decisión.',
+      'Paso a paso para cambiar tus halógenos por LED: compatibilidad, polaridad y ajuste del haz.',
     contenido: [
-      'Los faros LED consumen menos energía y duran hasta 10 veces más que los halógenos, además de ofrecer una luz más blanca (6000-6500K) y mayor alcance.',
-      'Asegúrate de elegir kits con buena disipación de calor y patrón de luz correcto para no deslumbrar al tránsito contrario.',
+      'Verifica el tipo de bombilla (H4, H7, etc.) y que el kit sea compatible con tu auto. Desconecta la batería antes de empezar.',
+      'Respeta la polaridad y asegura una buena disipación de calor. Ajusta el haz para no deslumbrar al tránsito contrario.',
     ],
   },
   {
-    slug: 'instalar-autoestereo',
-    titulo: 'Instala tu autoestéreo 2-DIN paso a paso',
-    categoria: 'Audio',
-    fecha: '2026-05-12',
+    slug: 'fallas-electricas-comunes',
+    titulo: '5 fallas eléctricas comunes y cómo detectarlas',
+    categoria: 'Mantenimiento',
+    fecha: '21 may 2026',
+    lectura: '7 min',
+    autor: AUTOR_DEFAULT,
     resumen:
-      'Una guía práctica para montar tu pantalla con CarPlay sin morir en el intento.',
+      'Aprende a identificar problemas de batería, alternador y fusibles antes de que te dejen varado.',
     contenido: [
-      'Desconecta la batería antes de empezar. Retira el tablero con cuidado usando palancas plásticas para no dañar el acabado.',
-      'Conecta el arnés respetando los colores, fija la cámara de reversa y prueba todas las funciones antes de cerrar el tablero.',
+      'Batería descargada, alternador que no carga, fusibles fundidos, mala conexión a tierra y cables sulfatados son las causas más frecuentes.',
+      'Un multímetro y una inspección visual resuelven la mayoría de los diagnósticos iniciales.',
     ],
   },
+  {
+    slug: 'agm-o-convencional',
+    titulo: '¿AGM o convencional? Cómo elegir tu batería',
+    categoria: 'Guías',
+    fecha: '14 may 2026',
+    lectura: '5 min',
+    etiqueta: 'Top',
+    autor: AUTOR_DEFAULT,
+    resumen:
+      'Diferencias clave, ventajas de cada tecnología y cuál conviene según tu auto y uso.',
+    contenido: [
+      'Las AGM ofrecen más ciclos, resisten vibraciones y son ideales para start-stop y mucho equipo eléctrico. Las convencionales son más económicas para autos sencillos.',
+    ],
+  },
+  {
+    slug: 'instalar-amplificador',
+    titulo: 'Cómo instalar un amplificador de car audio',
+    categoria: 'Audio',
+    fecha: '6 may 2026',
+    lectura: '8 min',
+    autor: AUTOR_DEFAULT,
+    resumen:
+      'Calibre de cable, conexión a tierra y ajuste de ganancia para un sonido limpio y seguro.',
+    contenido: [
+      'Usa el calibre de cable adecuado a la potencia, una buena tierra y un fusible cerca de la batería. Ajusta la ganancia con cuidado para evitar distorsión.',
+    ],
+  },
+  {
+    slug: 'mantener-alternador',
+    titulo: 'Mantén tu alternador en óptimas condiciones',
+    categoria: 'Mantenimiento',
+    fecha: '28 abr 2026',
+    lectura: '6 min',
+    autor: AUTOR_DEFAULT,
+    resumen:
+      'Señales de desgaste, voltaje de carga ideal y consejos para alargar su vida útil.',
+    contenido: [
+      'El voltaje de carga ideal ronda 13.8-14.4 V. Ruidos, luces que parpadean o batería que se descarga apuntan a un alternador en problemas.',
+    ],
+  },
+  {
+    slug: 'barras-led-offroad-2026',
+    titulo: 'Llegaron las nuevas barras LED Off-Road 2026',
+    categoria: 'Novedades',
+    fecha: '20 abr 2026',
+    lectura: '3 min',
+    etiqueta: 'Nuevo',
+    autor: AUTOR_DEFAULT,
+    resumen:
+      'Más lúmenes, menor consumo y diseño resistente al agua. Conoce la nueva línea.',
+    contenido: [
+      'La nueva línea ofrece mayor alcance, certificación IP68 y menor consumo. Ideal para uso todoterreno.',
+    ],
+  },
+];
+
+export const CATEGORIAS_BLOG = [
+  'Todos',
+  'Guías',
+  'Mantenimiento',
+  'Iluminación',
+  'Audio',
+  'Novedades',
 ];
 
 export const findArticulo = (slug: string) =>
