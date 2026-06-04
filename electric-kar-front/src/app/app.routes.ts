@@ -44,6 +44,12 @@ export const routes: Routes = [
     title: 'Mi cuenta — electrick-Kar',
   },
   {
+    path: 'recuperar',
+    loadComponent: () =>
+      import('./pages/recuperar/recuperar.component').then((m) => m.RecuperarComponent),
+    title: 'Recuperar contraseña — electrick-Kar',
+  },
+  {
     path: 'destacados',
     loadComponent: () =>
       import('./pages/destacados/destacados.component').then((m) => m.DestacadosComponent),

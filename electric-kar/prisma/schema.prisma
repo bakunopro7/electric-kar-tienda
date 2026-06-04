@@ -192,6 +192,8 @@ model Cliente {
   rfc           String?
   pedidosCount  Int             @default(0)
   totalGastado  Decimal         @default(0) @db.Decimal(12, 2)
+  resetToken       String?   @unique
+  resetTokenExpira DateTime?
   direcciones   Direccion[]
   pedidos       Pedido[]
   carrito       Carrito?

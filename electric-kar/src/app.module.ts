@@ -14,6 +14,7 @@ import { MarcasModule } from './marcas/marcas.module';
 import { MenuModule } from './menu/menu.module';
 import { OrdersModule } from './orders/orders.module';
 import { SesionesModule } from './sesiones/sesiones.module';
+import { UploadsModule } from './uploads/uploads.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ProductsModule } from './products/products.module';
 import { UsersModule } from './users/users.module';
@@ -36,6 +37,7 @@ import { UsersModule } from './users/users.module';
     AuditoriaModule,
     SesionesModule,
     MenuModule,
+    UploadsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

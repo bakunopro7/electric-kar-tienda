@@ -27,12 +27,13 @@ type Tab = 'desc' | 'specs' | 'ship';
       <div class="mt-5 grid gap-8 lg:grid-cols-2">
         <!-- GALERÍA -->
         <div>
-          <div class="relative aspect-square overflow-hidden rounded-[14px] border border-black/10 bg-black/5 dark:border-white/10 dark:bg-white/5">
+          <div class="group relative aspect-square overflow-hidden rounded-[14px] border border-black/10 bg-black/5 dark:border-white/10 dark:bg-white/5">
             @if (ahorro() > 0) {
               <span class="absolute left-4 top-4 z-10 rounded-full bg-voltaje px-3 py-1 text-sm font-bold text-navy-900">-{{ descuentoPct() }}%</span>
             }
             @if (imagenActual()) {
-              <img [src]="imagenActual()" [alt]="p.nombre" class="h-full w-full object-cover" />
+              <img [src]="imagenActual()" [alt]="p.nombre"
+                   class="h-full w-full cursor-zoom-in object-cover transition-transform duration-500 group-hover:scale-150" />
             } @else {
               <div class="grid h-full place-items-center text-7xl">🔋</div>
             }
