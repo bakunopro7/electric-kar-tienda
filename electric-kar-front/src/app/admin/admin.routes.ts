@@ -70,6 +70,13 @@ export const ADMIN_ROUTES: Routes = [
         title: 'Panel · Reportes',
       },
       {
+        path: 'blog',
+        canActivate: [rolesGuard('SUPER', 'ADMIN')],
+        loadComponent: () =>
+          import('./blog.component').then((m) => m.BlogAdminComponent),
+        title: 'Panel · Blog',
+      },
+      {
         path: 'integraciones',
         canActivate: [rolesGuard('SUPER', 'ADMIN')],
         loadComponent: () =>

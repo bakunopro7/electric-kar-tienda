@@ -148,6 +148,21 @@ async function main() {
     ],
   });
 
+  // --- Blog -----------------------------------------------------------------
+  const autor = { autorNombre: 'Carlos Téllez', autorRol: 'Técnico eléctrico automotriz' };
+  await prisma.articulo.createMany({
+    skipDuplicates: true,
+    data: [
+      { ...autor, slug: 'cuando-cambiar-bateria', titulo: 'Cómo saber cuándo cambiar la batería de tu auto', categoria: 'Guías', lectura: '6 min de lectura', destacado: true, resumen: 'Señales de advertencia, pruebas en casa y consejos para elegir la batería correcta según tu vehículo y clima.', contenido: ['Una batería en mal estado da avisos: arranque lento, luces tenues, el clic del marcha o el testigo en el tablero. Si tiene más de 3-4 años, vigílala.', 'Mide el voltaje en reposo (~12.6 V) y al arrancar (no debe caer de 10 V).', 'Al reemplazarla respeta el grupo (BCI) y el CCA recomendado; en frío o start-stop una AGM rinde más.'] },
+      { ...autor, slug: 'instalar-faros-led', titulo: 'Guía para instalar faros LED sin errores', categoria: 'Iluminación', lectura: '4 min', etiqueta: 'Guía', resumen: 'Paso a paso para cambiar tus halógenos por LED: compatibilidad, polaridad y ajuste del haz.', contenido: ['Verifica el tipo de bombilla y la compatibilidad. Desconecta la batería antes de empezar.', 'Respeta la polaridad y asegura buena disipación de calor. Ajusta el haz para no deslumbrar.'] },
+      { ...autor, slug: 'fallas-electricas-comunes', titulo: '5 fallas eléctricas comunes y cómo detectarlas', categoria: 'Mantenimiento', lectura: '7 min', resumen: 'Identifica problemas de batería, alternador y fusibles antes de que te dejen varado.', contenido: ['Batería descargada, alternador que no carga, fusibles fundidos y mala tierra son lo más frecuente.', 'Un multímetro y una inspección visual resuelven la mayoría de los diagnósticos.'] },
+      { ...autor, slug: 'agm-o-convencional', titulo: '¿AGM o convencional? Cómo elegir tu batería', categoria: 'Guías', lectura: '5 min', etiqueta: 'Top', resumen: 'Diferencias clave, ventajas de cada tecnología y cuál conviene según tu auto y uso.', contenido: ['Las AGM ofrecen más ciclos, resisten vibraciones y son ideales para start-stop. Las convencionales son más económicas.'] },
+      { ...autor, slug: 'instalar-amplificador', titulo: 'Cómo instalar un amplificador de car audio', categoria: 'Audio', lectura: '8 min', resumen: 'Calibre de cable, conexión a tierra y ajuste de ganancia para un sonido limpio y seguro.', contenido: ['Usa el calibre adecuado a la potencia, buena tierra y un fusible cerca de la batería. Ajusta la ganancia con cuidado.'] },
+      { ...autor, slug: 'mantener-alternador', titulo: 'Mantén tu alternador en óptimas condiciones', categoria: 'Mantenimiento', lectura: '6 min', resumen: 'Señales de desgaste, voltaje de carga ideal y consejos para alargar su vida útil.', contenido: ['El voltaje de carga ideal ronda 13.8-14.4 V. Ruidos o luces que parpadean apuntan a problemas.'] },
+      { ...autor, slug: 'barras-led-offroad-2026', titulo: 'Llegaron las nuevas barras LED Off-Road 2026', categoria: 'Novedades', lectura: '3 min', etiqueta: 'Nuevo', resumen: 'Más lúmenes, menor consumo y diseño resistente al agua. Conoce la nueva línea.', contenido: ['La nueva línea ofrece mayor alcance, certificación IP68 y menor consumo. Ideal para todoterreno.'] },
+    ],
+  });
+
   console.log('Seed completado:');
   console.log(`  Panel : ${admin.correo} / admin123`);
   console.log(`  Tienda: ${cliente.correo} / cliente123`);

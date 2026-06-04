@@ -536,3 +536,29 @@ model CatalogoSat {
   @@unique([tipo, clave])
   @@index([tipo])
 }
+
+// ===========================================================================
+// BLOG
+// ===========================================================================
+
+model Articulo {
+  id            String   @id @default(uuid())
+  slug          String   @unique
+  titulo        String
+  categoria     String
+  resumen       String
+  contenido     String[] // párrafos
+  imagen        String?
+  autorNombre   String
+  autorRol      String?
+  lectura       String? // p.ej. "6 min de lectura"
+  etiqueta      String? // badge: Guía / Top / Nuevo
+  destacado     Boolean  @default(false)
+  publicado     Boolean  @default(true)
+  publicadoEn   DateTime @default(now())
+  creadoEn      DateTime @default(now())
+  actualizadoEn DateTime @updatedAt
+
+  @@index([publicado])
+  @@index([categoria])
+}

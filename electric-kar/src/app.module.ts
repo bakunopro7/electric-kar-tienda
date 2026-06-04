@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuditoriaModule } from './auditoria/auditoria.module';
 import { AuthModule } from './auth/auth.module';
+import { BlogModule } from './blog/blog.module';
 import { CartModule } from './cart/cart.module';
 import { CatalogosModule } from './catalogos/catalogos.module';
 import { CategoriesModule } from './categories/categories.module';
@@ -42,6 +43,7 @@ import { UsersModule } from './users/users.module';
     UploadsModule,
     PaymentsModule,
     CatalogosModule,
+    BlogModule,
   ],
   controllers: [AppController],
   providers: [AppService],

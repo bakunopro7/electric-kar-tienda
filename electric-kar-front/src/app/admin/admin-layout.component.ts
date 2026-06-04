@@ -87,6 +87,7 @@ export class AdminLayoutComponent {
     { label: 'Cupones', path: '/admin/cupones', icon: 'tag', roles: ['SUPER', 'ADMIN'] },
     { label: 'Reportes', path: '/admin/reportes', icon: 'chart' },
     { label: 'Facturación (CFDI)', path: '/admin/cfdi', icon: 'doc', roles: ['SUPER', 'ADMIN', 'CONTADOR'] },
+    { label: 'Blog', path: '/admin/blog', icon: 'doc', roles: ['SUPER', 'ADMIN'] },
     { label: 'Menú / Navegación', path: '/admin/menu', icon: 'menu', roles: ['SUPER', 'ADMIN'] },
     { label: 'Integraciones', path: '/admin/integraciones', icon: 'card', roles: ['SUPER', 'ADMIN'] },
     { label: 'Sesiones', path: '/admin/sesiones', icon: 'lock', roles: ['SUPER'] },
