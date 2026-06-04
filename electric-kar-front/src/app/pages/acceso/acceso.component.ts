@@ -1,8 +1,18 @@
-import { Component, inject, signal } from '@angular/core';
+import { AfterViewInit, Component, NgZone, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/auth.service';
 import { IconComponent } from '../../shared/icon.component';
+
+declare const google: {
+  accounts: {
+    id: {
+      initialize: (config: object) => void;
+      renderButton: (el: HTMLElement | null, opts: object) => void;
+    };
+  };
+};
 
 @Component({
   selector: 'ek-acceso',
@@ -71,22 +81,62 @@ import { IconComponent } from '../../shared/icon.component';
             {{ loading() ? 'Procesando…' : (mode() === 'login' ? 'Iniciar sesión' : 'Crear mi cuenta') }}
           </button>
         </form>
+
+        <!-- Google -->
+        <div class="my-4 flex items-center gap-3 text-xs text-black/40 dark:text-white/40">
+          <span class="h-px flex-1 bg-black/10 dark:bg-white/10"></span> o continúa con <span class="h-px flex-1 bg-black/10 dark:bg-white/10"></span>
+        </div>
+        @if (googleHabilitado) {
+          <div id="ek-google-btn" class="flex justify-center"></div>
+        } @else {
+          <p class="rounded-[10px] bg-black/5 px-3 py-2 text-center text-xs text-black/50 dark:bg-white/5 dark:text-white/50">
+            Login con Google disponible al configurar <code>googleClientId</code>.
+          </p>
+        }
+        @if (googleError()) { <p class="mt-2 text-center text-sm text-peligro">{{ googleError() }}</p> }
       </div>
     </div>
   `,
 })
-export class AccesoComponent {
+export class AccesoComponent implements AfterViewInit {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly zone = inject(NgZone);
 
   readonly mode = signal<'login' | 'register'>('login');
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly showPass = signal(false);
+  readonly googleError = signal<string | null>(null);
+  readonly googleHabilitado = !!environment.googleClientId;
 
   nombre = '';
   correo = '';
   password = '';
+
+  ngAfterViewInit() {
+    if (!this.googleHabilitado || typeof google === 'undefined') return;
+    google.accounts.id.initialize({
+      client_id: environment.googleClientId,
+      callback: (resp: { credential: string }) =>
+        this.zone.run(() => this.onGoogle(resp.credential)),
+    });
+    google.accounts.id.renderButton(document.getElementById('ek-google-btn'), {
+      theme: 'outline',
+      size: 'large',
+      width: 300,
+      locale: 'es',
+    });
+  }
+
+  private onGoogle(credential: string) {
+    this.googleError.set(null);
+    this.auth.googleLogin(credential).subscribe({
+      next: () => this.router.navigateByUrl('/cuenta'),
+      error: (e: { error?: { message?: string } }) =>
+        this.googleError.set(e?.error?.message ?? 'No se pudo iniciar con Google'),
+    });
+  }
 
   submit() {
     this.error.set(null);

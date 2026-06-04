@@ -3,10 +3,12 @@ import { Injectable, inject } from '@angular/core';
 import { forkJoin, of, switchMap } from 'rxjs';
 import { environment } from '../../environments/environment';
 
-export interface PedidoCreado {
-  id: string;
+export interface ResultadoPago {
+  pedidoId: string;
   folio?: string | null;
-  total: string;
+  /** URL de Stripe Checkout (null en modo demo / sin llaves). */
+  url: string | null;
+  stripe: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -31,7 +33,7 @@ export class CheckoutService {
           : of([]),
       ),
       switchMap(() =>
-        this.http.post<PedidoCreado>(`${this.api}/orders/checkout`, {
+        this.http.post<ResultadoPago>(`${this.api}/payments/checkout`, {
           codigoCupon: codigoCupon || undefined,
         }),
       ),

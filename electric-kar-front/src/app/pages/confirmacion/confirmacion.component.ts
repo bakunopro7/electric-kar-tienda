@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { CartService } from '../../core/cart.service';
 import { IconComponent } from '../../shared/icon.component';
 
 @Component({
@@ -68,7 +69,15 @@ import { IconComponent } from '../../shared/icon.component';
 })
 export class ConfirmacionComponent {
   private readonly route = inject(ActivatedRoute);
+  private readonly cart = inject(CartService);
   readonly folio = this.route.snapshot.queryParamMap.get('folio') ?? '#EK-204815';
+
+  constructor() {
+    // Al volver de un pago exitoso (Stripe), vaciamos el carrito local.
+    if (this.route.snapshot.queryParamMap.get('pago') === 'ok') {
+      this.cart.clear();
+    }
+  }
 
   readonly pasos = ['Carrito', 'Envío y pago', 'Confirmación'];
   readonly tracking = [

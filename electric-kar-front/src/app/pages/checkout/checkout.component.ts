@@ -255,11 +255,18 @@ export class CheckoutComponent {
     this.error.set(null);
     this.procesando.set(true);
     this.checkout.realizarPedido(items, this.codigoAplicado() ?? undefined).subscribe({
-      next: (pedido) => {
+      next: (res) => {
+        if (res.url) {
+          // Stripe configurado: redirige a la página de pago (no vaciamos el
+          // carrito local por si el cliente cancela y vuelve).
+          window.location.href = res.url;
+          return;
+        }
+        // Modo demo (sin Stripe): pedido creado, vamos a confirmación.
         this.cart.clear();
         this.procesando.set(false);
         this.router.navigate(['/confirmacion'], {
-          queryParams: { folio: pedido.folio || pedido.id },
+          queryParams: { folio: res.folio || res.pedidoId },
         });
       },
       error: (e: { error?: { message?: string | string[] } }) => {
