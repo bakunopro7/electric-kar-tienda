@@ -496,3 +496,43 @@ model MenuItem {
 
   @@index([orden])
 }
+
+// ===========================================================================
+// CATÁLOGOS
+// ===========================================================================
+
+/**
+ * Catálogo genérico para presentación/gestión de estatus y listas internas,
+ * discriminado por `tipo` (p.ej. ESTADO_PEDIDO, SEGMENTO_CLIENTE). Los enums
+ * siguen rigiendo la lógica; esta tabla aporta etiqueta/color/orden para la UI.
+ */
+model Catalogo {
+  id            String   @id @default(uuid())
+  tipo          String
+  clave         String
+  etiqueta      String
+  color         String?
+  orden         Int      @default(0)
+  activo        Boolean  @default(true)
+  creadoEn      DateTime @default(now())
+  actualizadoEn DateTime @updatedAt
+
+  @@unique([tipo, clave])
+  @@index([tipo])
+}
+
+/**
+ * Catálogos oficiales del SAT (CFDI 4.0), discriminados por `tipo`:
+ * REGIMEN_FISCAL, USO_CFDI, FORMA_PAGO, METODO_PAGO, CLAVE_UNIDAD, CLAVE_PROD_SERV.
+ */
+model CatalogoSat {
+  id          String   @id @default(uuid())
+  tipo        String
+  clave       String
+  descripcion String
+  activo      Boolean  @default(true)
+  creadoEn    DateTime @default(now())
+
+  @@unique([tipo, clave])
+  @@index([tipo])
+}

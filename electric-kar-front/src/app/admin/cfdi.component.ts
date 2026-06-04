@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AdminService, CfdiAdmin, PedidoAdmin } from '../core/admin.service';
+import { CatalogosService, CatalogoSatItem } from '../core/catalogos.service';
 import { MoneyPipe } from '../shared/money.pipe';
 
 interface EmitirForm {
@@ -39,12 +40,20 @@ const VACIO: EmitirForm = {
         <input [(ngModel)]="form.receptorNombre" name="rn" placeholder="Nombre/Razón social receptor" required class="ek-input" />
         <input [(ngModel)]="form.receptorRfc" name="rfc" placeholder="RFC receptor" required class="ek-input uppercase" />
         <input [(ngModel)]="form.receptorCp" name="cp" placeholder="C.P. receptor" required class="ek-input" />
-        <input [(ngModel)]="form.receptorRegimen" name="reg" placeholder="Régimen (ej. 612)" required class="ek-input" />
-        <input [(ngModel)]="form.usoCfdi" name="uso" placeholder="Uso CFDI (ej. G03)" required class="ek-input" />
-        <input [(ngModel)]="form.formaPago" name="fp" placeholder="Forma de pago (ej. 03)" required class="ek-input" />
+        <select [(ngModel)]="form.receptorRegimen" name="reg" required class="ek-input">
+          <option value="">— Régimen fiscal (SAT) —</option>
+          @for (r of regimenes(); track r.clave) { <option [value]="r.clave">{{ r.clave }} · {{ r.descripcion }}</option> }
+        </select>
+        <select [(ngModel)]="form.usoCfdi" name="uso" required class="ek-input">
+          <option value="">— Uso CFDI (SAT) —</option>
+          @for (u of usos(); track u.clave) { <option [value]="u.clave">{{ u.clave }} · {{ u.descripcion }}</option> }
+        </select>
+        <select [(ngModel)]="form.formaPago" name="fp" required class="ek-input">
+          <option value="">— Forma de pago (SAT) —</option>
+          @for (f of formasPago(); track f.clave) { <option [value]="f.clave">{{ f.clave }} · {{ f.descripcion }}</option> }
+        </select>
         <select [(ngModel)]="form.metodoPago" name="mp" class="ek-input">
-          <option value="PUE">PUE — Pago en una exhibición</option>
-          <option value="PPD">PPD — Pago en parcialidades/diferido</option>
+          @for (m of metodosPago(); track m.clave) { <option [value]="m.clave">{{ m.clave }} · {{ m.descripcion }}</option> }
         </select>
         @if (error()) { <p class="text-sm text-peligro sm:col-span-2">{{ error() }}</p> }
         <button type="submit" class="btn-primary sm:col-span-2" [disabled]="saving()">{{ saving() ? 'Emitiendo…' : 'Emitir CFDI' }}</button>
@@ -125,6 +134,13 @@ const VACIO: EmitirForm = {
 })
 export class CfdiComponent {
   private readonly admin = inject(AdminService);
+  private readonly catalogos = inject(CatalogosService);
+
+  // Catálogos SAT para los selects
+  readonly regimenes = signal<CatalogoSatItem[]>([]);
+  readonly usos = signal<CatalogoSatItem[]>([]);
+  readonly formasPago = signal<CatalogoSatItem[]>([]);
+  readonly metodosPago = signal<CatalogoSatItem[]>([]);
 
   readonly cfdis = signal<CfdiAdmin[]>([]);
   readonly pedidos = signal<PedidoAdmin[]>([]);
@@ -149,6 +165,10 @@ export class CfdiComponent {
 
   constructor() {
     this.admin.pedidos().subscribe({ next: (p) => this.pedidos.set(p), error: () => {} });
+    this.catalogos.sat('REGIMEN_FISCAL').subscribe((l) => this.regimenes.set(l));
+    this.catalogos.sat('USO_CFDI').subscribe((l) => this.usos.set(l));
+    this.catalogos.sat('FORMA_PAGO').subscribe((l) => this.formasPago.set(l));
+    this.catalogos.sat('METODO_PAGO').subscribe((l) => this.metodosPago.set(l));
     this.cargar();
   }
 

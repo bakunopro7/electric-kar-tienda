@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { AuditoriaModule } from './auditoria/auditoria.module';
 import { AuthModule } from './auth/auth.module';
 import { CartModule } from './cart/cart.module';
+import { CatalogosModule } from './catalogos/catalogos.module';
 import { CategoriesModule } from './categories/categories.module';
 import { CfdiModule } from './cfdi/cfdi.module';
 import { ClientesModule } from './clientes/clientes.module';
@@ -40,6 +41,7 @@ import { UsersModule } from './users/users.module';
     MenuModule,
     UploadsModule,
     PaymentsModule,
+    CatalogosModule,
   ],
   controllers: [AppController],
   providers: [AppService],
