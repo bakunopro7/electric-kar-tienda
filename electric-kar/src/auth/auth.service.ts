@@ -2,11 +2,14 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  ServiceUnavailableException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { randomUUID } from 'node:crypto';
 import * as bcrypt from 'bcryptjs';
+import { OAuth2Client } from 'google-auth-library';
 import { AuditoriaService } from '../auditoria/auditoria.service';
 import { TipoActividad } from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
@@ -28,6 +31,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwt: JwtService,
     private readonly auditoria: AuditoriaService,
+    private readonly config: ConfigService,
   ) {}
 
   // --- Cliente (tienda) -----------------------------------------------------
@@ -109,6 +113,42 @@ export class AuthService {
       data: { password: hashed, resetToken: null, resetTokenExpira: null },
     });
     return { mensaje: 'Contraseña actualizada. Ya puedes iniciar sesión.' };
+  }
+
+  // --- Login con Google (cliente) ------------------------------------------
+
+  async googleLogin(idToken: string) {
+    const clientId = this.config.get<string>('GOOGLE_CLIENT_ID');
+    if (!clientId) {
+      throw new ServiceUnavailableException(
+        'Login con Google no configurado (falta GOOGLE_CLIENT_ID)',
+      );
+    }
+
+    const client = new OAuth2Client(clientId);
+    let correo: string | undefined;
+    let nombre: string | undefined;
+    try {
+      const ticket = await client.verifyIdToken({ idToken, audience: clientId });
+      const payload = ticket.getPayload();
+      correo = payload?.email;
+      nombre = payload?.name ?? payload?.email;
+    } catch {
+      throw new UnauthorizedException('Token de Google inválido');
+    }
+    if (!correo) {
+      throw new UnauthorizedException('No se pudo obtener el correo de Google');
+    }
+
+    let cliente = await this.prisma.cliente.findUnique({ where: { correo } });
+    if (!cliente) {
+      // Alta automática: contraseña aleatoria (el acceso es vía Google).
+      const password = await bcrypt.hash(randomUUID(), SALT_ROUNDS);
+      cliente = await this.prisma.cliente.create({
+        data: { correo, nombre: nombre ?? correo, password },
+      });
+    }
+    return this.tokenCliente(cliente.id, cliente.correo);
   }
 
   // --- Usuario (panel) ------------------------------------------------------

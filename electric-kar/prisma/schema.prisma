@@ -322,6 +322,8 @@ model Pedido {
   metodoPagoId  String?
   metodoEntrega MetodoEntrega @default(ENVIO)
   paqueteria    String?
+  pagado          Boolean     @default(false)
+  stripeSessionId String?
   cfdi          Cfdi?
   lineas        PedidoLinea[]
   creadoEn      DateTime      @default(now())

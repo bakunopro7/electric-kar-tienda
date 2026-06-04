@@ -48,6 +48,12 @@ export class AuthService {
     this.cliente.set(null);
   }
 
+  googleLogin(idToken: string) {
+    return this.http
+      .post<AuthResponse>(`${this.base}/google`, { idToken })
+      .pipe(tap((res) => this.store(res)));
+  }
+
   forgotPassword(correo: string) {
     return this.http.post<{ mensaje: string; token?: string }>(
       `${this.base}/forgot-password`,
