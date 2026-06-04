@@ -111,6 +111,15 @@ export class AdminService {
     return this.http.get<Marca[]>(`${this.api}/marcas`, this.ctx);
   }
 
+  // --- Subida de imágenes ---------------------------------------------------
+  subirImagen(file: File) {
+    const fd = new FormData();
+    fd.append('file', file);
+    return this.http.post<{ url: string }>(`${this.api}/uploads`, fd, {
+      context: adminContext(),
+    });
+  }
+
   // --- Productos ------------------------------------------------------------
   productos(query: { search?: string; page?: number; limit?: number } = {}) {
     let params = new HttpParams();

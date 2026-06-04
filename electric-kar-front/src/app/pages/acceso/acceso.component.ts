@@ -59,6 +59,12 @@ import { IconComponent } from '../../shared/icon.component';
             </span>
           </label>
 
+          @if (mode() === 'login') {
+            <div class="text-right">
+              <a routerLink="/recuperar" class="text-sm text-azul-700 hover:underline dark:text-azul-500">¿Olvidaste tu contraseña?</a>
+            </div>
+          }
+
           @if (error()) { <p class="text-sm text-peligro">{{ error() }}</p> }
 
           <button type="submit" class="btn-primary w-full" [disabled]="loading()">

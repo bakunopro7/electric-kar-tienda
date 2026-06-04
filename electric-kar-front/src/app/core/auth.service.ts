@@ -48,6 +48,20 @@ export class AuthService {
     this.cliente.set(null);
   }
 
+  forgotPassword(correo: string) {
+    return this.http.post<{ mensaje: string; token?: string }>(
+      `${this.base}/forgot-password`,
+      { correo },
+    );
+  }
+
+  resetPassword(token: string, password: string) {
+    return this.http.post<{ mensaje: string }>(`${this.base}/reset-password`, {
+      token,
+      password,
+    });
+  }
+
   private store(res: AuthResponse) {
     localStorage.setItem(TOKEN_KEY, res.accessToken);
     localStorage.setItem(CLIENTE_KEY, JSON.stringify(res.cliente));

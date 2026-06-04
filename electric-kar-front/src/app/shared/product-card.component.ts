@@ -10,19 +10,20 @@ import { MoneyPipe } from './money.pipe';
   selector: 'ek-product-card',
   imports: [RouterLink, MoneyPipe, IconComponent],
   template: `
-    <div class="card flex flex-col overflow-hidden transition-shadow hover:shadow-lg">
+    <div class="card group flex flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
       <div class="relative">
         <button type="button" (click)="favs.toggle(producto())" aria-label="Favorito"
-                class="absolute right-2 top-2 z-10 grid h-8 w-8 place-items-center rounded-full bg-white/90 shadow hover:scale-110 dark:bg-navy-900/90"
+                class="absolute right-2 top-2 z-10 grid h-8 w-8 place-items-center rounded-full bg-white/90 shadow transition-transform hover:scale-110 dark:bg-navy-900/90"
                 [class.text-peligro]="favs.has(producto().id)" [class.text-black]="!favs.has(producto().id)">
           <ek-icon name="heart" class="h-4 w-4" />
         </button>
         <a [routerLink]="['/producto', producto().id]" class="block">
           <div class="aspect-square w-full overflow-hidden rounded-[8px] bg-black/5 dark:bg-white/5">
             @if (producto().imagenes.length) {
-              <img [src]="producto().imagenes[0]" [alt]="producto().nombre" class="h-full w-full object-cover" />
+              <img [src]="producto().imagenes[0]" [alt]="producto().nombre"
+                   class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
             } @else {
-              <div class="grid h-full place-items-center text-4xl">🔋</div>
+              <div class="grid h-full place-items-center text-4xl transition-transform duration-500 group-hover:scale-110">🔋</div>
             }
           </div>
         </a>

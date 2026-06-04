@@ -14,11 +14,12 @@ interface ProductoForm {
   marcaId: string;
   descripcion: string;
   estado: string;
+  imagenes: string[];
 }
 
 const VACIO: ProductoForm = {
   nombre: '', sku: '', precio: null, existencias: 0,
-  categoriaId: '', marcaId: '', descripcion: '', estado: 'BORRADOR',
+  categoriaId: '', marcaId: '', descripcion: '', estado: 'BORRADOR', imagenes: [],
 };
 
 @Component({
@@ -51,7 +52,26 @@ const VACIO: ProductoForm = {
           <option value="PUBLICADO">Publicado</option>
           <option value="PROGRAMADO">Programado</option>
         </select>
-        <input [(ngModel)]="form.descripcion" name="descripcion" placeholder="Descripción" class="ek-input" />
+        <input [(ngModel)]="form.descripcion" name="descripcion" placeholder="Descripción" class="ek-input sm:col-span-2" />
+
+        <!-- Imágenes -->
+        <div class="sm:col-span-2">
+          <label class="text-sm font-semibold">Imágenes</label>
+          <div class="mt-2 flex flex-wrap items-center gap-3">
+            @for (img of form.imagenes; track img; let i = $index) {
+              <div class="relative h-20 w-20 overflow-hidden rounded-[8px] border border-black/10 dark:border-white/10">
+                <img [src]="img" alt="" class="h-full w-full object-cover" />
+                <button type="button" (click)="quitarImagen(i)"
+                        class="absolute right-0.5 top-0.5 grid h-5 w-5 place-items-center rounded-full bg-peligro text-xs text-white">✕</button>
+              </div>
+            }
+            <label class="grid h-20 w-20 cursor-pointer place-items-center rounded-[8px] border-2 border-dashed border-black/20 text-2xl text-black/40 hover:border-azul-500 dark:border-white/20 dark:text-white/40">
+              {{ subiendo() ? '…' : '+' }}
+              <input type="file" accept="image/*" class="hidden" (change)="onFile($event)" [disabled]="subiendo()" />
+            </label>
+          </div>
+        </div>
+
         @if (error()) { <p class="text-sm text-peligro sm:col-span-2">{{ error() }}</p> }
         <div class="flex gap-2 sm:col-span-2">
           <button type="submit" class="btn-primary" [disabled]="saving()">{{ saving() ? 'Guardando…' : (editId() ? 'Guardar cambios' : 'Crear') }}</button>
@@ -122,10 +142,11 @@ export class ProductosComponent {
   readonly saving = signal(false);
   readonly error = signal<string | null>(null);
   readonly editId = signal<string | null>(null);
+  readonly subiendo = signal(false);
 
   search = '';
   private page = 1;
-  form: ProductoForm = { ...VACIO };
+  form: ProductoForm = { ...VACIO, imagenes: [] };
 
   readonly puedeEscribir = computed(() => this.auth.hasRole('ADMIN', 'SUPER'));
 
@@ -136,7 +157,7 @@ export class ProductosComponent {
   }
 
   nuevo() {
-    this.form = { ...VACIO };
+    this.form = { ...VACIO, imagenes: [] };
     this.editId.set(null);
     this.error.set(null);
     this.mostrarForm.set(true);
@@ -147,10 +168,33 @@ export class ProductosComponent {
       nombre: p.nombre, sku: p.sku, precio: Number(p.precio),
       existencias: p.existencias, categoriaId: p.categoriaId ?? '',
       marcaId: p.marcaId ?? '', descripcion: p.descripcion ?? '', estado: p.estado,
+      imagenes: [...(p.imagenes ?? [])],
     };
     this.editId.set(p.id);
     this.error.set(null);
     this.mostrarForm.set(true);
+  }
+
+  onFile(e: Event) {
+    const input = e.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    this.subiendo.set(true);
+    this.admin.subirImagen(file).subscribe({
+      next: (r) => {
+        this.form.imagenes = [...this.form.imagenes, r.url];
+        this.subiendo.set(false);
+        input.value = '';
+      },
+      error: () => {
+        this.error.set('No se pudo subir la imagen');
+        this.subiendo.set(false);
+      },
+    });
+  }
+
+  quitarImagen(i: number) {
+    this.form.imagenes = this.form.imagenes.filter((_, idx) => idx !== i);
   }
 
   guardar() {
@@ -165,6 +209,7 @@ export class ProductosComponent {
       categoriaId: this.form.categoriaId || undefined,
       marcaId: this.form.marcaId || undefined,
       descripcion: this.form.descripcion || undefined,
+      imagenes: this.form.imagenes,
     };
     const id = this.editId();
     const req = id ? this.admin.actualizarProducto(id, dto) : this.admin.crearProducto(dto);
