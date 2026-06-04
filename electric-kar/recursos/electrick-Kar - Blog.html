@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>electrick-Kar — Blog</title>
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/styles.css">
+<style>
+.blog-head { background: radial-gradient(120% 130% at 85% 0%, var(--navy-800), var(--navy-950)); color:#fff; position:relative; overflow:hidden; }
+.blog-head-grid { position:absolute; inset:0; background-image:linear-gradient(rgba(70,194,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(70,194,255,.07) 1px,transparent 1px); background-size:48px 48px; mask-image:radial-gradient(90% 120% at 75% 0%,#000,transparent 70%); }
+.blog-head .wrap { position:relative; padding:44px 28px 50px; }
+.crumbs { font-size:13px; color:var(--gray-400); display:flex; gap:8px; align-items:center; }
+.crumbs a:hover { color:#fff; } .crumbs svg { width:13px;height:13px; }
+.blog-head h1 { font-size:clamp(32px,4.2vw,50px); color:#fff; margin:14px 0 10px; }
+.blog-head p { color:#c4d4ec; font-size:17px; max-width:50ch; }
+
+/* Featured post */
+.feat-post { display:grid; grid-template-columns:1.15fr 1fr; gap:0; background:#fff; border:1px solid var(--gray-200); border-radius:var(--r-lg); overflow:hidden; margin-top:-30px; position:relative; box-shadow:var(--shadow-lg); }
+.feat-post .media { position:relative; min-height:340px; }
+.feat-post .media .ph { width:100%; height:100%; border:0; border-radius:0; min-height:340px; }
+.feat-post .media .badge { position:absolute; top:18px; left:18px; }
+.feat-post .body { padding:42px; display:flex; flex-direction:column; justify-content:center; }
+.post-meta { display:flex; align-items:center; gap:14px; font-size:13px; color:var(--gray-500); flex-wrap:wrap; }
+.post-meta .cat { color:var(--blue-700); font-family:var(--font-head); font-weight:600; }
+.post-meta .dot { width:3px; height:3px; border-radius:50%; background:var(--gray-300); }
+.feat-post h2 { font-size:clamp(24px,3vw,34px); margin:14px 0 12px; line-height:1.12; }
+.feat-post h2 a:hover { color:var(--blue-700); }
+.feat-post p { color:var(--gray-600); line-height:1.7; margin:0 0 22px; }
+.author { display:flex; align-items:center; gap:11px; }
+.author .av { width:42px; height:42px; border-radius:50%; background:var(--blue-100); color:var(--blue-700); display:grid; place-items:center; font-family:var(--font-head); font-weight:700; font-size:15px; }
+.author b { font-family:var(--font-head); font-size:14px; display:block; } .author small { color:var(--gray-500); font-size:12.5px; }
+@media (max-width:760px){ .feat-post { grid-template-columns:1fr; } .feat-post .body { padding:30px; } }
+
+/* Cats filter */
+.blog-cats { display:flex; gap:9px; flex-wrap:wrap; margin-bottom:34px; }
+.blog-cat { padding:9px 16px; border-radius:var(--r-pill); border:1.5px solid var(--gray-200); background:#fff; font-family:var(--font-head); font-weight:600; font-size:13.5px; color:var(--gray-700); cursor:pointer; transition:var(--t); }
+.blog-cat:hover { border-color:var(--blue-500); color:var(--blue-700); }
+.blog-cat.on { background:var(--blue-700); color:#fff; border-color:var(--blue-700); }
+
+/* Post grid */
+.blog-layout { display:grid; grid-template-columns:1fr 300px; gap:40px; align-items:start; }
+@media (max-width:900px){ .blog-layout { grid-template-columns:1fr; } }
+.post-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+@media (max-width:560px){ .post-grid { grid-template-columns:1fr; } }
+.post-card { background:#fff; border:1px solid var(--gray-200); border-radius:var(--r); overflow:hidden; transition:var(--t); display:flex; flex-direction:column; }
+.post-card:hover { box-shadow:var(--shadow-lg); transform:translateY(-4px); border-color:var(--blue-100); }
+.post-card .media { position:relative; aspect-ratio:16/10; }
+.post-card .media .ph { width:100%; height:100%; border:0; border-radius:0; }
+.post-card .media .badge { position:absolute; top:12px; left:12px; }
+.post-card .body { padding:20px; display:flex; flex-direction:column; flex:1; }
+.post-card h3 { font-family:var(--font-head); font-size:18px; line-height:1.25; margin:10px 0 8px; }
+.post-card h3 a:hover { color:var(--blue-700); }
+.post-card p { color:var(--gray-600); font-size:14px; line-height:1.6; margin:0 0 16px; }
+.post-card .read { margin-top:auto; display:inline-flex; align-items:center; gap:7px; color:var(--blue-700); font-family:var(--font-head); font-weight:600; font-size:13.5px; }
+.post-card .read svg { width:15px; height:15px; transition:var(--t); }
+.post-card:hover .read svg { transform:translateX(4px); }
+
+/* Sidebar */
+.blog-side { position:sticky; top:100px; display:flex; flex-direction:column; gap:18px; }
+.side-card { background:#fff; border:1px solid var(--gray-200); border-radius:var(--r); padding:22px; }
+.side-card h4 { font-family:var(--font-head); font-size:15px; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+.side-card h4 svg { width:17px; height:17px; color:var(--blue-700); }
+.popular { display:flex; gap:12px; padding:10px 0; border-bottom:1px solid var(--gray-100); }
+.popular:last-child { border-bottom:0; padding-bottom:0; }
+.popular .thumb { width:64px; height:54px; border-radius:9px; overflow:hidden; flex-shrink:0; }
+.popular .thumb .ph { width:100%; height:100%; border:0; border-radius:0; }
+.popular b { font-family:var(--font-head); font-size:13.5px; line-height:1.3; display:block; }
+.popular b:hover { color:var(--blue-700); }
+.popular small { color:var(--gray-500); font-size:12px; }
+.tags { display:flex; flex-wrap:wrap; gap:8px; }
+.tags a { font-size:13px; padding:6px 12px; border-radius:var(--r-pill); background:var(--gray-50); border:1px solid var(--gray-200); color:var(--gray-700); transition:var(--t); }
+.tags a:hover { border-color:var(--blue-500); color:var(--blue-700); }
+.side-news { background:linear-gradient(140deg,var(--blue-700),var(--navy-900)); color:#fff; border:0; }
+.side-news h4 { color:#fff; } .side-news h4 svg { color:var(--volt); }
+.side-news p { color:#c4d4ec; font-size:13.5px; margin:0 0 14px; }
+.side-news input { width:100%; border:1.5px solid rgba(255,255,255,.2); background:rgba(255,255,255,.1); color:#fff; border-radius:var(--r-pill); padding:11px 16px; font-family:inherit; font-size:14px; outline:none; margin-bottom:10px; }
+.side-news input::placeholder { color:#9bb2d4; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="topbar-left">
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h2l2.5 12h11l2-8H6"/><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/></svg> Envío gratis desde $999</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> Asesoría técnica gratuita</span>
+    </div>
+    <div class="topbar-right"><a href="#">Rastrear pedido</a><a href="#">Mayoreo</a><a href="electrick-Kar — FAQ.html">Ayuda</a></div>
+  </div>
+</div>
+
+<header class="header">
+  <div class="wrap">
+    <a href="electrick-Kar — Inicio.html" class="logo">
+      <span class="logo-mark"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4.5 13.5H11l-1 8.5 8.5-12H12l1-8z"/></svg></span>
+      <span class="logo-text">electrick<b>-Kar</b><span>Auto · Electric · Parts</span></span>
+    </a>
+    <form class="search" onsubmit="window.location.href='electrick-Kar — Búsqueda.html'; return false;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg>
+      <input type="text" placeholder="Busca baterías, luces LED, alternadores…">
+      <button type="submit">Buscar</button>
+    </form>
+    <div class="header-actions">
+      <a href="electrick-Kar — Acceso.html" class="icon-btn" aria-label="Cuenta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></a>
+      <a href="electrick-Kar — Favoritos.html" class="icon-btn" aria-label="Favoritos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.5-1.5 3-3.3 3-5.5A4.5 4.5 0 0 0 12 5 4.5 4.5 0 0 0 2 8.5c0 2.2 1.5 4 3 5.5l7 7z"/></svg></a>
+      <a href="electrick-Kar — Carrito.html" class="icon-btn" aria-label="Carrito"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h3l2.5 13h11l2-9H6.5"/></svg><span class="count" data-cart-count>3</span></a>
+    </div>
+  </div>
+</header>
+
+<nav class="nav">
+  <div class="wrap">
+    <a href="electrick-Kar — Tienda.html" class="nav-all"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg> Categorías</a>
+    <div class="nav-links">
+      <a href="electrick-Kar — Tienda.html">Baterías</a>
+      <a href="electrick-Kar — Tienda.html">Iluminación LED</a>
+      <a href="electrick-Kar — Tienda.html">Audio &amp; Estéreo</a>
+      <a href="electrick-Kar — Destacados.html">Destacados</a>
+      <a href="electrick-Kar — Blog.html" class="active">Blog</a>
+    </div>
+    <span class="nav-promo"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4.5 13.5H11l-1 8.5 8.5-12H12l1-8z"/></svg> Ofertas de temporada</span>
+  </div>
+</nav>
+
+<section class="blog-head">
+  <div class="blog-head-grid"></div>
+  <div class="wrap">
+    <div class="crumbs"><a href="electrick-Kar — Inicio.html">Inicio</a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg><span>Blog</span></div>
+    <h1>Blog electrick-Kar</h1>
+    <p>Guías, consejos y novedades sobre el sistema eléctrico de tu auto.</p>
+  </div>
+</section>
+
+<main class="wrap" style="padding-bottom:30px">
+  <!-- DESTACADO -->
+  <article class="feat-post">
+    <div class="media">
+      <span class="badge badge-volt">Destacado</span>
+      <div class="ph" data-label="Imagen del artículo destacado"></div>
+    </div>
+    <div class="body">
+      <div class="post-meta"><span class="cat">Guías</span><span class="dot"></span><span>2 jun 2026</span><span class="dot"></span><span>6 min de lectura</span></div>
+      <h2><a href="electrick-Kar — Artículo.html">Cómo saber cuándo cambiar la batería de tu auto</a></h2>
+      <p>Señales de advertencia, pruebas que puedes hacer en casa y consejos para elegir la batería correcta según tu vehículo y clima.</p>
+      <div class="author">
+        <span class="av">CT</span>
+        <div><b>Carlos Téllez</b><small>Técnico eléctrico automotriz</small></div>
+      </div>
+    </div>
+  </article>
+</main>
+
+<main class="wrap section" style="padding-top:50px">
+  <div class="blog-cats">
+    <button class="blog-cat on">Todos</button>
+    <button class="blog-cat">Guías</button>
+    <button class="blog-cat">Mantenimiento</button>
+    <button class="blog-cat">Iluminación</button>
+    <button class="blog-cat">Audio</button>
+    <button class="blog-cat">Novedades</button>
+  </div>
+
+  <div class="blog-layout">
+    <!-- POSTS -->
+    <div class="post-grid" id="postGrid"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="blog-side">
+      <div class="side-card">
+        <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 7-7"/><path d="M14 7h6v6"/></svg> Más leídos</h4>
+        <a class="popular" href="electrick-Kar — Artículo.html"><div class="thumb"><div class="ph" data-label=""></div></div><div><b>Guía para instalar faros LED sin errores</b><small>4 min</small></div></a>
+        <a class="popular" href="electrick-Kar — Artículo.html"><div class="thumb"><div class="ph" data-label=""></div></div><div><b>5 fallas eléctricas comunes y cómo detectarlas</b><small>7 min</small></div></a>
+        <a class="popular" href="electrick-Kar — Artículo.html"><div class="thumb"><div class="ph" data-label=""></div></div><div><b>¿AGM o convencional? Elige tu batería</b><small>5 min</small></div></a>
+      </div>
+      <div class="side-card">
+        <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0l-7.2-7.2a2 2 0 0 1-.6-1.4V5a2 2 0 0 1 2-2h6.9a2 2 0 0 1 1.4.6l7.5 7.5a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg> Temas</h4>
+        <div class="tags">
+          <a href="#">Baterías</a><a href="#">LED</a><a href="#">Alternador</a><a href="#">Audio</a><a href="#">Start-Stop</a><a href="#">Cableado</a><a href="#">Diagnóstico</a>
+        </div>
+      </div>
+      <div class="side-card side-news">
+        <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg> Newsletter</h4>
+        <p>Recibe nuestras guías y ofertas directo en tu correo.</p>
+        <input type="email" placeholder="tu@correo.com">
+        <button class="btn btn-volt btn-sm btn-block">Suscribirme</button>
+      </div>
+    </aside>
+  </div>
+
+  <div class="pagination" style="display:flex;justify-content:center;align-items:center;gap:6px;margin-top:48px">
+    <a href="#" class="btn btn-outline">Cargar más artículos</a>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="footer-about">
+        <a href="electrick-Kar — Inicio.html" class="logo"><span class="logo-mark"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4.5 13.5H11l-1 8.5 8.5-12H12l1-8z"/></svg></span><span class="logo-text">electrick<b style="color:var(--sky)">-Kar</b></span></a>
+        <p>Tu tienda especializada en refacciones y accesorios eléctricos para automóviles.</p>
+      </div>
+      <div><h4>Tienda</h4><ul><li><a href="electrick-Kar — Tienda.html">Baterías</a></li><li><a href="electrick-Kar — Tienda.html">Iluminación LED</a></li><li><a href="electrick-Kar — Destacados.html">Destacados</a></li></ul></div>
+      <div><h4>Ayuda</h4><ul><li><a href="electrick-Kar — FAQ.html">Preguntas frecuentes</a></li><li><a href="electrick-Kar — Blog.html">Blog</a></li><li><a href="#">Garantías</a></li></ul></div>
+      <div><h4>Contacto</h4><ul><li><a href="#">📞 55 1234 5678</a></li><li><a href="#">✉ hola@electrick-kar.com</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><span>© 2026 electrick-Kar. Todos los derechos reservados.</span>
+      <div class="pay-icons"><div class="ph" data-label="VISA"></div><div class="ph" data-label="MC"></div><div class="ph" data-label="AMEX"></div><div class="ph" data-label="PAYPAL"></div></div>
+    </div>
+  </div>
+</footer>
+
+<template id="__bundler_thumbnail">
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="#071f3d"/><path d="M54 22 38 56h14l-3 22 26-38H58l4-20z" fill="#ffd21a"/></svg>
+</template>
+
+<script src="assets/common.js"></script>
+<script>
+const POSTS = [
+  { cat:"Iluminación", title:"Guía para instalar faros LED sin errores", excerpt:"Paso a paso para cambiar tus halógenos por LED: compatibilidad, polaridad y ajuste del haz.", date:"28 may 2026", read:"4 min", flag:["blue","Guía"] },
+  { cat:"Mantenimiento", title:"5 fallas eléctricas comunes y cómo detectarlas", excerpt:"Aprende a identificar problemas de batería, alternador y fusibles antes de que te dejen varado.", date:"21 may 2026", read:"7 min", flag:null },
+  { cat:"Guías", title:"¿AGM o convencional? Cómo elegir tu batería", excerpt:"Diferencias clave, ventajas de cada tecnología y cuál conviene según tu auto y uso.", date:"14 may 2026", read:"5 min", flag:["volt","Top"] },
+  { cat:"Audio", title:"Cómo instalar un amplificador de car audio", excerpt:"Calibre de cable, conexión a tierra y ajuste de ganancia para un sonido limpio y seguro.", date:"6 may 2026", read:"8 min", flag:null },
+  { cat:"Mantenimiento", title:"Mantén tu alternador en óptimas condiciones", excerpt:"Señales de desgaste, voltaje de carga ideal y consejos para alargar su vida útil.", date:"28 abr 2026", read:"6 min", flag:null },
+  { cat:"Novedades", title:"Llegaron las nuevas barras LED Off-Road 2026", excerpt:"Más lúmenes, menor consumo y diseño resistente al agua. Conoce la nueva línea.", date:"20 abr 2026", read:"3 min", flag:["blue","Nuevo"] },
+];
+function badge(f){ if(!f) return ""; const map={volt:"badge-volt",red:"badge-red",blue:"badge-blue"}; return `<span class="badge ${map[f[0]]}">${f[1]}</span>`; }
+const arrow = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+document.getElementById("postGrid").innerHTML = POSTS.map(p => `
+  <article class="post-card">
+    <a href="electrick-Kar — Artículo.html" class="media">${badge(p.flag)}<div class="ph" data-label="Imagen artículo"></div></a>
+    <div class="body">
+      <div class="post-meta"><span class="cat">${p.cat}</span><span class="dot"></span><span>${p.date}</span><span class="dot"></span><span>${p.read}</span></div>
+      <h3><a href="electrick-Kar — Artículo.html">${p.title}</a></h3>
+      <p>${p.excerpt}</p>
+      <a href="electrick-Kar — Artículo.html" class="read">Leer artículo ${arrow}</a>
+    </div>
+  </article>`).join("");
+document.querySelectorAll(".blog-cat").forEach(c => c.addEventListener("click", () => {
+  document.querySelectorAll(".blog-cat").forEach(x => x.classList.remove("on")); c.classList.add("on");
+}));
+</script>
+</body>
+</html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>electrick-Kar — Mi cuenta</title>
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/styles.css">
+<style>
+.acct-head { background: radial-gradient(120% 130% at 85% 0%, var(--navy-800), var(--navy-950)); color:#fff; position:relative; overflow:hidden; }
+.acct-head-grid { position:absolute; inset:0; background-image:linear-gradient(rgba(70,194,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(70,194,255,.07) 1px,transparent 1px); background-size:48px 48px; mask-image:radial-gradient(90% 130% at 80% 0%,#000,transparent 70%); }
+.acct-head .wrap { position:relative; padding:30px 28px 36px; display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
+.acct-av { width:72px; height:72px; border-radius:50%; background:linear-gradient(150deg,var(--blue-500),var(--navy-900)); display:grid; place-items:center; font-family:var(--font-head); font-weight:700; font-size:26px; color:#fff; box-shadow:var(--shadow-blue); border:3px solid rgba(255,255,255,.15); }
+.acct-hi span { color:var(--sky); font-family:var(--font-head); font-size:13px; font-weight:600; letter-spacing:.04em; }
+.acct-hi h1 { font-size:clamp(26px,3.4vw,36px); color:#fff; margin-top:2px; }
+.acct-hi p { color:var(--gray-400); font-size:14px; margin-top:4px; }
+.acct-logout { margin-left:auto; }
+
+.acct { display:grid; grid-template-columns: 250px 1fr; gap:28px; align-items:start; padding:34px 0 64px; }
+@media (max-width:880px){ .acct { grid-template-columns:1fr; } }
+
+/* Sidebar nav */
+.acct-nav { background:#fff; border:1px solid var(--gray-200); border-radius:var(--r-lg); padding:12px; position:sticky; top:24px; }
+.acct-nav a { display:flex; align-items:center; gap:12px; padding:13px 14px; border-radius:11px; font-family:var(--font-head); font-weight:600; font-size:14.5px; color:var(--gray-700); transition:var(--t); cursor:pointer; }
+.acct-nav a svg { width:19px; height:19px; color:var(--gray-400); }
+.acct-nav a:hover { background:var(--gray-50); }
+.acct-nav a.on { background:var(--blue-700); color:#fff; } .acct-nav a.on svg { color:#fff; }
+.acct-nav a .ct { margin-left:auto; background:var(--volt); color:var(--navy-900); font-size:11px; font-weight:700; border-radius:99px; padding:2px 8px; }
+.acct-nav a.on .ct { background:rgba(255,255,255,.2); color:#fff; }
+.acct-nav hr { border:0; border-top:1px solid var(--gray-100); margin:8px 0; }
+
+/* Stats */
+.stats { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px; }
+@media (max-width:560px){ .stats { grid-template-columns:1fr; } }
+.stat { background:#fff; border:1px solid var(--gray-200); border-radius:var(--r); padding:20px; }
+.stat .ic { width:42px; height:42px; border-radius:11px; background:var(--blue-100); color:var(--blue-700); display:grid; place-items:center; margin-bottom:12px; }
+.stat .ic svg { width:21px; height:21px; }
+.stat b { font-family:var(--font-head); font-size:28px; display:block; letter-spacing:-.02em; }
+.stat small { color:var(--gray-500); font-size:13px; }
+
+.panel { background:#fff; border:1px solid var(--gray-200); border-radius:var(--r-lg); padding:26px; margin-bottom:22px; }
+.panel-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+.panel-head h2 { font-family:var(--font-head); font-size:18px; }
+.panel-head a { color:var(--blue-700); font-size:13.5px; font-weight:600; }
+
+/* Order rows */
+.order { border:1px solid var(--gray-200); border-radius:var(--r); padding:18px; margin-bottom:14px; }
+.order:last-child { margin-bottom:0; }
+.order-top { display:flex; align-items:center; gap:14px; flex-wrap:wrap; padding-bottom:14px; border-bottom:1px solid var(--gray-100); margin-bottom:14px; }
+.order-top .oid { font-family:var(--font-head); font-weight:700; font-size:15px; }
+.order-top .odate { color:var(--gray-500); font-size:13px; }
+.order-top .ostatus { margin-left:auto; }
+.order-imgs { display:flex; gap:8px; }
+.order-imgs .mini-img { width:48px; height:48px; border-radius:9px; overflow:hidden; }
+.order-imgs .mini-img .ph { width:100%; height:100%; border:0; border-radius:0; }
+.order-bottom { display:flex; align-items:center; gap:14px; margin-top:14px; flex-wrap:wrap; }
+.order-bottom .ototal { margin-left:auto; font-family:var(--font-head); font-weight:700; font-size:17px; }
+.order-bottom .ototal small { display:block; font-family:var(--font-body); font-weight:500; font-size:12px; color:var(--gray-500); text-align:right; }
+
+/* Address / payment cards */
+.cards-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+@media (max-width:560px){ .cards-grid { grid-template-columns:1fr; } }
+.mini-card { border:1.5px solid var(--gray-200); border-radius:var(--r); padding:18px; position:relative; }
+.mini-card.default { border-color:var(--blue-500); }
+.mini-card .tag { position:absolute; top:14px; right:14px; }
+.mini-card b { font-family:var(--font-head); font-size:14.5px; display:flex; align-items:center; gap:8px; }
+.mini-card b svg { width:17px; height:17px; color:var(--blue-700); }
+.mini-card p { font-size:13.5px; color:var(--gray-600); margin:10px 0 14px; line-height:1.6; }
+.mini-card .links { display:flex; gap:14px; font-size:13px; }
+.mini-card .links a { color:var(--blue-700); font-weight:600; }
+.mini-card .links a.del { color:var(--gray-400); }
+.add-card { border:1.5px dashed var(--gray-300); border-radius:var(--r); display:grid; place-items:center; color:var(--gray-500); font-family:var(--font-head); font-weight:600; font-size:14px; min-height:130px; cursor:pointer; transition:var(--t); }
+.add-card:hover { border-color:var(--blue-500); color:var(--blue-700); }
+.add-card svg { width:24px; height:24px; margin-bottom:8px; }
+.add-card div { text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="topbar-left">
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h2l2.5 12h11l2-8H6"/><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/></svg> Envío gratis desde $999</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> Asesoría técnica gratuita</span>
+    </div>
+    <div class="topbar-right"><a href="#">Rastrear pedido</a><a href="#">Mayoreo</a><a href="#">Ayuda</a></div>
+  </div>
+</div>
+
+<header class="header">
+  <div class="wrap">
+    <a href="electrick-Kar — Inicio.html" class="logo">
+      <span class="logo-mark"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4.5 13.5H11l-1 8.5 8.5-12H12l1-8z"/></svg></span>
+      <span class="logo-text">electrick<b>-Kar</b><span>Auto · Electric · Parts</span></span>
+    </a>
+    <form class="search" onsubmit="return false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg>
+      <input type="text" placeholder="Busca baterías, luces LED, alternadores…">
+      <button type="submit">Buscar</button>
+    </form>
+    <div class="header-actions">
+      <a href="electrick-Kar — Acceso.html" class="icon-btn" aria-label="Cuenta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></a>
+      <button class="icon-btn" aria-label="Favoritos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.5-1.5 3-3.3 3-5.5A4.5 4.5 0 0 0 12 5 4.5 4.5 0 0 0 2 8.5c0 2.2 1.5 4 3 5.5l7 7z"/></svg></button>
+      <a href="electrick-Kar — Carrito.html" class="icon-btn" aria-label="Carrito"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h3l2.5 13h11l2-9H6.5"/></svg><span class="count" data-cart-count>3</span></a>
+    </div>
+  </div>
+</header>
+
+<section class="acct-head">
+  <div class="acct-head-grid"></div>
+  <div class="wrap">
+    <div class="acct-av">JP</div>
+    <div class="acct-hi">
+      <span>MI CUENTA</span>
+      <h1>Hola, Juan 👋</h1>
+      <p>Miembro desde marzo 2024 · juan@correo.com</p>
+    </div>
+    <a href="electrick-Kar — Acceso.html" class="btn btn-ghost btn-sm acct-logout">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 17l5-5-5-5M21 12H9M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg>
+      Cerrar sesión
+    </a>
+  </div>
+</section>
+
+<main class="wrap">
+  <div class="acct">
+    <!-- NAV -->
+    <aside class="acct-nav">
+      <a class="on" data-tab="resumen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg> Resumen</a>
+      <a data-tab="pedidos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18M16 10a4 4 0 0 1-8 0"/></svg> Mis pedidos <span class="ct">3</span></a>
+      <a href="electrick-Kar — Favoritos.html" data-tab="favoritos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.5-1.5 3-3.3 3-5.5A4.5 4.5 0 0 0 12 5 4.5 4.5 0 0 0 2 8.5c0 2.2 1.5 4 3 5.5l7 7z"/></svg> Favoritos</a>
+      <a data-tab="direcciones"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Direcciones</a>
+      <a data-tab="pagos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Métodos de pago</a>
+      <hr>
+      <a data-tab="perfil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg> Datos personales</a>
+    </aside>
+
+    <!-- CONTENIDO -->
+    <div>
+      <div class="stats">
+        <div class="stat"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18M16 10a4 4 0 0 1-8 0"/></svg></span><b>12</b><small>Pedidos realizados</small></div>
+        <div class="stat"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.5-1.5 3-3.3 3-5.5A4.5 4.5 0 0 0 12 5 4.5 4.5 0 0 0 2 8.5c0 2.2 1.5 4 3 5.5l7 7z"/></svg></span><b>8</b><small>Productos favoritos</small></div>
+        <div class="stat"><span class="ic" style="background:#fff4d1;color:var(--volt-deep)"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4.5 13.5H11l-1 8.5 8.5-12H12l1-8z"/></svg></span><b>1,240</b><small>Puntos electrick</small></div>
+      </div>
+
+      <section class="panel">
+        <div class="panel-head"><h2>Pedidos recientes</h2><a href="#">Ver todos</a></div>
+
+        <div class="order">
+          <div class="order-top">
+            <span class="oid">#EK-204815</span>
+            <span class="odate">2 jun 2026</span>
+            <span class="ostatus badge badge-blue">En preparación</span>
+          </div>
+          <div class="order-imgs">
+            <div class="mini-img"><div class="ph" data-label=""></div></div>
+            <div class="mini-img"><div class="ph" data-label=""></div></div>
+            <div class="mini-img"><div class="ph" data-label=""></div></div>
+          </div>
+          <div class="order-bottom">
+            <a href="electrick-Kar — Confirmación.html" class="btn btn-outline btn-sm">Rastrear pedido</a>
+            <a href="#" class="btn btn-outline btn-sm">Ver detalle</a>
+            <span class="ototal">$4,676 <small>3 productos</small></span>
+          </div>
+        </div>
+
+        <div class="order">
+          <div class="order-top">
+            <span class="oid">#EK-203190</span>
+            <span class="odate">18 may 2026</span>
+            <span class="ostatus badge badge-green">Entregado</span>
+          </div>
+          <div class="order-imgs">
+            <div class="mini-img"><div class="ph" data-label=""></div></div>
+            <div class="mini-img"><div class="ph" data-label=""></div></div>
+          </div>
+          <div class="order-bottom">
+            <a href="electrick-Kar — Producto.html" class="btn btn-volt btn-sm">Volver a comprar</a>
+            <a href="#" class="btn btn-outline btn-sm">Ver detalle</a>
+            <span class="ototal">$1,288 <small>2 productos</small></span>
+          </div>
+        </div>
+
+        <div class="order">
+          <div class="order-top">
+            <span class="oid">#EK-201764</span>
+            <span class="odate">2 may 2026</span>
+            <span class="ostatus badge badge-green">Entregado</span>
+          </div>
+          <div class="order-imgs">
+            <div class="mini-img"><div class="ph" data-label=""></div></div>
+          </div>
+          <div class="order-bottom">
+            <a href="electrick-Kar — Producto.html" class="btn btn-volt btn-sm">Volver a comprar</a>
+            <a href="#" class="btn btn-outline btn-sm">Ver detalle</a>
+            <span class="ototal">$899 <small>1 producto</small></span>
+          </div>
+        </div>
+      </section>
+
+      <div class="cards-grid">
+        <section class="panel" style="margin:0">
+          <div class="panel-head"><h2 style="font-size:16px">Dirección principal</h2></div>
+          <div class="mini-card default">
+            <span class="tag badge badge-blue">Predeterminada</span>
+            <b><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 22V12h6v10M3 9l9-6 9 6v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg> Casa</b>
+            <p>Juan Pérez<br>Av. Tecnología 1200, Int. 4<br>Del Valle, 03100, CDMX</p>
+            <div class="links"><a href="#">Editar</a><a href="#" class="del">Eliminar</a></div>
+          </div>
+        </section>
+
+        <section class="panel" style="margin:0">
+          <div class="panel-head"><h2 style="font-size:16px">Tarjeta principal</h2></div>
+          <div class="mini-card default">
+            <span class="tag badge badge-blue">Predeterminada</span>
+            <b><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Visa •• 4582</b>
+            <p>Vence 08/28<br>Juan Pérez</p>
+            <div class="links"><a href="#">Editar</a><a href="#" class="del">Eliminar</a></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="footer-about">
+        <a href="electrick-Kar — Inicio.html" class="logo"><span class="logo-mark"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4.5 13.5H11l-1 8.5 8.5-12H12l1-8z"/></svg></span><span class="logo-text">electrick<b style="color:var(--sky)">-Kar</b></span></a>
+        <p>Tu tienda especializada en refacciones y accesorios eléctricos para automóviles.</p>
+      </div>
+      <div><h4>Tienda</h4><ul><li><a href="electrick-Kar — Tienda.html">Baterías</a></li><li><a href="electrick-Kar — Tienda.html">Iluminación LED</a></li><li><a href="electrick-Kar — Tienda.html">Ofertas</a></li></ul></div>
+      <div><h4>Ayuda</h4><ul><li><a href="#">Rastrear pedido</a></li><li><a href="#">Envíos</a></li><li><a href="#">Garantías</a></li></ul></div>
+      <div><h4>Contacto</h4><ul><li><a href="#">📞 55 1234 5678</a></li><li><a href="#">✉ hola@electrick-kar.com</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><span>© 2026 electrick-Kar. Todos los derechos reservados.</span>
+      <div class="pay-icons"><div class="ph" data-label="VISA"></div><div class="ph" data-label="MC"></div><div class="ph" data-label="AMEX"></div><div class="ph" data-label="PAYPAL"></div></div>
+    </div>
+  </div>
+</footer>
+
+<template id="__bundler_thumbnail">
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="#071f3d"/><path d="M54 22 38 56h14l-3 22 26-38H58l4-20z" fill="#ffd21a"/></svg>
+</template>
+
+<script src="assets/common.js"></script>
+<script>
+// Solo resalta la opción de menú activa (las secciones reales serían páginas/vistas distintas en WooCommerce)
+document.querySelectorAll(".acct-nav a").forEach(a => a.addEventListener("click", () => {
+  document.querySelectorAll(".acct-nav a").forEach(x => x.classList.remove("on")); a.classList.add("on");
+}));
+</script>
+</body>
+</html>
