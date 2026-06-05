@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 
@@ -22,10 +23,13 @@ const USER_KEY = 'ek_admin_user';
 
 @Injectable({ providedIn: 'root' })
 export class AdminAuthService {
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly http = inject(HttpClient);
   private readonly base = `${environment.apiUrl}/auth`;
 
-  readonly token = signal<string | null>(localStorage.getItem(TOKEN_KEY));
+  readonly token = signal<string | null>(
+    this.isBrowser ? localStorage.getItem(TOKEN_KEY) : null,
+  );
   readonly usuario = signal<UsuarioPanel | null>(this.readUser());
   readonly isAuthenticated = computed(() => this.token() !== null);
   readonly rol = computed(() => this.usuario()?.rol ?? null);
@@ -57,6 +61,7 @@ export class AdminAuthService {
   }
 
   private readUser(): UsuarioPanel | null {
+    if (!this.isBrowser) return null;
     const raw = localStorage.getItem(USER_KEY);
     return raw ? (JSON.parse(raw) as UsuarioPanel) : null;
   }

@@ -1,15 +1,18 @@
-import { Injectable, computed, effect, signal } from '@angular/core';
+import { Injectable, PLATFORM_ID, afterNextRender, computed, effect, inject, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { CartItem, Producto } from './models';
 
 const CART_KEY = 'ek_cart';
 
 /**
- * Carrito local (signals + localStorage). Funciona sin login; al hacer
- * checkout se podrá sincronizar con el carrito del servidor (`/cart`).
+ * Local cart (signals + localStorage). Works without login; can sync to server at checkout.
+ * SSR-safe: localStorage is only accessed after the first browser render.
  */
 @Injectable({ providedIn: 'root' })
 export class CartService {
-  readonly items = signal<CartItem[]>(this.load());
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+
+  readonly items = signal<CartItem[]>([]); // safe default on server
 
   readonly count = computed(() =>
     this.items().reduce((acc, it) => acc + it.cantidad, 0),
@@ -20,7 +23,13 @@ export class CartService {
   );
 
   constructor() {
-    effect(() => localStorage.setItem(CART_KEY, JSON.stringify(this.items())));
+    // Browser-only: hydrate from storage AFTER first render, then keep in sync.
+    if (this.isBrowser) {
+      afterNextRender(() => {
+        this.items.set(this.load());
+        effect(() => localStorage.setItem(CART_KEY, JSON.stringify(this.items())));
+      });
+    }
   }
 
   add(producto: Producto, cantidad = 1) {
