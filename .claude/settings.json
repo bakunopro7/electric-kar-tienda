@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "statusMessage": "Prettier --write",
+            "command": "f=$(jq -r '(.tool_input.file_path // .tool_response.filePath) // empty'); [ -z \"$f\" ] && exit 0; case \"$f\" in *.ts|*.html|*.css|*.scss|*.json|*.md) ;; *) exit 0;; esac; case \"$f\" in */electric-kar-front/*) d=\"$HOME/Documentos/tiendaOnline/electric-kar-front\";; */electric-kar/*) d=\"$HOME/Documentos/tiendaOnline/electric-kar\";; *) exit 0;; esac; \"$HOME/.local/bin/pnpm\" -C \"$d\" exec prettier --ignore-unknown --write \"$f\" 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  }
+}
