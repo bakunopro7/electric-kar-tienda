@@ -149,7 +149,17 @@ Pendiente (requiere **proveedores externos**):
 Pendiente de "hardening" para producción:
 - Cambiar `JWT_SECRET` y contraseñas del seed.
 - PostgreSQL por TCP con contraseña (no socket).
-- Fuentes locales (hoy Google Fonts CDN), Docker, tests, rate-limiting.
+- Fuentes locales (hoy Google Fonts CDN), Docker, rate-limiting.
+
+### Pruebas
+- **Backend** (`electric-kar`, Jest): pruebas unitarias de la lógica de negocio
+  con `PrismaService` simulado (sin BD): checkout (IVA incluido, stock, cupones,
+  folio), validación de cupones, autenticación (registro/login/recuperación),
+  `RolesGuard` y catálogo de productos (paginación/filtros/errores Prisma).
+  Ejecuta con `pnpm test` (cobertura: `pnpm test:cov`).
+  > Requiere `pnpm prisma:generate` antes (el cliente vive en `src/generated`).
+- **Frontend** (`electric-kar-front`, Angular + Vitest): pruebas del
+  `CartService` (signals + `localStorage`). Ejecuta con `pnpm test`.
 
 Datos demo señalados como tal: Reportes (desgloses por categoría/método de pago),
 métricas técnicas del Centro de control, contenido de Blog/FAQ/Nosotros/Contacto.
