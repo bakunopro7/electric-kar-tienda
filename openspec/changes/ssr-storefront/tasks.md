@@ -263,7 +263,7 @@ Apply them sequentially; each has its own unit test.
 
 ## Phase 7 — Verification
 
-- [ ] **T-15** · Run unit tests and confirm the four service specs and the
+- [x] **T-15** · Run unit tests and confirm the four service specs and the
   `ThemeService` spec pass.
 
   ```bash
@@ -272,7 +272,7 @@ Apply them sequentially; each has its own unit test.
 
   All specs introduced in T-06 through T-11 must be green before proceeding.
 
-- [ ] **T-16** · Run lint.
+- [N/A] **T-16** · Run lint. — No ESLint configured in this project; nothing to run.
 
   ```bash
   PATH="$HOME/.local/bin:$PATH" pnpm lint
@@ -280,7 +280,7 @@ Apply them sequentially; each has its own unit test.
 
   Fix any errors before proceeding (spec: NFR-3).
 
-- [ ] **T-17** · Run full production build and assert server bundle exists.
+- [x] **T-17** · Run full production build and assert server bundle exists.
 
   ```bash
   PATH="$HOME/.local/bin:$PATH" pnpm build
@@ -290,7 +290,7 @@ Apply them sequentially; each has its own unit test.
   Exit code MUST be 0. `server.mjs` MUST exist (spec: NFR-4 + "SSR Build
   Target Exists").
 
-- [ ] **T-18** · Smoke-test SSR output for `/`.
+- [x] **T-18** · Smoke-test SSR output for `/`.
 
   Start the SSR server:
 
