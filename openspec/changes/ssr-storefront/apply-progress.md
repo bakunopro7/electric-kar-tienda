@@ -86,10 +86,27 @@
 
 ---
 
+## Batch 3 (Phase 7 — Verification)
+
+- [x] **T-15** — DONE. `pnpm test --watch=false` → 8 test files, 21 tests passed (0 failed).
+- [N/A] **T-16** — NOT APPLICABLE. No ESLint configured in this project (no `lint`
+  script, no eslint dependency). Nothing to run. Spec NFR-3 assumed a linter that
+  the front never had. Deferred: add `@angular-eslint` in a separate change.
+- [x] **T-17** — DONE. `pnpm build` exit 0; `dist/electric-kar-front/server/server.mjs`
+  present (832k). 3 static routes prerendered (nosotros, faq, contacto).
+- [x] **T-18** — DONE. SSR smoke-test on `/` (port 4200):
+  - Home returns HTTP 200, ~86 KB populated HTML (not empty `<app-root>`).
+  - `ek_theme=dark` cookie → `<html lang="es" class="dark">` server-side (no theme flash).
+  - No cookie → `<html lang="es">` (light = absence of `dark` class, Tailwind pattern).
+    The spec's `class="light"` expectation did not match the implementation; not a bug.
+- [ ] **T-19** — PENDING (manual). Requires a real browser (Chrome DevTools) to confirm
+  zero NG0500 / hydration-mismatch warnings after bootstrap. Cannot be automated headless.
+
+---
+
 ## Tasks NOT started in Batch 2
 
 - [x] T-14 — Phase 6 (environment.prod.ts) — DONE (Batch 1 note)
-- [ ] T-15..T-19 — Phase 7 (verification)
 
 ---
 
