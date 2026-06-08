@@ -163,6 +163,7 @@ model RegistroActividad {
 
   @@index([usuarioId])
   @@index([fecha])
+  @@index([tipo, fecha])
 }
 
 model Sesion {
@@ -322,6 +323,8 @@ model Pedido {
   metodoPagoId  String?
   metodoEntrega MetodoEntrega @default(ENVIO)
   paqueteria    String?
+  pagado          Boolean     @default(false)
+  stripeSessionId String?
   cfdi          Cfdi?
   lineas        PedidoLinea[]
   creadoEn      DateTime      @default(now())
@@ -329,6 +332,8 @@ model Pedido {
 
   @@index([clienteId])
   @@index([estado])
+  @@index([cuponId])
+  @@index([metodoPagoId])
 }
 
 model PedidoLinea {
@@ -450,6 +455,8 @@ model MetodoPago {
   pedidos       Pedido[]
   creadoEn      DateTime     @default(now())
   actualizadoEn DateTime     @updatedAt
+
+  @@index([proveedorId])
 }
 
 model ConfigPickup {

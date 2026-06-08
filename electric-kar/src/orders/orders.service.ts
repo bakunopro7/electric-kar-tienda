@@ -96,14 +96,19 @@ export class OrdersService {
         include: pedidoInclude,
       });
 
-      for (const item of carrito.items) {
-        if (item.producto.seguirInventario) {
-          await tx.producto.update({
-            where: { id: item.productoId },
-            data: { existencias: { decrement: item.cantidad } },
-          });
-        }
-      }
+      // Decrement inventory for all tracked items in parallel over the same
+      // transaction connection, instead of one sequential awaited UPDATE per
+      // item (which held transaction locks open for the whole chain).
+      await Promise.all(
+        carrito.items
+          .filter((item) => item.producto.seguirInventario)
+          .map((item) =>
+            tx.producto.update({
+              where: { id: item.productoId },
+              data: { existencias: { decrement: item.cantidad } },
+            }),
+          ),
+      );
 
       if (cuponId) {
         await tx.cupon.update({

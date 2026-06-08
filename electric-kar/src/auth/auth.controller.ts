@@ -13,6 +13,7 @@ import type { AuthUser } from '../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { AuthService } from './auth.service';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { GoogleLoginDto } from './dto/google-login.dto';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
@@ -32,6 +33,12 @@ export class AuthController {
   @ApiOperation({ summary: 'Login de cliente (tienda)' })
   login(@Body() dto: LoginDto) {
     return this.authService.loginCliente(dto);
+  }
+
+  @Post('google')
+  @ApiOperation({ summary: 'Login/registro de cliente con Google (ID token)' })
+  google(@Body() dto: GoogleLoginDto) {
+    return this.authService.googleLogin(dto.idToken);
   }
 
   @Post('staff/login')
