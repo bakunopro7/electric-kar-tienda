@@ -13,6 +13,7 @@ import { IntegracionesModule } from './integraciones/integraciones.module';
 import { MarcasModule } from './marcas/marcas.module';
 import { MenuModule } from './menu/menu.module';
 import { OrdersModule } from './orders/orders.module';
+import { PaymentsModule } from './payments/payments.module';
 import { SesionesModule } from './sesiones/sesiones.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { PrismaModule } from './prisma/prisma.module';
@@ -38,6 +39,7 @@ import { UsersModule } from './users/users.module';
     SesionesModule,
     MenuModule,
     UploadsModule,
+    PaymentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

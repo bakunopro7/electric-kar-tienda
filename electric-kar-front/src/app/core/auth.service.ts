@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { AuthResponse, ClienteAuth } from './models';
@@ -22,10 +23,13 @@ export interface LoginDto {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly http = inject(HttpClient);
   private readonly base = `${environment.apiUrl}/auth`;
 
-  readonly token = signal<string | null>(localStorage.getItem(TOKEN_KEY));
+  readonly token = signal<string | null>(
+    this.isBrowser ? localStorage.getItem(TOKEN_KEY) : null,
+  );
   readonly cliente = signal<ClienteAuth | null>(this.readCliente());
   readonly isAuthenticated = computed(() => this.token() !== null);
 
@@ -46,6 +50,12 @@ export class AuthService {
     localStorage.removeItem(CLIENTE_KEY);
     this.token.set(null);
     this.cliente.set(null);
+  }
+
+  googleLogin(idToken: string) {
+    return this.http
+      .post<AuthResponse>(`${this.base}/google`, { idToken })
+      .pipe(tap((res) => this.store(res)));
   }
 
   forgotPassword(correo: string) {
@@ -70,6 +80,7 @@ export class AuthService {
   }
 
   private readCliente(): ClienteAuth | null {
+    if (!this.isBrowser) return null;
     const raw = localStorage.getItem(CLIENTE_KEY);
     return raw ? (JSON.parse(raw) as ClienteAuth) : null;
   }
