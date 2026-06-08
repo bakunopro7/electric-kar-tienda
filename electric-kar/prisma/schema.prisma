@@ -163,6 +163,7 @@ model RegistroActividad {
 
   @@index([usuarioId])
   @@index([fecha])
+  @@index([tipo, fecha])
 }
 
 model Sesion {
@@ -331,6 +332,8 @@ model Pedido {
 
   @@index([clienteId])
   @@index([estado])
+  @@index([cuponId])
+  @@index([metodoPagoId])
 }
 
 model PedidoLinea {
@@ -452,6 +455,8 @@ model MetodoPago {
   pedidos       Pedido[]
   creadoEn      DateTime     @default(now())
   actualizadoEn DateTime     @updatedAt
+
+  @@index([proveedorId])
 }
 
 model ConfigPickup {
