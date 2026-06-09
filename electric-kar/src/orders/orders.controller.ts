@@ -17,6 +17,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Rol } from '../generated/prisma/client';
 import { CheckoutDto } from './dto/checkout.dto';
+import { QueryClientOrdersDto } from './dto/query-client-orders.dto';
 import { QueryOrdersDto } from './dto/query-orders.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { OrdersService } from './orders.service';
@@ -38,8 +39,8 @@ export class OrdersController {
   @Get()
   @UseGuards(ClienteGuard)
   @ApiOperation({ summary: 'Mis pedidos (cliente)' })
-  myOrders(@CurrentUser() user: AuthUser) {
-    return this.ordersService.findAllForCliente(user.id);
+  myOrders(@CurrentUser() user: AuthUser, @Query() dto: QueryClientOrdersDto) {
+    return this.ordersService.findAllForCliente(user.id, dto.page, dto.limit);
   }
 
   @Get('all')

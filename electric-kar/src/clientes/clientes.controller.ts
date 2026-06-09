@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -18,6 +19,7 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { Rol } from '../generated/prisma/client';
 import { ClientesService } from './clientes.service';
 import { CreateDireccionDto } from './dto/create-direccion.dto';
+import { QueryClientesDto } from './dto/query-clientes.dto';
 import { UpdateClienteDto } from './dto/update-cliente.dto';
 import { UpdateDireccionDto } from './dto/update-direccion.dto';
 import { UpdateSegmentoDto } from './dto/update-segmento.dto';
@@ -82,13 +84,31 @@ export class ClientesController {
   }
 
   // --- Gestión (personal del panel) ----------------------------------------
+  // IMPORTANT: 'top' and 'stats' MUST be declared BEFORE '/:id' to prevent
+  // NestJS from matching the literal strings "top" and "stats" as :id values.
 
   @Get()
   @Roles(Rol.ADMIN, Rol.SUPER, Rol.VENDEDOR, Rol.CONTADOR)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Listar clientes (personal)' })
-  findAll() {
-    return this.clientesService.findAll();
+  @ApiOperation({ summary: 'Listar clientes con paginación (personal)' })
+  findAll(@Query() dto: QueryClientesDto) {
+    return this.clientesService.findAll(dto.page, dto.limit);
+  }
+
+  @Get('top')
+  @Roles(Rol.ADMIN, Rol.SUPER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({ summary: 'Top clientes por totalGastado (personal)' })
+  findTop(@Query('limit') limit?: string) {
+    return this.clientesService.findTop(limit ? Number(limit) : undefined);
+  }
+
+  @Get('stats')
+  @Roles(Rol.ADMIN, Rol.SUPER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({ summary: 'Estadísticas de clientes: total (personal)' })
+  stats() {
+    return this.clientesService.stats();
   }
 
   @Get(':id')
