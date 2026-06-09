@@ -76,7 +76,6 @@ jobs:
       JWT_SECRET: ci-test-secret
       JWT_EXPIRES_IN: 1d
       APP_FRONT_URL: http://localhost:4200
-      PORT: "3000"
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -105,6 +104,8 @@ jobs:
         run: pnpm build
       - name: Start backend (:3000)
         working-directory: electric-kar
+        env:
+          PORT: "3000"
         run: node dist/main &
 
       # --- Frontend: build, install browser, start SSR ---
@@ -119,6 +120,8 @@ jobs:
         run: pnpm build
       - name: Start SSR server (:4200)
         working-directory: electric-kar-front
+        env:
+          PORT: "4200"
         run: node dist/electric-kar-front/server/server.mjs &
 
       - name: Wait for both servers
