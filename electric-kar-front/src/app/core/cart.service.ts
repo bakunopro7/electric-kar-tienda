@@ -1,4 +1,4 @@
-import { Injectable, PLATFORM_ID, afterNextRender, computed, effect, inject, signal } from '@angular/core';
+import { Injectable, Injector, PLATFORM_ID, afterNextRender, computed, effect, inject, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { CartItem, Producto } from './models';
 
@@ -11,6 +11,7 @@ const CART_KEY = 'ek_cart';
 @Injectable({ providedIn: 'root' })
 export class CartService {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly injector = inject(Injector);
 
   readonly items = signal<CartItem[]>([]); // safe default on server
 
@@ -27,7 +28,14 @@ export class CartService {
     if (this.isBrowser) {
       afterNextRender(() => {
         this.items.set(this.load());
-        effect(() => localStorage.setItem(CART_KEY, JSON.stringify(this.items())));
+        // effect() runs outside the injection context here, so pass the
+        // injector explicitly (otherwise it throws NG0203 and persistence
+        // silently never registers). Registered after load() to avoid
+        // overwriting stored data on first run.
+        effect(
+          () => localStorage.setItem(CART_KEY, JSON.stringify(this.items())),
+          { injector: this.injector },
+        );
       });
     }
   }

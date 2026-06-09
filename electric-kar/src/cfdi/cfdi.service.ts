@@ -141,11 +141,21 @@ export class CfdiService {
     return this.findOne(id);
   }
 
-  findAll() {
-    return this.prisma.cfdi.findMany({
-      orderBy: { fecha: 'desc' },
-      include: cfdiInclude,
-    });
+  async findAll(page = 1, limit = 20) {
+    const take = Math.min(limit, 100);
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.cfdi.findMany({
+        skip: (page - 1) * take,
+        take,
+        orderBy: { fecha: 'desc' },
+        include: cfdiInclude,
+      }),
+      this.prisma.cfdi.count(),
+    ]);
+    return {
+      data,
+      meta: { total, page, limit: take, pages: Math.ceil(total / take) || 1 },
+    };
   }
 
   async findOne(id: string) {

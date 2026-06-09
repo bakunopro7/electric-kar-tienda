@@ -1,4 +1,4 @@
-import { Injectable, PLATFORM_ID, afterNextRender, computed, effect, inject, signal } from '@angular/core';
+import { Injectable, Injector, PLATFORM_ID, afterNextRender, computed, effect, inject, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Producto } from './models';
 
@@ -11,6 +11,7 @@ const KEY = 'ek_favs';
 @Injectable({ providedIn: 'root' })
 export class FavoritesService {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly injector = inject(Injector);
 
   readonly items = signal<Producto[]>([]); // safe default on server
   readonly count = computed(() => this.items().length);
@@ -20,7 +21,14 @@ export class FavoritesService {
     if (this.isBrowser) {
       afterNextRender(() => {
         this.items.set(this.load());
-        effect(() => localStorage.setItem(KEY, JSON.stringify(this.items())));
+        // effect() runs outside the injection context here, so pass the
+        // injector explicitly (otherwise it throws NG0203 and persistence
+        // silently never registers). Registered after load() to avoid
+        // overwriting stored data on first run.
+        effect(
+          () => localStorage.setItem(KEY, JSON.stringify(this.items())),
+          { injector: this.injector },
+        );
       });
     }
   }
