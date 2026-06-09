@@ -93,6 +93,147 @@ test.describe('GET /api/cfdi — paginated shape', () => {
   });
 });
 
+test.describe('GET /api/orders — client-facing paginated shape', () => {
+  test('returns { data, meta } envelope with meta.total >= 0', async ({ page }) => {
+    const res = await page.request.post(`${API}/auth/login`, {
+      data: { correo: 'cliente@example.com', password: 'cliente123' },
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const body = await res.json() as { accessToken?: string };
+    const token = body.accessToken ?? '';
+
+    const r = await page.request.get(`${API}/orders`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    expect(r.status()).toBe(200);
+    const rb = await r.json() as { data?: unknown; meta?: { total: number; page: number; limit: number; pages: number } };
+    expect(Array.isArray(rb.data)).toBe(true);
+    expect(typeof rb.meta?.total).toBe('number');
+    expect(rb.meta!.total).toBeGreaterThanOrEqual(0);
+  });
+
+  test('meta.page and meta.limit are present when using query params', async ({ page }) => {
+    const res = await page.request.post(`${API}/auth/login`, {
+      data: { correo: 'cliente@example.com', password: 'cliente123' },
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const body = await res.json() as { accessToken?: string };
+    const token = body.accessToken ?? '';
+
+    const r = await page.request.get(`${API}/orders?page=1&limit=5`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const rb = await r.json() as { meta?: { page: number; limit: number; pages: number } };
+    expect(rb.meta?.page).toBe(1);
+    expect(rb.meta?.limit).toBe(5);
+    expect(typeof rb.meta?.pages).toBe('number');
+  });
+
+  test('no JWT → 401', async ({ page }) => {
+    const r = await page.request.get(`${API}/orders`);
+    expect(r.status()).toBe(401);
+  });
+});
+
+test.describe('GET /api/clientes — admin paginated shape', () => {
+  test('returns { data, meta } envelope as ADMIN', async ({ page }) => {
+    const token = await adminLogin(page);
+
+    const r = await page.request.get(`${API}/clientes`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    expect(r.status()).toBe(200);
+    const rb = await r.json() as { data?: unknown; meta?: { total: number } };
+    expect(Array.isArray(rb.data)).toBe(true);
+    expect(typeof rb.meta?.total).toBe('number');
+  });
+
+  test('CLIENTE role → 403', async ({ page }) => {
+    const res = await page.request.post(`${API}/auth/login`, {
+      data: { correo: 'cliente@example.com', password: 'cliente123' },
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const body = await res.json() as { accessToken?: string };
+    const token = body.accessToken ?? '';
+
+    const r = await page.request.get(`${API}/clientes`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    expect(r.status()).toBe(403);
+  });
+});
+
+test.describe('GET /api/clientes/top — top clientes', () => {
+  test('returns array ordered by totalGastado desc', async ({ page }) => {
+    const token = await adminLogin(page);
+
+    const r = await page.request.get(`${API}/clientes/top`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    expect(r.status()).toBe(200);
+    const rb = await r.json() as unknown[];
+    expect(Array.isArray(rb)).toBe(true);
+  });
+
+  test('limit=3 returns at most 3 items', async ({ page }) => {
+    const token = await adminLogin(page);
+
+    const r = await page.request.get(`${API}/clientes/top?limit=3`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const rb = await r.json() as unknown[];
+    expect(rb.length).toBeLessThanOrEqual(3);
+  });
+
+  test('CLIENTE role → 403', async ({ page }) => {
+    const res = await page.request.post(`${API}/auth/login`, {
+      data: { correo: 'cliente@example.com', password: 'cliente123' },
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const body = await res.json() as { accessToken?: string };
+    const token = body.accessToken ?? '';
+
+    const r = await page.request.get(`${API}/clientes/top`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    expect(r.status()).toBe(403);
+  });
+});
+
+test.describe('GET /api/clientes/stats — clientes aggregate', () => {
+  test('returns { total: number } with total >= 0 as ADMIN', async ({ page }) => {
+    const token = await adminLogin(page);
+
+    const r = await page.request.get(`${API}/clientes/stats`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    expect(r.status()).toBe(200);
+    const rb = await r.json() as { total?: number };
+    expect(typeof rb.total).toBe('number');
+    expect(rb.total!).toBeGreaterThanOrEqual(0);
+  });
+
+  test('CLIENTE role → 403', async ({ page }) => {
+    const res = await page.request.post(`${API}/auth/login`, {
+      data: { correo: 'cliente@example.com', password: 'cliente123' },
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const body = await res.json() as { accessToken?: string };
+    const token = body.accessToken ?? '';
+
+    const r = await page.request.get(`${API}/clientes/stats`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    expect(r.status()).toBe(403);
+  });
+});
+
 test.describe('Role guards — unauthenticated and insufficient role', () => {
   test('GET /api/orders/all without JWT → 401', async ({ page }) => {
     const res = await page.request.get(`${API}/orders/all`);

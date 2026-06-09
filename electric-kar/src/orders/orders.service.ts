@@ -166,12 +166,23 @@ export class OrdersService {
     return { id: cupon.id, descuento: descuento.toDecimalPlaces(2) };
   }
 
-  findAllForCliente(clienteId: string) {
-    return this.prisma.pedido.findMany({
-      where: { clienteId },
-      orderBy: { creadoEn: 'desc' },
-      include: pedidoInclude,
-    });
+  async findAllForCliente(clienteId: string, page = 1, limit = 20) {
+    const take = Math.min(limit, 100);
+    const skip = (page - 1) * take;
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.pedido.findMany({
+        where: { clienteId },
+        skip,
+        take,
+        orderBy: { creadoEn: 'desc' },
+        include: pedidoInclude,
+      }),
+      this.prisma.pedido.count({ where: { clienteId } }),
+    ]);
+    return {
+      data,
+      meta: { total, page, limit: take, pages: Math.ceil(total / take) || 1 },
+    };
   }
 
   async findAll(page = 1, limit = 20, estado?: EstadoPedido) {

@@ -167,8 +167,26 @@ export class AdminService {
   }
 
   // --- Clientes -------------------------------------------------------------
-  clientes() {
-    return this.http.get<ClienteAdmin[]>(`${this.api}/clientes`, this.ctx);
+  clientes(q: { page?: number; limit?: number } = {}) {
+    let params = new HttpParams();
+    for (const [k, v] of Object.entries(q) as [string, number | undefined][]) {
+      if (v != null) params = params.set(k, String(v));
+    }
+    return this.http.get<Paginated<ClienteAdmin>>(`${this.api}/clientes`, {
+      ...this.ctx,
+      params,
+    });
+  }
+  clientesTop(limit?: number) {
+    let params = new HttpParams();
+    if (limit != null) params = params.set('limit', String(limit));
+    return this.http.get<ClienteAdmin[]>(`${this.api}/clientes/top`, {
+      ...this.ctx,
+      params,
+    });
+  }
+  clientesStats() {
+    return this.http.get<{ total: number }>(`${this.api}/clientes/stats`, this.ctx);
   }
   actualizarSegmento(id: string, segmento: string) {
     return this.http.patch<ClienteAdmin>(

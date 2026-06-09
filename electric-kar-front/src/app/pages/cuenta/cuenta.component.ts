@@ -9,6 +9,7 @@ import {
   PedidoCliente,
   PerfilCliente,
 } from '../../core/cliente.service';
+import { Paginated } from '../../core/models';
 import { FavoritesService } from '../../core/favorites.service';
 import { IconComponent, IconName } from '../../shared/icon.component';
 import { MoneyPipe } from '../../shared/money.pipe';
@@ -59,7 +60,7 @@ type Seccion = 'resumen' | 'pedidos' | 'direcciones' | 'datos';
           @switch (seccion()) {
             @case ('resumen') {
               <div class="grid gap-4 sm:grid-cols-3">
-                <div class="card"><span class="text-sm text-black/50 dark:text-white/50">Pedidos</span><div class="mt-1 font-display text-2xl font-bold">{{ pedidos().length }}</div></div>
+                <div class="card"><span class="text-sm text-black/50 dark:text-white/50">Pedidos</span><div class="mt-1 font-display text-2xl font-bold">{{ pedidosMeta()?.total ?? 0 }}</div></div>
                 <div class="card"><span class="text-sm text-black/50 dark:text-white/50">Favoritos</span><div class="mt-1 font-display text-2xl font-bold">{{ favs.count() }}</div></div>
                 <div class="card"><span class="text-sm text-black/50 dark:text-white/50">Total gastado</span><div class="mt-1 font-display text-2xl font-bold">{{ perfil()?.totalGastado || 0 | money }}</div></div>
               </div>
@@ -138,6 +139,7 @@ export class CuentaComponent {
   readonly seccion = signal<Seccion>('resumen');
   readonly perfil = signal<PerfilCliente | null>(null);
   readonly pedidos = signal<PedidoCliente[]>([]);
+  readonly pedidosMeta = signal<Paginated<PedidoCliente>['meta'] | null>(null);
   readonly direcciones = signal<Direccion[]>([]);
   readonly loading = signal(false);
   readonly formDir = signal(false);
@@ -169,7 +171,7 @@ export class CuentaComponent {
         error: () => {},
       });
       this.cliente.pedidos().subscribe({
-        next: (l) => { this.pedidos.set(l); this.loading.set(false); },
+        next: (r) => { this.pedidos.set(r.data); this.pedidosMeta.set(r.meta); this.loading.set(false); },
         error: () => this.loading.set(false),
       });
       this.cliente.direcciones().subscribe({ next: (d) => this.direcciones.set(d), error: () => {} });
