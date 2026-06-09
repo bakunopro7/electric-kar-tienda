@@ -2,6 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AdminAuthService } from '../core/admin-auth.service';
 import { AdminService, ClienteAdmin } from '../core/admin.service';
+import { Paginated } from '../core/models';
 import { MoneyPipe } from '../shared/money.pipe';
 
 const SEGMENTOS = ['NUEVO', 'FRECUENTE', 'MAYOREO'];
@@ -43,6 +44,22 @@ const SEGMENTOS = ['NUEVO', 'FRECUENTE', 'MAYOREO'];
             }
           </tbody>
         </table>
+
+        @if (clientesMeta() && clientesMeta()!.pages > 1) {
+          <div class="mt-4 flex items-center justify-between text-sm">
+            <span class="text-black/50 dark:text-white/50">
+              Página {{ currentPage() }} de {{ clientesMeta()!.pages }} ({{ clientesMeta()!.total }} clientes)
+            </span>
+            <div class="flex gap-2">
+              @if (currentPage() > 1) {
+                <button type="button" class="btn-outline px-3 py-1 text-xs" (click)="goToPage(currentPage() - 1)">Anterior</button>
+              }
+              @if (currentPage() < clientesMeta()!.pages) {
+                <button type="button" class="btn-primary px-3 py-1 text-xs" (click)="goToPage(currentPage() + 1)">Siguiente</button>
+              }
+            </div>
+          </div>
+        }
       }
     </div>
   `,
@@ -53,14 +70,26 @@ export class ClientesComponent {
 
   readonly segmentos = SEGMENTOS;
   readonly clientes = signal<ClienteAdmin[]>([]);
+  readonly clientesMeta = signal<Paginated<ClienteAdmin>['meta'] | null>(null);
   readonly loading = signal(true);
   readonly guardando = signal<string | null>(null);
+  readonly currentPage = signal(1);
 
   readonly puedeEditar = computed(() => this.auth.hasRole('ADMIN', 'SUPER'));
 
   constructor() {
-    this.admin.clientes().subscribe({
-      next: (list) => { this.clientes.set(list); this.loading.set(false); },
+    this.loadPage(1);
+  }
+
+  goToPage(page: number) {
+    this.currentPage.set(page);
+    this.loadPage(page);
+  }
+
+  private loadPage(page: number) {
+    this.loading.set(true);
+    this.admin.clientes({ page }).subscribe({
+      next: (r) => { this.clientes.set(r.data); this.clientesMeta.set(r.meta); this.loading.set(false); },
       error: () => this.loading.set(false),
     });
   }

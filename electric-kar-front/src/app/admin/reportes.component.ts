@@ -110,7 +110,8 @@ export class ReportesComponent {
   private readonly admin = inject(AdminService);
 
   readonly stats = signal<OrderStats>({ ventasTotal: '0.00', pedidosCount: 0, ticketPromedio: '0.00' });
-  readonly clientes = signal<ClienteAdmin[]>([]);
+  readonly topClientes = signal<ClienteAdmin[]>([]);
+  readonly clientesStats = signal<{ total: number }>({ total: 0 });
 
   // --- Demo data ---
   readonly ventasMes = [
@@ -150,12 +151,8 @@ export class ReportesComponent {
     { label: 'Ventas (real)', value: this.fmt(+this.stats().ventasTotal), icon: 'card' },
     { label: 'Pedidos (real)', value: String(this.stats().pedidosCount), icon: 'cart' },
     { label: 'Ticket promedio', value: this.fmt(+this.stats().ticketPromedio), icon: 'chart' },
-    { label: 'Clientes (real)', value: String(this.clientes().length), icon: 'user' },
+    { label: 'Clientes (real)', value: String(this.clientesStats().total), icon: 'user' },
   ]);
-
-  readonly topClientes = computed(() =>
-    [...this.clientes()].sort((a, b) => Number(b.totalGastado) - Number(a.totalGastado)).slice(0, 5),
-  );
 
   constructor() {
     this.admin
@@ -164,9 +161,14 @@ export class ReportesComponent {
       .subscribe((s) => this.stats.set(s));
 
     this.admin
-      .clientes()
+      .clientesTop(5)
       .pipe(catchError(() => of([] as ClienteAdmin[])))
-      .subscribe((l) => this.clientes.set(l));
+      .subscribe((l) => this.topClientes.set(l));
+
+    this.admin
+      .clientesStats()
+      .pipe(catchError(() => of({ total: 0 })))
+      .subscribe((s) => this.clientesStats.set(s));
   }
 
   private fmt(n: number) {

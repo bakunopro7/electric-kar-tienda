@@ -1,6 +1,7 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { environment } from '../../environments/environment';
+import { Paginated } from './models';
 
 export interface PerfilCliente {
   id: string;
@@ -53,7 +54,10 @@ export class ClienteService {
   eliminarDireccion(id: string) {
     return this.http.delete(`${this.api}/clientes/me/direcciones/${id}`);
   }
-  pedidos() {
-    return this.http.get<PedidoCliente[]>(`${this.api}/orders`);
+  pedidos(page = 1, limit = 20) {
+    const params = new HttpParams()
+      .set('page', String(page))
+      .set('limit', String(limit));
+    return this.http.get<Paginated<PedidoCliente>>(`${this.api}/orders`, { params });
   }
 }
