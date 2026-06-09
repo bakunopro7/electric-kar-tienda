@@ -10,6 +10,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { OAuth2Client } from 'google-auth-library';
 import { AuthService } from './auth.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditoriaService } from '../auditoria/auditoria.service';
@@ -171,6 +172,84 @@ describe('AuthService', () => {
       expect(mockPrisma.cliente.findUnique).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({ correo: 'user@example.com' }),
+        }),
+      );
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // googleLogin — email normalization (W-01)
+  // -------------------------------------------------------------------------
+
+  describe('googleLogin', () => {
+    /** Returns the verifyIdToken mock from the most-recently constructed OAuth2Client instance. */
+    function getMockVerifyIdToken() {
+      const instances = (OAuth2Client as jest.Mock).mock.results;
+      return instances[instances.length - 1].value.verifyIdToken as jest.Mock;
+    }
+
+    beforeEach(() => {
+      // Provide a dummy client ID so the service does not throw ServiceUnavailableException.
+      mockConfig.get.mockReturnValue('test-google-client-id');
+    });
+
+    it('looks up the cliente using the lowercased email from the Google payload', async () => {
+      // Arrange: existing cliente found — no create path.
+      mockPrisma.cliente.findUnique.mockResolvedValue({
+        id: 'existing-id',
+        correo: 'mixedcase@gmail.com',
+      });
+
+      // Act: call googleLogin with a mixed-case payload email.
+      // The OAuth2Client constructor is called inside googleLogin, so we call the service first
+      // to trigger construction, then wire the verifyIdToken mock.
+      // Because the constructor mock runs synchronously before verifyIdToken is awaited,
+      // we intercept by replacing the implementation before the await resolves.
+      // Simpler: prime the mock results array before the call by spying on mockImplementation.
+      const mockVerify = jest.fn().mockResolvedValue({
+        getPayload: () => ({
+          email: 'MixedCase@Gmail.COM',
+          name: 'Mixed Case User',
+        }),
+      });
+      (OAuth2Client as jest.Mock).mockImplementationOnce(() => ({
+        verifyIdToken: mockVerify,
+      }));
+
+      await service.googleLogin('dummy-id-token');
+
+      // Assert: prisma lookup used the normalized (lowercased) email.
+      expect(mockPrisma.cliente.findUnique).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ correo: 'mixedcase@gmail.com' }),
+        }),
+      );
+    });
+
+    it('stores the new cliente with the lowercased email when no existing record is found', async () => {
+      // Arrange: no existing cliente — triggers the auto-registration path.
+      mockPrisma.cliente.findUnique.mockResolvedValue(null);
+      mockPrisma.cliente.create.mockResolvedValue({
+        id: 'new-id',
+        correo: 'mixedcase@gmail.com',
+      });
+
+      const mockVerify = jest.fn().mockResolvedValue({
+        getPayload: () => ({
+          email: 'MixedCase@Gmail.COM',
+          name: 'Mixed Case User',
+        }),
+      });
+      (OAuth2Client as jest.Mock).mockImplementationOnce(() => ({
+        verifyIdToken: mockVerify,
+      }));
+
+      await service.googleLogin('dummy-id-token');
+
+      // Assert: the created record uses the normalized email.
+      expect(mockPrisma.cliente.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ correo: 'mixedcase@gmail.com' }),
         }),
       );
     });
