@@ -100,4 +100,4 @@ Chain strategy: size-exception
 
 - [x] 6.3 **Spot-check VarChar invariant.** Manually verify in `schema.prisma` that every DTO `@MaxLength(m)` maps to `@db.VarChar(n)` with `n >= m`. Req: DB Safety Net §VarChar invariant.
 
-- [ ] 6.4 **Commit and open PR.** Stage all changed files. Commit with `feat(validation): add input validation hardening — length caps, email normalization, UUID tightening, varchar safety net`. Push `feat/input-validation-hardening` and open PR targeting `main`. Req: All.
+- [x] 6.4 **Commit and open PR.** Stage all changed files. Commit with `feat(validation): add input validation hardening — length caps, email normalization, UUID tightening, varchar safety net`. Push `feat/input-validation-hardening` and open PR targeting `main`. Req: All.
