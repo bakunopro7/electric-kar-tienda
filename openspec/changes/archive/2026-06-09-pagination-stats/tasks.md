@@ -59,7 +59,7 @@ Chain strategy: size-exception
 
 ## Phase 4: Frontend — AdminService + Models
 
-- [x] 4.1 **`AdminService` signatures**: update `electric-kar-front/src/app/core/admin.service.ts` — `pedidos(q?:{page?;limit?;estado?})` returns `Observable<Paginated<PedidoAdmin>>`; `cfdis(q?:{page?;limit?})` returns `Observable<Paginated<CfdiAdmin>>`; add `ordersStats()` returning `Observable<{ventasTotal:string; pedidosCount:number; ticketPromedio:string}>`. Build `HttpParams` the same way `productos()` does.
+- [x] 4.1 **`AdminService` signatures**: update `electric-kar-front/src/app/core/admin.service.ts` — `pedidos(q?:{page?;limit?;estado?})` returns `Observable<Paginated<PedidoAdmin>>`; `cfdis(q?:{page?;limit?})` returns `Observable<Paginated<CfdiAdmin>>`; add `ordersStats()` returning `Observable<{ventasTotal:string; pedidosCount:number; ticketPromedio:string}>`. Build `HttpParams` the same way `produtos()` does.
 
 ---
 
