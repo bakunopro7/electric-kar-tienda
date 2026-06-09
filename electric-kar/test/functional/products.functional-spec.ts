@@ -43,13 +43,54 @@ describe('Products (functional)', () => {
       expect(res.body.meta).toHaveProperty('pages');
     });
 
-    it('?page=2&limit=1 → 200 + meta.page=2, meta.limit=1, data.length <= 1', async () => {
-      const res = await request(app.getHttpServer()).get('/api/products?page=2&limit=1');
+    it('?page=2&limit=2 → 200 + page 2 returns exactly 2 items and meta is correct', async () => {
+      // Seed 3 extra products (seedBaseline already creates 2) so total >= 5
+      const cat = await prisma.categoria.findFirst();
+      const marca = await prisma.marca.findFirst();
+      await Promise.all([
+        prisma.producto.create({
+          data: {
+            nombre: 'Prod C',
+            sku: 'TST-C',
+            precio: 300,
+            existencias: 3,
+            estado: 'PUBLICADO',
+            categoriaId: cat!.id,
+            marcaId: marca!.id,
+          },
+        }),
+        prisma.producto.create({
+          data: {
+            nombre: 'Prod D',
+            sku: 'TST-D',
+            precio: 400,
+            existencias: 4,
+            estado: 'PUBLICADO',
+            categoriaId: cat!.id,
+            marcaId: marca!.id,
+          },
+        }),
+        prisma.producto.create({
+          data: {
+            nombre: 'Prod E',
+            sku: 'TST-E',
+            precio: 500,
+            existencias: 5,
+            estado: 'PUBLICADO',
+            categoriaId: cat!.id,
+            marcaId: marca!.id,
+          },
+        }),
+      ]);
+
+      const res = await request(app.getHttpServer()).get('/api/products?page=2&limit=2');
 
       expect(res.status).toBe(200);
+      expect(res.body.data.length).toBe(2);
       expect(res.body.meta.page).toBe(2);
-      expect(res.body.meta.limit).toBe(1);
-      expect(res.body.data.length).toBeLessThanOrEqual(1);
+      expect(res.body.meta.limit).toBe(2);
+      expect(res.body.meta.total).toBeGreaterThanOrEqual(5);
+      expect(res.body.meta.pages).toBe(Math.ceil(res.body.meta.total / 2));
     });
   });
 
