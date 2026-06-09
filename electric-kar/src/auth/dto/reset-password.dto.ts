@@ -4,6 +4,7 @@ import { IsString, MaxLength, MinLength } from 'class-validator';
 export class ResetPasswordDto {
   @ApiProperty({ description: 'Token de recuperación' })
   @IsString()
+  @MaxLength(256)
   token: string;
 
   @ApiProperty({ example: 'nuevaPassword123', minLength: 6 })

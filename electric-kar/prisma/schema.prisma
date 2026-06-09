@@ -140,8 +140,8 @@ enum TiempoPreparacion {
 
 model Usuario {
   id           String              @id @default(uuid())
-  nombre       String
-  correo       String              @unique
+  nombre       String              @db.VarChar(120)
+  correo       String              @unique @db.VarChar(254)
   password     String
   rol          Rol                 @default(VENDEDOR)
   estado       EstadoUsuario       @default(ACTIVO)
@@ -185,8 +185,8 @@ model Sesion {
 
 model Cliente {
   id            String          @id @default(uuid())
-  nombre        String
-  correo        String          @unique
+  nombre        String          @db.VarChar(120)
+  correo        String          @unique @db.VarChar(254)
   password      String
   telefono      String?
   segmento      SegmentoCliente @default(NUEVO)
@@ -209,7 +209,7 @@ model Direccion {
   calle     String
   interior  String?
   colonia   String?
-  cp        String
+  cp        String   @db.VarChar(10)
   ciudad    String?
   estado    String?
   creadoEn  DateTime @default(now())
@@ -242,8 +242,8 @@ model Marca {
 
 model Producto {
   id                String         @id @default(uuid())
-  nombre            String
-  sku               String         @unique
+  nombre            String         @db.VarChar(150)
+  sku               String         @unique @db.VarChar(60)
   codigoBarras      String?
   descripcion       String?
   descripcionCorta  String?
@@ -357,7 +357,7 @@ model PedidoLinea {
 
 model Cupon {
   id               String      @id @default(uuid())
-  codigo           String      @unique
+  codigo           String      @unique @db.VarChar(40)
   tipo             TipoCupon
   valor            Decimal     @db.Decimal(12, 2)
   compraMinima     Decimal     @default(0) @db.Decimal(12, 2)
@@ -387,8 +387,8 @@ model Cfdi {
   pedidoId          String             @unique
   emisorRfc         String
   receptorNombre    String
-  receptorRfc       String
-  receptorCp        String
+  receptorRfc       String             @db.VarChar(13)
+  receptorCp        String             @db.VarChar(10)
   receptorRegimen   String // c_RegimenFiscal
   usoCfdi           String // c_UsoCFDI
   tipoComprobante   TipoComprobante    @default(I)

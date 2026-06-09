@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsOptional, IsUUID } from 'class-validator';
 import { MotivoCancelacion } from '../../generated/prisma/client';
 
 export class CancelarCfdiDto {
@@ -13,6 +13,6 @@ export class CancelarCfdiDto {
 
   @ApiPropertyOptional({ description: 'Folio fiscal que sustituye (motivo M01)' })
   @IsOptional()
-  @IsString()
+  @IsUUID()
   uuidSustituye?: string;
 }

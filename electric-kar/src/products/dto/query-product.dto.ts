@@ -6,13 +6,17 @@ import {
   IsString,
   IsUUID,
   Max,
+  MaxLength,
   Min,
 } from 'class-validator';
+import { Trim } from '../../common/transforms';
 
 export class QueryProductDto {
   @ApiPropertyOptional({ description: 'Buscar por nombre o SKU' })
   @IsOptional()
+  @Trim()
   @IsString()
+  @MaxLength(200)
   search?: string;
 
   @ApiPropertyOptional({ description: 'Filtrar por categoría' })
