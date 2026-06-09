@@ -79,7 +79,7 @@ export class DashboardComponent {
   readonly recentOrders = signal<PedidoAdmin[]>([]);
   readonly productos = signal<Producto[]>([]);
   readonly totalProductos = signal(0);
-  readonly totalClientes = signal(0);
+  readonly clientesStats = signal<{ total: number }>({ total: 0 });
 
   readonly ventasTotal = computed(() => this.stats().ventasTotal);
   readonly pedidosCount = computed(() => this.stats().pedidosCount);
@@ -94,7 +94,7 @@ export class DashboardComponent {
     () => [
       { label: 'Ventas', value: this.fmt(+this.stats().ventasTotal), icon: 'card' },
       { label: 'Pedidos', value: String(this.stats().pedidosCount), icon: 'cart' },
-      { label: 'Clientes', value: String(this.totalClientes()), icon: 'user' },
+      { label: 'Clientes', value: String(this.clientesStats().total), icon: 'user' },
       { label: 'Productos', value: String(this.totalProductos()), icon: 'box' },
     ],
   );
@@ -113,9 +113,9 @@ export class DashboardComponent {
       });
 
     this.admin
-      .clientes()
-      .pipe(catchError(() => of([])))
-      .subscribe((list) => this.totalClientes.set(list.length));
+      .clientesStats()
+      .pipe(catchError(() => of({ total: 0 })))
+      .subscribe((s) => this.clientesStats.set(s));
 
     this.admin
       .productos({ limit: 100 })
