@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import {
   EstadoCupon,
+  EstadoPedido,
   EstadoProducto,
   Prisma,
   TipoCupon,
@@ -173,11 +174,40 @@ export class OrdersService {
     });
   }
 
-  findAll() {
-    return this.prisma.pedido.findMany({
-      orderBy: { creadoEn: 'desc' },
-      include: pedidoInclude,
-    });
+  async findAll(page = 1, limit = 20, estado?: EstadoPedido) {
+    const take = Math.min(limit, 100);
+    const where: Prisma.PedidoWhereInput = estado ? { estado } : {};
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.pedido.findMany({
+        where,
+        skip: (page - 1) * take,
+        take,
+        orderBy: { creadoEn: 'desc' },
+        include: pedidoInclude,
+      }),
+      this.prisma.pedido.count({ where }),
+    ]);
+    return {
+      data,
+      meta: { total, page, limit: take, pages: Math.ceil(total / take) || 1 },
+    };
+  }
+
+  async stats() {
+    const [agg, pedidosCount] = await this.prisma.$transaction([
+      this.prisma.pedido.aggregate({ _sum: { total: true } }),
+      this.prisma.pedido.count(),
+    ]);
+    const ventas = agg._sum.total ?? new Prisma.Decimal(0);
+    const ticket =
+      pedidosCount > 0
+        ? ventas.div(pedidosCount)
+        : new Prisma.Decimal(0);
+    return {
+      ventasTotal: ventas.toFixed(2),
+      pedidosCount,
+      ticketPromedio: ticket.toFixed(2),
+    };
   }
 
   async findOne(pedidoId: string, requester: AuthUser) {

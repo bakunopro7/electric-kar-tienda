@@ -1,10 +1,16 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { catchError, of } from 'rxjs';
-import { AdminService, ClienteAdmin, PedidoAdmin } from '../core/admin.service';
+import { AdminService, ClienteAdmin } from '../core/admin.service';
 import { IconComponent, IconName } from '../shared/icon.component';
 import { MoneyPipe } from '../shared/money.pipe';
 
 interface Barra { label: string; valor: number; color: string; }
+
+interface OrderStats {
+  ventasTotal: string;
+  pedidosCount: number;
+  ticketPromedio: string;
+}
 
 @Component({
   selector: 'ek-admin-reportes',
@@ -103,10 +109,10 @@ interface Barra { label: string; valor: number; color: string; }
 export class ReportesComponent {
   private readonly admin = inject(AdminService);
 
-  readonly pedidos = signal<PedidoAdmin[]>([]);
+  readonly stats = signal<OrderStats>({ ventasTotal: '0.00', pedidosCount: 0, ticketPromedio: '0.00' });
   readonly clientes = signal<ClienteAdmin[]>([]);
 
-  // --- Datos de ejemplo (demo) ---
+  // --- Demo data ---
   readonly ventasMes = [
     { label: 'Ene', valor: 42000 }, { label: 'Feb', valor: 38000 },
     { label: 'Mar', valor: 51000 }, { label: 'Abr', valor: 47000 },
@@ -140,13 +146,10 @@ export class ReportesComponent {
     return `conic-gradient(${stops.join(', ')})`;
   });
 
-  readonly ventas = computed(() => this.pedidos().reduce((a, p) => a + Number(p.total), 0));
-  readonly ticket = computed(() => (this.pedidos().length ? this.ventas() / this.pedidos().length : 0));
-
   readonly kpis = computed<{ label: string; value: string; icon: IconName }[]>(() => [
-    { label: 'Ventas (real)', value: this.fmt(this.ventas()), icon: 'card' },
-    { label: 'Pedidos (real)', value: String(this.pedidos().length), icon: 'cart' },
-    { label: 'Ticket promedio', value: this.fmt(this.ticket()), icon: 'chart' },
+    { label: 'Ventas (real)', value: this.fmt(+this.stats().ventasTotal), icon: 'card' },
+    { label: 'Pedidos (real)', value: String(this.stats().pedidosCount), icon: 'cart' },
+    { label: 'Ticket promedio', value: this.fmt(+this.stats().ticketPromedio), icon: 'chart' },
     { label: 'Clientes (real)', value: String(this.clientes().length), icon: 'user' },
   ]);
 
@@ -155,8 +158,15 @@ export class ReportesComponent {
   );
 
   constructor() {
-    this.admin.pedidos().pipe(catchError(() => of([] as PedidoAdmin[]))).subscribe((l) => this.pedidos.set(l));
-    this.admin.clientes().pipe(catchError(() => of([] as ClienteAdmin[]))).subscribe((l) => this.clientes.set(l));
+    this.admin
+      .ordersStats()
+      .pipe(catchError(() => of({ ventasTotal: '0.00', pedidosCount: 0, ticketPromedio: '0.00' })))
+      .subscribe((s) => this.stats.set(s));
+
+    this.admin
+      .clientes()
+      .pipe(catchError(() => of([] as ClienteAdmin[])))
+      .subscribe((l) => this.clientes.set(l));
   }
 
   private fmt(n: number) {

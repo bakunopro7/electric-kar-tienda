@@ -6,6 +6,12 @@ import { Producto } from '../core/models';
 import { IconComponent, IconName } from '../shared/icon.component';
 import { MoneyPipe } from '../shared/money.pipe';
 
+interface OrderStats {
+  ventasTotal: string;
+  pedidosCount: number;
+  ticketPromedio: string;
+}
+
 @Component({
   selector: 'ek-admin-dashboard',
   imports: [IconComponent, MoneyPipe, SlicePipe],
@@ -29,11 +35,11 @@ import { MoneyPipe } from '../shared/money.pipe';
       <!-- Pedidos recientes -->
       <div class="card lg:col-span-2">
         <h3 class="font-bold">Pedidos recientes</h3>
-        @if (pedidos().length === 0) {
+        @if (recentOrders().length === 0) {
           <p class="mt-3 text-sm text-black/50 dark:text-white/50">Sin pedidos (o sin acceso a esta sección).</p>
         } @else {
           <div class="mt-3 divide-y divide-black/5 dark:divide-white/10">
-            @for (p of pedidosRecientes(); track p.id) {
+            @for (p of recentOrders(); track p.id) {
               <div class="flex items-center justify-between py-2.5 text-sm">
                 <div>
                   <span class="font-mono">{{ p.folio || (p.id | slice: 0 : 8) }}</span>
@@ -69,15 +75,15 @@ import { MoneyPipe } from '../shared/money.pipe';
 export class DashboardComponent {
   private readonly admin = inject(AdminService);
 
-  readonly pedidos = signal<PedidoAdmin[]>([]);
+  readonly stats = signal<OrderStats>({ ventasTotal: '0.00', pedidosCount: 0, ticketPromedio: '0.00' });
+  readonly recentOrders = signal<PedidoAdmin[]>([]);
   readonly productos = signal<Producto[]>([]);
   readonly totalProductos = signal(0);
   readonly totalClientes = signal(0);
 
-  readonly ventas = computed(() =>
-    this.pedidos().reduce((acc, p) => acc + Number(p.total), 0),
-  );
-  readonly pedidosRecientes = computed(() => this.pedidos().slice(0, 6));
+  readonly ventasTotal = computed(() => this.stats().ventasTotal);
+  readonly pedidosCount = computed(() => this.stats().pedidosCount);
+
   readonly bajoStock = computed(() =>
     this.productos()
       .filter((p) => p.existencias <= 5)
@@ -86,8 +92,8 @@ export class DashboardComponent {
 
   readonly kpis = computed<{ label: string; value: string; icon: IconName }[]>(
     () => [
-      { label: 'Ventas', value: this.fmt(this.ventas()), icon: 'card' },
-      { label: 'Pedidos', value: String(this.pedidos().length), icon: 'cart' },
+      { label: 'Ventas', value: this.fmt(+this.stats().ventasTotal), icon: 'card' },
+      { label: 'Pedidos', value: String(this.stats().pedidosCount), icon: 'cart' },
       { label: 'Clientes', value: String(this.totalClientes()), icon: 'user' },
       { label: 'Productos', value: String(this.totalProductos()), icon: 'box' },
     ],
@@ -95,9 +101,16 @@ export class DashboardComponent {
 
   constructor() {
     this.admin
-      .pedidos()
-      .pipe(catchError(() => of([] as PedidoAdmin[])))
-      .subscribe((list) => this.pedidos.set(list));
+      .ordersStats()
+      .pipe(catchError(() => of({ ventasTotal: '0.00', pedidosCount: 0, ticketPromedio: '0.00' })))
+      .subscribe((s) => this.stats.set(s));
+
+    this.admin
+      .pedidos({ limit: 6 })
+      .pipe(catchError(() => of(null)))
+      .subscribe((r) => {
+        if (r) this.recentOrders.set(r.data);
+      });
 
     this.admin
       .clientes()

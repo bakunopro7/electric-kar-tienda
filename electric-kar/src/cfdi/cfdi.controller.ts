@@ -5,6 +5,7 @@ import {
   Ip,
   Param,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -20,6 +21,7 @@ import { CfdiService } from './cfdi.service';
 import { CancelarCfdiDto } from './dto/cancelar-cfdi.dto';
 import { ComplementoPagoDto } from './dto/complemento-pago.dto';
 import { EmitirCfdiDto } from './dto/emitir-cfdi.dto';
+import { QueryCfdiDto } from './dto/query-cfdi.dto';
 
 /** Facturación electrónica (CFDI 4.0). Acceso del personal fiscal. */
 @ApiTags('cfdi')
@@ -89,9 +91,9 @@ export class CfdiController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Listar comprobantes' })
-  findAll() {
-    return this.cfdiService.findAll();
+  @ApiOperation({ summary: 'Listar comprobantes con paginación' })
+  findAll(@Query() dto: QueryCfdiDto) {
+    return this.cfdiService.findAll(dto.page, dto.limit);
   }
 
   @Get(':id')
