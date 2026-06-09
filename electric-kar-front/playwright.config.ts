@@ -35,7 +35,9 @@ export default defineConfig({
       command: `${PNPM} build && node dist/main`,
       cwd: '../electric-kar',
       url: 'http://localhost:3000/api/products',
-      reuseExistingServer: !process.env['CI'],
+      // Always reuse a server already listening — in CI the workflow starts
+      // both servers itself (the embedded build command can't run there).
+      reuseExistingServer: true,
       timeout: 120_000,
       stdout: 'pipe',
     },
@@ -44,7 +46,7 @@ export default defineConfig({
       command: `${PNPM} build && node dist/electric-kar-front/server/server.mjs`,
       cwd: '.',
       url: 'http://localhost:4200',
-      reuseExistingServer: !process.env['CI'],
+      reuseExistingServer: true,
       timeout: 180_000,
       stdout: 'pipe',
     },
