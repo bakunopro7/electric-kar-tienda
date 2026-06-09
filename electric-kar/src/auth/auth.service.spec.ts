@@ -1,0 +1,257 @@
+// Mock google-auth-library before any imports to prevent bignumber.js
+// resolution issues with the jest moduleNameMapper in this project.
+jest.mock('google-auth-library', () => ({
+  OAuth2Client: jest.fn().mockImplementation(() => ({
+    verifyIdToken: jest.fn(),
+  })),
+}));
+
+import { Test, TestingModule } from '@nestjs/testing';
+import { ConflictException, UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { OAuth2Client } from 'google-auth-library';
+import { AuthService } from './auth.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { AuditoriaService } from '../auditoria/auditoria.service';
+
+// ---------------------------------------------------------------------------
+// Mocks
+// ---------------------------------------------------------------------------
+
+const mockPrisma = {
+  cliente: {
+    findUnique: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+  },
+  usuario: {
+    findUnique: jest.fn(),
+    update: jest.fn(),
+  },
+  sesion: {
+    create: jest.fn(),
+  },
+};
+
+const mockJwt = { sign: jest.fn().mockReturnValue('signed-token') };
+const mockAuditoria = { registrar: jest.fn() };
+const mockConfig = { get: jest.fn(), getOrThrow: jest.fn() };
+
+// ---------------------------------------------------------------------------
+// Test setup
+// ---------------------------------------------------------------------------
+
+describe('AuthService', () => {
+  let service: AuthService;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        AuthService,
+        { provide: PrismaService, useValue: mockPrisma },
+        { provide: JwtService, useValue: mockJwt },
+        { provide: AuditoriaService, useValue: mockAuditoria },
+        { provide: ConfigService, useValue: mockConfig },
+      ],
+    }).compile();
+
+    service = module.get<AuthService>(AuthService);
+    jest.clearAllMocks();
+  });
+
+  // -------------------------------------------------------------------------
+  // registerCliente
+  // -------------------------------------------------------------------------
+
+  describe('registerCliente', () => {
+    it('throws ConflictException (HTTP 409) for duplicate normalized email', async () => {
+      // existing user stored as admin@x.com; incoming email is ADMIN@X.COM
+      mockPrisma.cliente.findUnique.mockResolvedValue({ id: 'existing-id' });
+
+      await expect(
+        service.registerCliente({
+          correo: 'ADMIN@X.COM',
+          password: 'pass123',
+          nombre: 'Admin',
+        } as any),
+      ).rejects.toBeInstanceOf(ConflictException);
+    });
+
+    it('calls findUnique with lowercased correo', async () => {
+      mockPrisma.cliente.findUnique.mockResolvedValue(null);
+      mockPrisma.cliente.create.mockResolvedValue({
+        id: 'new-id',
+        correo: 'admin@x.com',
+      });
+
+      await service.registerCliente({
+        correo: 'ADMIN@X.COM',
+        password: 'pass123',
+        nombre: 'Admin',
+      } as any);
+
+      expect(mockPrisma.cliente.findUnique).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ correo: 'admin@x.com' }),
+        }),
+      );
+    });
+
+    it('stores the normalized (lowercased) correo on create', async () => {
+      mockPrisma.cliente.findUnique.mockResolvedValue(null);
+      mockPrisma.cliente.create.mockResolvedValue({
+        id: 'new-id',
+        correo: 'admin@x.com',
+      });
+
+      await service.registerCliente({
+        correo: 'ADMIN@X.COM',
+        password: 'pass123',
+        nombre: 'Admin',
+      } as any);
+
+      expect(mockPrisma.cliente.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ correo: 'admin@x.com' }),
+        }),
+      );
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // loginCliente
+  // -------------------------------------------------------------------------
+
+  describe('loginCliente', () => {
+    it('calls findUnique with lowercased correo', async () => {
+      mockPrisma.cliente.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.loginCliente({ correo: 'ADMIN@X.COM', password: 'pass' } as any),
+      ).rejects.toBeInstanceOf(UnauthorizedException);
+
+      expect(mockPrisma.cliente.findUnique).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ correo: 'admin@x.com' }),
+        }),
+      );
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // loginUsuario
+  // -------------------------------------------------------------------------
+
+  describe('loginUsuario', () => {
+    it('calls findUnique with lowercased correo', async () => {
+      mockPrisma.usuario.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.loginUsuario({ correo: 'PANEL@X.COM', password: 'pass' } as any),
+      ).rejects.toBeInstanceOf(UnauthorizedException);
+
+      expect(mockPrisma.usuario.findUnique).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ correo: 'panel@x.com' }),
+        }),
+      );
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // forgotPassword
+  // -------------------------------------------------------------------------
+
+  describe('forgotPassword', () => {
+    it('calls findUnique with lowercased correo', async () => {
+      mockPrisma.cliente.findUnique.mockResolvedValue(null);
+
+      await service.forgotPassword('USER@EXAMPLE.COM');
+
+      expect(mockPrisma.cliente.findUnique).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ correo: 'user@example.com' }),
+        }),
+      );
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // googleLogin — email normalization (W-01)
+  // -------------------------------------------------------------------------
+
+  describe('googleLogin', () => {
+    /** Returns the verifyIdToken mock from the most-recently constructed OAuth2Client instance. */
+    function getMockVerifyIdToken() {
+      const instances = (OAuth2Client as jest.Mock).mock.results;
+      return instances[instances.length - 1].value.verifyIdToken as jest.Mock;
+    }
+
+    beforeEach(() => {
+      // Provide a dummy client ID so the service does not throw ServiceUnavailableException.
+      mockConfig.get.mockReturnValue('test-google-client-id');
+    });
+
+    it('looks up the cliente using the lowercased email from the Google payload', async () => {
+      // Arrange: existing cliente found — no create path.
+      mockPrisma.cliente.findUnique.mockResolvedValue({
+        id: 'existing-id',
+        correo: 'mixedcase@gmail.com',
+      });
+
+      // Act: call googleLogin with a mixed-case payload email.
+      // The OAuth2Client constructor is called inside googleLogin, so we call the service first
+      // to trigger construction, then wire the verifyIdToken mock.
+      // Because the constructor mock runs synchronously before verifyIdToken is awaited,
+      // we intercept by replacing the implementation before the await resolves.
+      // Simpler: prime the mock results array before the call by spying on mockImplementation.
+      const mockVerify = jest.fn().mockResolvedValue({
+        getPayload: () => ({
+          email: 'MixedCase@Gmail.COM',
+          name: 'Mixed Case User',
+        }),
+      });
+      (OAuth2Client as jest.Mock).mockImplementationOnce(() => ({
+        verifyIdToken: mockVerify,
+      }));
+
+      await service.googleLogin('dummy-id-token');
+
+      // Assert: prisma lookup used the normalized (lowercased) email.
+      expect(mockPrisma.cliente.findUnique).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ correo: 'mixedcase@gmail.com' }),
+        }),
+      );
+    });
+
+    it('stores the new cliente with the lowercased email when no existing record is found', async () => {
+      // Arrange: no existing cliente — triggers the auto-registration path.
+      mockPrisma.cliente.findUnique.mockResolvedValue(null);
+      mockPrisma.cliente.create.mockResolvedValue({
+        id: 'new-id',
+        correo: 'mixedcase@gmail.com',
+      });
+
+      const mockVerify = jest.fn().mockResolvedValue({
+        getPayload: () => ({
+          email: 'MixedCase@Gmail.COM',
+          name: 'Mixed Case User',
+        }),
+      });
+      (OAuth2Client as jest.Mock).mockImplementationOnce(() => ({
+        verifyIdToken: mockVerify,
+      }));
+
+      await service.googleLogin('dummy-id-token');
+
+      // Assert: the created record uses the normalized email.
+      expect(mockPrisma.cliente.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ correo: 'mixedcase@gmail.com' }),
+        }),
+      );
+    });
+  });
+});

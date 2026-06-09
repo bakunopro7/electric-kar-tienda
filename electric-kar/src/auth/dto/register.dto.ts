@@ -6,11 +6,14 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { LowerTrim, Trim } from '../../common/transforms';
 
 /** Registro de un cliente de la tienda. */
 export class RegisterDto {
   @ApiProperty({ example: 'cliente@example.com' })
+  @LowerTrim()
   @IsEmail()
+  @MaxLength(254)
   correo: string;
 
   @ApiProperty({ example: 'password123', minLength: 6 })
@@ -20,6 +23,7 @@ export class RegisterDto {
   password: string;
 
   @ApiProperty({ example: 'Juan Pérez' })
+  @Trim()
   @IsString()
   @MaxLength(120)
   nombre: string;
