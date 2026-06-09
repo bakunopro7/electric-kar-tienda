@@ -77,7 +77,8 @@ Existing role guard (ADMIN, SUPER, VENDEDOR) MUST remain unchanged.
 
 The endpoint `GET /api/orders/stats` MUST exist and MUST be accessible to roles
 ADMIN, SUPER, and VENDEDOR.
-It MUST return `{ ventasTotal: number, pedidosCount: number, ticketPromedio: number }`.
+It MUST return `{ ventasTotal: string, pedidosCount: number, ticketPromedio: string }`
+(money fields are Decimal serialized via `.toFixed(2)` strings to avoid float drift).
 `ventasTotal` MUST equal the database-level `SUM` of `Pedido.total` across all
 rows (not computed from a fetched array).
 `pedidosCount` MUST equal the database-level `COUNT(*)` of `Pedido`.
@@ -137,7 +138,7 @@ The migration MUST be additive (index-only, no data change).
 
 `AdminService.pedidos()` MUST return `Observable<Paginated<PedidoAdmin>>`.
 `AdminService.ordersStats()` MUST exist and return
-`Observable<{ ventasTotal: number; pedidosCount: number; ticketPromedio: number }>`.
+`Observable<{ ventasTotal: string; pedidosCount: number; ticketPromedio: string }>`.
 `PedidosComponent` MUST read `response.data` for the table rows.
 `DashboardComponent` MUST call `ordersStats()` for KPI values (`ventasTotal`,
 `pedidosCount`); it MUST NOT derive totals by reducing the orders array.
