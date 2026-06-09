@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Headers,
+  HttpCode,
   Ip,
   Post,
   UseGuards,
@@ -30,6 +31,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @HttpCode(200)
   @ApiOperation({ summary: 'Login de cliente (tienda)' })
   login(@Body() dto: LoginDto) {
     return this.authService.loginCliente(dto);
@@ -42,6 +44,7 @@ export class AuthController {
   }
 
   @Post('staff/login')
+  @HttpCode(200)
   @ApiOperation({ summary: 'Login de personal del panel' })
   staffLogin(
     @Body() dto: LoginDto,
