@@ -148,7 +148,10 @@ export class CfdiComponent {
   ];
 
   constructor() {
-    this.admin.pedidos().subscribe({ next: (p) => this.pedidos.set(p), error: () => {} });
+    this.admin.pedidos({ page: 1, limit: 100 }).subscribe({
+      next: (r) => this.pedidos.set(r.data),
+      error: () => {},
+    });
     this.cargar();
   }
 
@@ -200,7 +203,7 @@ export class CfdiComponent {
   private cargar() {
     this.loading.set(true);
     this.admin.cfdis().subscribe({
-      next: (list) => { this.cfdis.set(list); this.loading.set(false); },
+      next: (r) => { this.cfdis.set(r.data); this.loading.set(false); },
       error: () => this.loading.set(false),
     });
   }

@@ -142,8 +142,21 @@ export class AdminService {
   }
 
   // --- Pedidos --------------------------------------------------------------
-  pedidos() {
-    return this.http.get<PedidoAdmin[]>(`${this.api}/orders/all`, this.ctx);
+  pedidos(q: { page?: number; limit?: number; estado?: string } = {}) {
+    let params = new HttpParams();
+    for (const [k, v] of Object.entries(q) as [string, string | number | undefined][]) {
+      if (v != null) params = params.set(k, String(v));
+    }
+    return this.http.get<Paginated<PedidoAdmin>>(`${this.api}/orders/all`, {
+      ...this.ctx,
+      params,
+    });
+  }
+  ordersStats() {
+    return this.http.get<{ ventasTotal: string; pedidosCount: number; ticketPromedio: string }>(
+      `${this.api}/orders/stats`,
+      this.ctx,
+    );
   }
   actualizarEstadoPedido(id: string, estado: string) {
     return this.http.patch<PedidoAdmin>(
@@ -177,8 +190,15 @@ export class AdminService {
   }
 
   // --- CFDI -----------------------------------------------------------------
-  cfdis() {
-    return this.http.get<CfdiAdmin[]>(`${this.api}/cfdi`, this.ctx);
+  cfdis(q: { page?: number; limit?: number } = {}) {
+    let params = new HttpParams();
+    for (const [k, v] of Object.entries(q) as [string, number | undefined][]) {
+      if (v != null) params = params.set(k, String(v));
+    }
+    return this.http.get<Paginated<CfdiAdmin>>(`${this.api}/cfdi`, {
+      ...this.ctx,
+      params,
+    });
   }
   emitirCfdi(dto: Record<string, unknown>) {
     return this.http.post<CfdiAdmin>(`${this.api}/cfdi/emitir`, dto, this.ctx);

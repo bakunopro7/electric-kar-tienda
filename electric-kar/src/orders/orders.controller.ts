@@ -5,6 +5,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -16,6 +17,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Rol } from '../generated/prisma/client';
 import { CheckoutDto } from './dto/checkout.dto';
+import { QueryOrdersDto } from './dto/query-orders.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { OrdersService } from './orders.service';
 
@@ -43,9 +45,17 @@ export class OrdersController {
   @Get('all')
   @Roles(Rol.ADMIN, Rol.SUPER, Rol.VENDEDOR)
   @UseGuards(RolesGuard)
-  @ApiOperation({ summary: 'Listar todos los pedidos (personal)' })
-  findAll() {
-    return this.ordersService.findAll();
+  @ApiOperation({ summary: 'Listar todos los pedidos con paginación (personal)' })
+  findAll(@Query() dto: QueryOrdersDto) {
+    return this.ordersService.findAll(dto.page, dto.limit, dto.estado);
+  }
+
+  @Get('stats')
+  @Roles(Rol.ADMIN, Rol.SUPER, Rol.VENDEDOR)
+  @UseGuards(RolesGuard)
+  @ApiOperation({ summary: 'Estadísticas de pedidos: ventas, conteo, ticket promedio' })
+  getStats() {
+    return this.ordersService.stats();
   }
 
   @Get(':id')

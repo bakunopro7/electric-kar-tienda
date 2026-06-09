@@ -2,9 +2,17 @@ import { DatePipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AdminService, PedidoAdmin } from '../core/admin.service';
+import { Paginated } from '../core/models';
 import { MoneyPipe } from '../shared/money.pipe';
 
 const ESTADOS = ['NUEVO', 'PREPARACION', 'ENVIADO', 'ENTREGADO', 'CANCELADO'];
+
+const DEFAULT_META: Paginated<PedidoAdmin>['meta'] = {
+  total: 0,
+  page: 1,
+  limit: 20,
+  pages: 1,
+};
 
 @Component({
   selector: 'ek-admin-pedidos',
@@ -12,7 +20,7 @@ const ESTADOS = ['NUEVO', 'PREPARACION', 'ENVIADO', 'ENTREGADO', 'CANCELADO'];
   template: `
     <div class="flex flex-wrap items-center justify-between gap-3">
       <h2 class="text-xl font-bold">Pedidos</h2>
-      <select [(ngModel)]="filtro" class="ek-input">
+      <select [(ngModel)]="estadoFiltro" (ngModelChange)="onEstadoChange($event)" class="ek-input">
         <option value="">Todos los estados</option>
         @for (e of estados; track e) { <option [value]="e">{{ e }}</option> }
       </select>
@@ -21,7 +29,7 @@ const ESTADOS = ['NUEVO', 'PREPARACION', 'ENVIADO', 'ENTREGADO', 'CANCELADO'];
     <div class="card mt-4 overflow-x-auto">
       @if (loading()) {
         <p class="text-sm text-black/50 dark:text-white/50">Cargando…</p>
-      } @else if (filtrados().length === 0) {
+      } @else if (pedidos().length === 0) {
         <p class="text-sm text-black/50 dark:text-white/50">Sin pedidos.</p>
       } @else {
         <table class="w-full text-sm">
@@ -31,7 +39,7 @@ const ESTADOS = ['NUEVO', 'PREPARACION', 'ENVIADO', 'ENTREGADO', 'CANCELADO'];
             </tr>
           </thead>
           <tbody>
-            @for (p of filtrados(); track p.id) {
+            @for (p of pedidos(); track p.id) {
               <tr class="border-b border-black/5 dark:border-white/10">
                 <td class="py-2.5 font-mono text-xs">{{ p.folio || (p.id.slice(0, 8)) }}</td>
                 <td class="font-semibold">{{ p.cliente?.nombre || '—' }}<br /><span class="text-xs font-normal text-black/50 dark:text-white/50">{{ p.cliente?.correo }}</span></td>
@@ -47,6 +55,16 @@ const ESTADOS = ['NUEVO', 'PREPARACION', 'ENVIADO', 'ENTREGADO', 'CANCELADO'];
             }
           </tbody>
         </table>
+        <!-- Paginator -->
+        @if (meta().pages > 1) {
+          <div class="mt-3 flex items-center justify-between text-sm">
+            <span class="text-black/50 dark:text-white/50">{{ meta().total }} pedidos · página {{ meta().page }} de {{ meta().pages }}</span>
+            <div class="flex gap-2">
+              <button class="btn-outline py-1 text-xs" [disabled]="meta().page <= 1" (click)="goToPage(meta().page - 1)">‹ Anterior</button>
+              <button class="btn-outline py-1 text-xs" [disabled]="meta().page >= meta().pages" (click)="goToPage(meta().page + 1)">Siguiente ›</button>
+            </div>
+          </div>
+        }
       }
     </div>
   `,
@@ -56,17 +74,35 @@ export class PedidosComponent {
 
   readonly estados = ESTADOS;
   readonly pedidos = signal<PedidoAdmin[]>([]);
+  readonly meta = signal<Paginated<PedidoAdmin>['meta']>(DEFAULT_META);
   readonly loading = signal(true);
   readonly guardando = signal<string | null>(null);
-  filtro = '';
-
-  readonly filtrados = computed(() =>
-    this.filtro ? this.pedidos().filter((p) => p.estado === this.filtro) : this.pedidos(),
-  );
+  estadoFiltro = '';
+  private currentPage = 1;
 
   constructor() {
-    this.admin.pedidos().subscribe({
-      next: (list) => { this.pedidos.set(list); this.loading.set(false); },
+    this.cargar(1);
+  }
+
+  onEstadoChange(_estado: string) {
+    this.cargar(1);
+  }
+
+  goToPage(page: number) {
+    this.cargar(page);
+  }
+
+  private cargar(page: number) {
+    this.loading.set(true);
+    this.currentPage = page;
+    const query: { page: number; limit: number; estado?: string } = { page, limit: 20 };
+    if (this.estadoFiltro) query.estado = this.estadoFiltro;
+    this.admin.pedidos(query).subscribe({
+      next: (r) => {
+        this.pedidos.set(r.data);
+        this.meta.set(r.meta);
+        this.loading.set(false);
+      },
       error: () => this.loading.set(false),
     });
   }
