@@ -79,6 +79,74 @@ describe('OrdersService.findAll', () => {
   });
 });
 
+describe('OrdersService.findAllForCliente', () => {
+  let service: OrdersService;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        OrdersService,
+        { provide: PrismaService, useValue: mockPrisma },
+      ],
+    }).compile();
+    service = module.get<OrdersService>(OrdersService);
+    jest.clearAllMocks();
+  });
+
+  it('(a) default pagination: returns { data, meta } with correct shape', async () => {
+    const orders = Array.from({ length: 20 }, (_, i) => ({ id: String(i) }));
+    mockPrisma.$transaction.mockResolvedValue([orders, 35]);
+
+    const result = await service.findAllForCliente('client1');
+
+    expect(result).toEqual({
+      data: orders,
+      meta: { total: 35, page: 1, limit: 20, pages: 2 },
+    });
+  });
+
+  it('(b) page 2: returns remaining items with correct meta', async () => {
+    const orders = Array.from({ length: 15 }, (_, i) => ({ id: String(i) }));
+    mockPrisma.$transaction.mockResolvedValue([orders, 35]);
+
+    const result = await service.findAllForCliente('client1', 2, 20);
+
+    expect(result).toEqual({
+      data: orders,
+      meta: { total: 35, page: 2, limit: 20, pages: 2 },
+    });
+  });
+
+  it('(c) limit clamped to 100', async () => {
+    mockPrisma.$transaction.mockResolvedValue([[], 0]);
+
+    const result = await service.findAllForCliente('client1', 1, 500);
+
+    expect(result.meta.limit).toBe(100);
+  });
+
+  it('(d) page beyond range returns empty data with correct meta', async () => {
+    mockPrisma.$transaction.mockResolvedValue([[], 5]);
+
+    const result = await service.findAllForCliente('client1', 99, 20);
+
+    expect(result.data).toEqual([]);
+    expect(result.meta.total).toBe(5);
+    expect(result.meta.pages).toBe(1);
+  });
+
+  it('(e) clienteId filter: $transaction is called (clienteId scoped query)', async () => {
+    mockPrisma.$transaction.mockResolvedValue([[], 0]);
+
+    const result = await service.findAllForCliente('client-abc', 1, 20);
+
+    // $transaction should be called (meaning it uses paginated approach, not raw findMany)
+    expect(mockPrisma.$transaction).toHaveBeenCalled();
+    // meta.total reflects the count result (0)
+    expect(result.meta.total).toBe(0);
+  });
+});
+
 describe('OrdersService.stats', () => {
   let service: OrdersService;
 

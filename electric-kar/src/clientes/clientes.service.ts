@@ -75,11 +75,35 @@ export class ClientesService {
 
   // --- Gestión (personal del panel) ----------------------------------------
 
-  findAll() {
+  async findAll(page = 1, limit = 20) {
+    const take = Math.min(limit, 100);
+    const skip = (page - 1) * take;
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.cliente.findMany({
+        skip,
+        take,
+        orderBy: { creadoEn: 'desc' },
+        select: clienteSelect,
+      }),
+      this.prisma.cliente.count(),
+    ]);
+    return {
+      data,
+      meta: { total, page, limit: take, pages: Math.ceil(total / take) || 1 },
+    };
+  }
+
+  async findTop(limit = 5) {
+    const take = Math.min(limit, 50);
     return this.prisma.cliente.findMany({
-      orderBy: { creadoEn: 'desc' },
       select: clienteSelect,
+      orderBy: { totalGastado: 'desc' },
+      take,
     });
+  }
+
+  async stats() {
+    return { total: await this.prisma.cliente.count() };
   }
 
   findOneWithAddresses(id: string) {
