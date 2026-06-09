@@ -7,6 +7,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { Rol } from '../../generated/prisma/client';
+import { LowerTrim } from '../../common/transforms';
 
 /** Alta de un usuario del panel (personal). */
 export class CreateUserDto {
@@ -16,7 +17,9 @@ export class CreateUserDto {
   nombre: string;
 
   @ApiProperty({ example: 'roberto@electrick-kar.mx' })
+  @LowerTrim()
   @IsEmail()
+  @MaxLength(254)
   correo: string;
 
   @ApiProperty({ example: 'password123', minLength: 6 })
