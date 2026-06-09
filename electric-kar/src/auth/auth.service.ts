@@ -37,17 +37,18 @@ export class AuthService {
   // --- Cliente (tienda) -----------------------------------------------------
 
   async registerCliente(dto: RegisterDto) {
+    const correo = dto.correo.toLowerCase();
     const existing = await this.prisma.cliente.findUnique({
-      where: { correo: dto.correo },
+      where: { correo },
     });
     if (existing) {
-      throw new ConflictException('El correo ya está registrado');
+      throw new ConflictException('Email already registered');
     }
 
     const password = await bcrypt.hash(dto.password, SALT_ROUNDS);
     const cliente = await this.prisma.cliente.create({
       data: {
-        correo: dto.correo,
+        correo,
         password,
         nombre: dto.nombre,
         telefono: dto.telefono,
@@ -60,7 +61,7 @@ export class AuthService {
 
   async loginCliente(dto: LoginDto) {
     const cliente = await this.prisma.cliente.findUnique({
-      where: { correo: dto.correo },
+      where: { correo: dto.correo.toLowerCase() },
     });
     if (!cliente || !(await bcrypt.compare(dto.password, cliente.password))) {
       throw new UnauthorizedException('Credenciales inválidas');
@@ -78,7 +79,9 @@ export class AuthService {
    * respuesta sería siempre genérica (sin revelar si el correo existe).
    */
   async forgotPassword(correo: string) {
-    const cliente = await this.prisma.cliente.findUnique({ where: { correo } });
+    const cliente = await this.prisma.cliente.findUnique({
+      where: { correo: correo.toLowerCase() },
+    });
     const generico = {
       mensaje: 'Si el correo existe, te enviamos instrucciones para restablecerla.',
     };
@@ -131,7 +134,7 @@ export class AuthService {
     try {
       const ticket = await client.verifyIdToken({ idToken, audience: clientId });
       const payload = ticket.getPayload();
-      correo = payload?.email;
+      correo = payload?.email?.toLowerCase();
       nombre = payload?.name ?? payload?.email;
     } catch {
       throw new UnauthorizedException('Token de Google inválido');
@@ -155,7 +158,7 @@ export class AuthService {
 
   async loginUsuario(dto: LoginDto, meta: LoginMeta = {}) {
     const usuario = await this.prisma.usuario.findUnique({
-      where: { correo: dto.correo },
+      where: { correo: dto.correo.toLowerCase() },
     });
     if (!usuario || !(await bcrypt.compare(dto.password, usuario.password))) {
       throw new UnauthorizedException('Credenciales inválidas');

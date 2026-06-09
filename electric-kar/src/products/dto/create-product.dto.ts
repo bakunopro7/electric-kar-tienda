@@ -134,11 +134,13 @@ export class CreateProductDto {
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
+  @MaxLength(100, { each: true })
   etiquetas?: string[];
 
   @ApiPropertyOptional({ type: [String], description: 'URLs (1ª = principal)' })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
+  @MaxLength(512, { each: true })
   imagenes?: string[];
 }
