@@ -334,6 +334,7 @@ model Pedido {
   @@index([estado])
   @@index([cuponId])
   @@index([metodoPagoId])
+  @@index([creadoEn])
 }
 
 model PedidoLinea {
