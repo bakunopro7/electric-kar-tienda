@@ -19,7 +19,7 @@ It MUST return `Paginated<ClienteAdmin>`:
 `{ data: ClienteAdmin[], meta: { total, page, limit, pages } }`.
 It MUST NOT perform an unbounded `findMany`.
 `limit` MUST be clamped to 100.
-Existing role guard (ADMIN, SUPER) MUST remain unchanged.
+Existing role guard (ADMIN, SUPER, VENDEDOR, CONTADOR) MUST remain unchanged.
 The result MUST be ordered by `creadoEn` descending.
 
 #### Scenario: Default pagination
