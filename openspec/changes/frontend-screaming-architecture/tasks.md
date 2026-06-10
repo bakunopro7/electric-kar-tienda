@@ -32,7 +32,7 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
 > Gate: `pnpm --filter electric-kar-front build` exits 0 **and** `pnpm --filter electric-kar-front test` passes (14 files / 39 tests green).
 
-- [ ] **S0-01** · Add `"baseUrl": "src"` and five `paths` entries to
+- [x] **S0-01** · Add `"baseUrl": "src"` and five `paths` entries to
   `electric-kar-front/tsconfig.json` under `compilerOptions`:
 
   ```json
@@ -50,14 +50,15 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
   - Spec: `path-aliases/spec.md` § baseUrl and Paths Declared in tsconfig.json
   - File: `electric-kar-front/tsconfig.json`
 
-- [ ] **S0-02** · (Optional verification import) Update one cross-cutting import in an existing
+- [x] **S0-02** · (Optional verification import) Update one cross-cutting import in an existing
   file to alias form (e.g. `@core/auth.service`) to prove resolution end-to-end.
   The design's empirical experiment already proved this works; apply may rely on that proof
-  and skip this task, but a live token is useful insurance.
+  and skip this task, but a live token is useful insurance. **Skipped — relying on the
+  empirical experiment proof recorded in design.md (14/39 tests passed with @core/* imports).**
   - Spec: `path-aliases/spec.md` § Angular Production Build Resolves Aliases (requires
     "at least one component uses an `@core/*` import")
 
-- [ ] **S0-03** · **Slice 0 Green Gate** — run from a clean state:
+- [x] **S0-03** · **Slice 0 Green Gate** — run from a clean state:
 
   ```bash
   cd electric-kar-front && rm -rf dist .angular/cache
