@@ -62,7 +62,7 @@ orders/clientes/cupones/cfdi specs and Stripe/Google are deferred (non-goals).
   "testEnvironment": "node",
   "testRegex": ".functional-spec.ts$",
   "transform": { "^.+\\.(t|j)s$": "ts-jest" },
-  "moduleNameMapper": { "^(.+)\\.js$": "$1" }
+  "moduleNameMapper": { "^(\\.{1,2}/.+)\\.js$": "$1" }
 }
 ```
 `package.json` script:
@@ -237,7 +237,9 @@ Additive change: existing `backend`, `frontend`, `e2e` jobs untouched.
 ## Gotchas (must honor at apply time)
 
 - **`moduleNameMapper` omission** → silent Prisma `.js` ESM import failure under
-  ts-jest. `jest-functional.json` MUST include `{"^(.+)\\.js$": "$1"}`.
+  ts-jest. `jest-functional.json` MUST include the mapper. Use the SCOPED pattern
+  `{"^(\\.{1,2}/.+)\\.js$": "$1"}` (relative imports only) — the broad
+  `^(.+)\\.js$` breaks `bignumber.js` inside `google-auth-library`. (W-2 fix.)
 - **`createTestApp()` drift from `main.ts`** → must keep `rawBody`, `api` prefix,
   and the exact ValidationPipe flags in sync, or specs test a different app shape.
 - **bcrypt hash matching** → seed cliente/staff passwords with `bcrypt.hash(pwd, 10)`
