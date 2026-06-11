@@ -9,7 +9,7 @@ import { AdminService, SesionAdmin } from '@core/admin.service';
     <div class="flex items-center justify-between">
       <h2 class="text-xl font-bold">Sesiones activas</h2>
       @if (sesiones().length) {
-        <button type="button" class="btn text-sm bg-peligro text-white hover:opacity-90" (click)="cerrarTodas()">Cerrar todas</button>
+        <button type="button" class="btn-peligro text-sm" (click)="cerrarTodas()">Cerrar todas</button>
       }
     </div>
 
