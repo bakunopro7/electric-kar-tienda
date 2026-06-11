@@ -87,7 +87,7 @@ const VACIO: EmitirForm = {
     <!-- ===== MODAL CANCELACIÓN ===== -->
     @if (cancelTarget(); as c) {
       <div class="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" (click)="cancelTarget.set(null)">
-        <div class="w-full max-w-md rounded-[18px] bg-white p-6 shadow-2xl dark:bg-navy-800" (click)="$event.stopPropagation()">
+        <div class="w-full max-w-md rounded-ek-lg bg-white p-6 shadow-2xl dark:bg-navy-800" (click)="$event.stopPropagation()">
           <h3 class="text-lg font-bold">Cancelar CFDI</h3>
           <p class="mt-1 text-sm text-black/60 dark:text-white/60">
             {{ c.serieFolio || 'Comprobante' }} · {{ c.receptorNombre }}
@@ -112,7 +112,7 @@ const VACIO: EmitirForm = {
 
           <div class="mt-5 flex justify-end gap-2">
             <button type="button" class="btn-outline text-sm" (click)="cancelTarget.set(null)">Volver</button>
-            <button type="button" class="btn text-sm bg-peligro text-white hover:opacity-90"
+            <button type="button" class="btn-peligro text-sm"
                     [disabled]="busy() === c.id || (motivoSel === 'M01' && !uuidSust)"
                     (click)="confirmarCancelacion()">
               {{ busy() === c.id ? 'Cancelando…' : 'Confirmar cancelación' }}
