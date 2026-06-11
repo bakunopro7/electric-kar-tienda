@@ -30,8 +30,12 @@
 
   /* Radios */
   --radius-ek-sm: 8px;
+  --radius-ek-md: 12px;
   --radius-ek: 14px;
   --radius-ek-lg: 22px;
+
+  /* Fondos oscuros — extensión navy */
+  --color-navy-950: #020c1b;
 }
 
 @layer base {
@@ -51,6 +55,12 @@
     font-family: var(--font-display);
     @apply font-semibold;
   }
+  /* Global focus-visible fallback — covers links and bare buttons not using .btn */
+  a:focus-visible,
+  button:focus-visible {
+    outline: 2px solid var(--color-azul-500);
+    outline-offset: 2px;
+  }
 }
 
 /* Componentes reutilizables del sistema de diseño */
@@ -58,8 +68,17 @@
   .btn,
   .btn-primary,
   .btn-voltaje,
-  .btn-outline {
-    @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-[14px] px-4 py-2.5 font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+  .btn-outline,
+  .btn-peligro {
+    @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-ek px-4 py-2.5 font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn:focus-visible,
+  .btn-primary:focus-visible,
+  .btn-voltaje:focus-visible,
+  .btn-outline:focus-visible,
+  .btn-peligro:focus-visible {
+    outline: 2px solid var(--color-azul-500);
+    outline-offset: 2px;
   }
   .btn-primary {
     @apply bg-azul-700 text-white hover:bg-azul-500;
@@ -70,11 +89,18 @@
   .btn-outline {
     @apply border border-azul-700 text-azul-700 hover:bg-azul-700 hover:text-white;
   }
+  .btn-peligro {
+    @apply bg-peligro text-white hover:opacity-90;
+  }
   .card {
-    @apply rounded-[14px] border border-black/10 bg-white p-4 dark:border-white/10 dark:bg-navy-800;
+    @apply rounded-ek border border-black/10 bg-white p-4 dark:border-white/10 dark:bg-navy-800;
   }
   .ek-input {
-    @apply rounded-[8px] border border-black/15 bg-transparent px-3 py-2 text-sm outline-none focus:border-azul-500 dark:border-white/15;
+    @apply rounded-ek-sm border border-black/15 bg-transparent px-3 py-2 text-sm outline-none focus:border-azul-500 dark:border-white/15;
+  }
+  .ek-input:focus-visible {
+    outline: 2px solid var(--color-azul-500);
+    outline-offset: 2px;
   }
 }
 
