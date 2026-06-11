@@ -45,12 +45,12 @@ type Seccion = 'resumen' | 'pedidos' | 'direcciones' | 'datos';
         <aside class="flex gap-1 overflow-x-auto lg:flex-col">
           @for (s of secciones; track s.id) {
             <button type="button" (click)="seccion.set(s.id)"
-                    class="flex items-center gap-2 whitespace-nowrap rounded-[10px] px-3 py-2.5 text-sm font-medium"
+                    class="flex items-center gap-2 whitespace-nowrap rounded-ek-md px-3 py-2.5 text-sm font-medium"
                     [class]="seccion() === s.id ? 'bg-azul-700 text-white' : 'hover:bg-black/5 dark:hover:bg-white/5'">
               <ek-icon [name]="s.icon" class="h-5 w-5" /> {{ s.label }}
             </button>
           }
-          <a routerLink="/favoritos" class="flex items-center gap-2 whitespace-nowrap rounded-[10px] px-3 py-2.5 text-sm font-medium hover:bg-black/5 dark:hover:bg-white/5">
+          <a routerLink="/favoritos" class="flex items-center gap-2 whitespace-nowrap rounded-ek-md px-3 py-2.5 text-sm font-medium hover:bg-black/5 dark:hover:bg-white/5">
             <ek-icon name="heart" class="h-5 w-5" /> Favoritos
           </a>
         </aside>

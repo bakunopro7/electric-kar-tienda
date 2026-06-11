@@ -25,7 +25,7 @@ declare const google: {
 
       <div class="card">
         <div class="mb-5 flex items-center gap-2.5">
-          <span class="grid h-10 w-10 place-items-center rounded-[10px] bg-voltaje text-navy-900"><ek-icon name="bolt" class="h-6 w-6" /></span>
+          <span class="grid h-10 w-10 place-items-center rounded-ek-md bg-voltaje text-navy-900"><ek-icon name="bolt" class="h-6 w-6" /></span>
           <span class="font-display text-lg font-bold">electrick<span class="text-azul-700 dark:text-azul-500">-Kar</span></span>
         </div>
 
@@ -89,7 +89,7 @@ declare const google: {
         @if (googleHabilitado) {
           <div id="ek-google-btn" class="flex justify-center"></div>
         } @else {
-          <p class="rounded-[10px] bg-black/5 px-3 py-2 text-center text-xs text-black/50 dark:bg-white/5 dark:text-white/50">
+          <p class="rounded-ek-md bg-black/5 px-3 py-2 text-center text-xs text-black/50 dark:bg-white/5 dark:text-white/50">
             Login con Google disponible al configurar <code>googleClientId</code>.
           </p>
         }

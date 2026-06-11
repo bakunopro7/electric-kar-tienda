@@ -26,7 +26,7 @@ import { IconComponent } from '@shared/icon.component';
         } @else {
           <p class="mt-1 text-sm text-black/60 dark:text-white/60">{{ mensaje() }}</p>
           @if (tokenDemo()) {
-            <div class="mt-3 rounded-[10px] bg-voltaje/15 px-3 py-2 text-xs">
+            <div class="mt-3 rounded-ek-md bg-voltaje/15 px-3 py-2 text-xs">
               <b>Modo demo</b> (sin servidor de correo): tu token de recuperación es
               <code class="break-all font-mono">{{ tokenDemo() }}</code>. Ya lo pusimos abajo.
             </div>
