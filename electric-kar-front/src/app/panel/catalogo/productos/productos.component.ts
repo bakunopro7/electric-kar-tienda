@@ -59,13 +59,13 @@ const VACIO: ProductoForm = {
           <label class="text-sm font-semibold">Imágenes</label>
           <div class="mt-2 flex flex-wrap items-center gap-3">
             @for (img of form.imagenes; track img; let i = $index) {
-              <div class="relative h-20 w-20 overflow-hidden rounded-[8px] border border-black/10 dark:border-white/10">
+              <div class="relative h-20 w-20 overflow-hidden rounded-ek-sm border border-black/10 dark:border-white/10">
                 <img [src]="img" alt="" class="h-full w-full object-cover" />
                 <button type="button" (click)="quitarImagen(i)"
                         class="absolute right-0.5 top-0.5 grid h-5 w-5 place-items-center rounded-full bg-peligro text-xs text-white">✕</button>
               </div>
             }
-            <label class="grid h-20 w-20 cursor-pointer place-items-center rounded-[8px] border-2 border-dashed border-black/20 text-2xl text-black/40 hover:border-azul-500 dark:border-white/20 dark:text-white/40">
+            <label class="grid h-20 w-20 cursor-pointer place-items-center rounded-ek-sm border-2 border-dashed border-black/20 text-2xl text-black/40 hover:border-azul-500 dark:border-white/20 dark:text-white/40">
               {{ subiendo() ? '…' : '+' }}
               <input type="file" accept="image/*" class="hidden" (change)="onFile($event)" [disabled]="subiendo()" />
             </label>

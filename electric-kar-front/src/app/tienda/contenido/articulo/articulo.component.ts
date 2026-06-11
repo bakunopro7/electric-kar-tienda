@@ -19,7 +19,7 @@ import { Articulo, findArticulo } from '../blog/blog.data';
         <h1 class="mt-2 text-3xl font-bold sm:text-4xl">{{ a.titulo }}</h1>
         <p class="mt-2 text-sm text-black/40 dark:text-white/40">{{ a.fecha | date: 'longDate' }}</p>
 
-        <div class="mt-6 grid aspect-video place-items-center rounded-[14px] bg-gradient-to-br from-azul-700 to-navy-900 text-6xl">📰</div>
+        <div class="mt-6 grid aspect-video place-items-center rounded-ek bg-gradient-to-br from-azul-700 to-navy-900 text-6xl">📰</div>
 
         <div class="mt-6 space-y-4 leading-relaxed text-black/80 dark:text-white/80">
           <p class="text-lg font-medium">{{ a.resumen }}</p>

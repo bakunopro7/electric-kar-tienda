@@ -39,7 +39,7 @@ interface Categoria {
           <div class="mt-10 flex flex-wrap gap-8">
             @for (t of heroTags; track t.titulo) {
               <div class="flex items-center gap-3">
-                <span class="grid h-10 w-10 place-items-center rounded-[11px] bg-azul-500/15 text-azul-500">
+                <span class="grid h-10 w-10 place-items-center rounded-ek-md bg-azul-500/15 text-azul-500">
                   <ek-icon [name]="t.icon" class="h-5 w-5" />
                 </span>
                 <div>
@@ -52,13 +52,13 @@ interface Categoria {
         </div>
 
         <div class="relative hidden md:block">
-          <div class="aspect-[4/3.4] w-full rounded-[14px] border border-white/15 bg-white/5 [background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.05)_0_12px,rgba(255,255,255,.02)_12px_24px)]"></div>
-          <div class="animate-floaty absolute -left-6 top-6 flex items-center gap-3 rounded-[14px] bg-white p-3 text-navy-900 shadow-xl">
-            <span class="grid h-9 w-9 place-items-center rounded-[10px] bg-azul-700/10 text-azul-700"><ek-icon name="box" class="h-5 w-5" /></span>
+          <div class="aspect-[4/3.4] w-full rounded-ek border border-white/15 bg-white/5 [background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.05)_0_12px,rgba(255,255,255,.02)_12px_24px)]"></div>
+          <div class="animate-floaty absolute -left-6 top-6 flex items-center gap-3 rounded-ek bg-white p-3 text-navy-900 shadow-xl">
+            <span class="grid h-9 w-9 place-items-center rounded-ek-md bg-azul-700/10 text-azul-700"><ek-icon name="box" class="h-5 w-5" /></span>
             <div><b class="block font-display text-sm">+2,400 productos</b><small class="text-xs text-black/50">en catálogo</small></div>
           </div>
-          <div class="animate-floaty absolute -right-4 bottom-8 flex items-center gap-3 rounded-[14px] bg-white p-3 text-navy-900 shadow-xl [animation-delay:1.4s]">
-            <span class="grid h-9 w-9 place-items-center rounded-[10px] bg-exito/15 text-exito"><ek-icon name="check" class="h-5 w-5" /></span>
+          <div class="animate-floaty absolute -right-4 bottom-8 flex items-center gap-3 rounded-ek bg-white p-3 text-navy-900 shadow-xl [animation-delay:1.4s]">
+            <span class="grid h-9 w-9 place-items-center rounded-ek-md bg-exito/15 text-exito"><ek-icon name="check" class="h-5 w-5" /></span>
             <div><b class="block font-display text-sm">Compra protegida</b><small class="text-xs text-black/50">Pago 100% seguro</small></div>
           </div>
         </div>
@@ -77,7 +77,7 @@ interface Categoria {
       <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
         @for (c of categorias; track c.nombre) {
           <a routerLink="/tienda" class="group card text-center transition-all hover:-translate-y-1 hover:border-azul-500 hover:shadow-lg">
-            <span class="mx-auto mb-3 grid h-14 w-14 place-items-center rounded-[14px] bg-black/5 text-azul-700 transition-colors group-hover:bg-azul-700 group-hover:text-white dark:bg-white/5">
+            <span class="mx-auto mb-3 grid h-14 w-14 place-items-center rounded-ek bg-black/5 text-azul-700 transition-colors group-hover:bg-azul-700 group-hover:text-white dark:bg-white/5">
               <ek-icon [name]="c.icon" class="h-7 w-7" />
             </span>
             <b class="block font-display text-sm">{{ c.nombre }}</b>
@@ -115,7 +115,7 @@ interface Categoria {
 
     <!-- ===================== PROMO ===================== -->
     <section class="mt-14">
-      <div class="relative grid overflow-hidden rounded-[22px] bg-gradient-to-r from-azul-700 to-navy-900 text-white md:grid-cols-2">
+      <div class="relative grid overflow-hidden rounded-ek-lg bg-gradient-to-r from-azul-700 to-navy-900 text-white md:grid-cols-2">
         <div class="ek-grid-overlay pointer-events-none absolute inset-0 opacity-60"></div>
         <div class="relative p-10 sm:p-12">
           <span class="inline-block rounded-full bg-voltaje px-3 py-1 text-xs font-bold text-navy-900">Oferta relámpago</span>
@@ -123,7 +123,7 @@ interface Categoria {
           <p class="mt-3 max-w-md text-white/70">Renueva el sistema eléctrico de tu auto con las mejores marcas. Por tiempo limitado.</p>
           <div class="mt-6 flex gap-2">
             @for (b of countdown(); track b.label) {
-              <div class="min-w-16 rounded-[12px] border border-white/15 bg-white/10 px-3 py-2 text-center">
+              <div class="min-w-16 rounded-ek-md border border-white/15 bg-white/10 px-3 py-2 text-center">
                 <b class="block font-display text-2xl leading-none">{{ b.value }}</b>
                 <small class="text-[10px] uppercase tracking-wide text-white/50">{{ b.label }}</small>
               </div>
@@ -133,7 +133,7 @@ interface Categoria {
         </div>
         <div class="relative hidden min-h-72 md:block">
           <span class="absolute right-6 top-6 z-10 rounded-full bg-peligro px-3 py-1 text-sm font-bold text-white">-40%</span>
-          <div class="absolute inset-5 rounded-[14px] border border-white/15 bg-white/5"></div>
+          <div class="absolute inset-5 rounded-ek border border-white/15 bg-white/5"></div>
         </div>
       </div>
     </section>
@@ -142,7 +142,7 @@ interface Categoria {
     <section class="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
       @for (f of features; track f.titulo) {
         <div class="card flex items-start gap-4 transition-shadow hover:shadow-lg">
-          <span class="grid h-12 w-12 shrink-0 place-items-center rounded-[12px] bg-azul-700/10 text-azul-700">
+          <span class="grid h-12 w-12 shrink-0 place-items-center rounded-ek-md bg-azul-700/10 text-azul-700">
             <ek-icon [name]="f.icon" class="h-6 w-6" />
           </span>
           <div>
@@ -158,14 +158,14 @@ interface Categoria {
       <p class="mb-7 text-center font-mono text-xs uppercase tracking-[0.14em] text-black/50 dark:text-white/50">Trabajamos con las mejores marcas</p>
       <div class="flex flex-wrap justify-center gap-4">
         @for (m of marcas; track m) {
-          <div class="grid h-16 w-36 place-items-center rounded-[14px] border border-black/10 bg-white font-display font-bold text-black/30 dark:border-white/10 dark:bg-navy-800 dark:text-white/30">{{ m }}</div>
+          <div class="grid h-16 w-36 place-items-center rounded-ek border border-black/10 bg-white font-display font-bold text-black/30 dark:border-white/10 dark:bg-navy-800 dark:text-white/30">{{ m }}</div>
         }
       </div>
     </section>
 
     <!-- ===================== NEWSLETTER ===================== -->
     <section class="mt-14">
-      <div class="relative grid items-center gap-10 overflow-hidden rounded-[22px] bg-navy-900 p-10 text-white sm:p-14 md:grid-cols-2">
+      <div class="relative grid items-center gap-10 overflow-hidden rounded-ek-lg bg-navy-900 p-10 text-white sm:p-14 md:grid-cols-2">
         <div class="ek-grid-overlay pointer-events-none absolute inset-0"></div>
         <div class="relative">
           <span class="font-mono text-sm font-bold uppercase tracking-widest text-azul-500">Únete a la comunidad</span>
