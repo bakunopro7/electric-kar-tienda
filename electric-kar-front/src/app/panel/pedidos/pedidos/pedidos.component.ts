@@ -1,0 +1,123 @@
+import { DatePipe } from '@angular/common';
+import { Component, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { AdminService, PedidoAdmin } from '@core/admin.service';
+import { Paginated } from '@core/models';
+import { MoneyPipe } from '@shared/money.pipe';
+
+const ESTADOS = ['NUEVO', 'PREPARACION', 'ENVIADO', 'ENTREGADO', 'CANCELADO'];
+
+const DEFAULT_META: Paginated<PedidoAdmin>['meta'] = {
+  total: 0,
+  page: 1,
+  limit: 20,
+  pages: 1,
+};
+
+@Component({
+  selector: 'ek-admin-pedidos',
+  imports: [FormsModule, MoneyPipe, DatePipe],
+  template: `
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <h2 class="text-xl font-bold">Pedidos</h2>
+      <select [(ngModel)]="estadoFiltro" (ngModelChange)="onEstadoChange($event)" class="ek-input">
+        <option value="">Todos los estados</option>
+        @for (e of estados; track e) { <option [value]="e">{{ e }}</option> }
+      </select>
+    </div>
+
+    <div class="card mt-4 overflow-x-auto">
+      @if (loading()) {
+        <p class="text-sm text-black/50 dark:text-white/50">Cargando…</p>
+      } @else if (pedidos().length === 0) {
+        <p class="text-sm text-black/50 dark:text-white/50">Sin pedidos.</p>
+      } @else {
+        <table class="w-full text-sm">
+          <thead class="text-left text-black/50 dark:text-white/50">
+            <tr class="border-b border-black/10 dark:border-white/10">
+              <th class="py-2">Folio</th><th>Cliente</th><th>Fecha</th><th>Total</th><th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of pedidos(); track p.id) {
+              <tr class="border-b border-black/5 dark:border-white/10">
+                <td class="py-2.5 font-mono text-xs">{{ p.folio || (p.id.slice(0, 8)) }}</td>
+                <td class="font-semibold">{{ p.cliente?.nombre || '—' }}<br /><span class="text-xs font-normal text-black/50 dark:text-white/50">{{ p.cliente?.correo }}</span></td>
+                <td class="text-black/60 dark:text-white/60">{{ p.creadoEn | date: 'short' }}</td>
+                <td class="font-mono font-semibold">{{ p.total | money }}</td>
+                <td>
+                  <select [ngModel]="p.estado" (ngModelChange)="cambiarEstado(p, $event)"
+                          class="ek-input py-1 text-xs" [disabled]="guardando() === p.id">
+                    @for (e of estados; track e) { <option [value]="e">{{ e }}</option> }
+                  </select>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        <!-- Paginator -->
+        @if (meta().pages > 1) {
+          <div class="mt-3 flex items-center justify-between text-sm">
+            <span class="text-black/50 dark:text-white/50">{{ meta().total }} pedidos · página {{ meta().page }} de {{ meta().pages }}</span>
+            <div class="flex gap-2">
+              <button class="btn-outline py-1 text-xs" [disabled]="meta().page <= 1" (click)="goToPage(meta().page - 1)">‹ Anterior</button>
+              <button class="btn-outline py-1 text-xs" [disabled]="meta().page >= meta().pages" (click)="goToPage(meta().page + 1)">Siguiente ›</button>
+            </div>
+          </div>
+        }
+      }
+    </div>
+  `,
+})
+export class PedidosComponent {
+  private readonly admin = inject(AdminService);
+
+  readonly estados = ESTADOS;
+  readonly pedidos = signal<PedidoAdmin[]>([]);
+  readonly meta = signal<Paginated<PedidoAdmin>['meta']>(DEFAULT_META);
+  readonly loading = signal(true);
+  readonly guardando = signal<string | null>(null);
+  estadoFiltro = '';
+  private currentPage = 1;
+
+  constructor() {
+    this.cargar(1);
+  }
+
+  onEstadoChange(_estado: string) {
+    this.cargar(1);
+  }
+
+  goToPage(page: number) {
+    this.cargar(page);
+  }
+
+  private cargar(page: number) {
+    this.loading.set(true);
+    this.currentPage = page;
+    const query: { page: number; limit: number; estado?: string } = { page, limit: 20 };
+    if (this.estadoFiltro) query.estado = this.estadoFiltro;
+    this.admin.pedidos(query).subscribe({
+      next: (r) => {
+        this.pedidos.set(r.data);
+        this.meta.set(r.meta);
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false),
+    });
+  }
+
+  cambiarEstado(p: PedidoAdmin, estado: string) {
+    if (estado === p.estado) return;
+    this.guardando.set(p.id);
+    this.admin.actualizarEstadoPedido(p.id, estado).subscribe({
+      next: () => {
+        this.pedidos.update((list) =>
+          list.map((x) => (x.id === p.id ? { ...x, estado } : x)),
+        );
+        this.guardando.set(null);
+      },
+      error: () => this.guardando.set(null),
+    });
+  }
+}

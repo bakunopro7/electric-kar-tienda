@@ -14,13 +14,13 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
 ## Decision Tasks (resolve before or at the start of apply)
 
-- [ ] **D-01** · Confirm with the user whether `placeholder.component.ts` should be deleted in
+- [x] **D-01** · Confirm with the user whether `placeholder.component.ts` should be deleted in
   Slice 1 (it is provably unused — no references) or left in place under a near-empty `admin/`.
   **Default: leave it.** Record the decision here before Slice 1 begins.
   - Spec: `target-structure/spec.md` § Back-Office Context Layout
   - Design: § Decision: `placeholder.component.ts` — deferred, not moved, not deleted
 
-- [ ] **D-02** · Confirm the `blog.data.ts` intra-context import style for `articulo.component.ts`:
+- [x] **D-02** · Confirm the `blog.data.ts` intra-context import style for `articulo.component.ts`:
   relative `../blog/blog.data` (default, permitted by `path-aliases` spec) OR alias
   `@tienda/contenido/blog/blog.data`. Record choice before Slice 2 begins.
   - Spec: `path-aliases/spec.md` § All Moved Files Use Aliases for Cross-Cutting Imports
@@ -32,7 +32,7 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
 > Gate: `pnpm --filter electric-kar-front build` exits 0 **and** `pnpm --filter electric-kar-front test` passes (14 files / 39 tests green).
 
-- [ ] **S0-01** · Add `"baseUrl": "src"` and five `paths` entries to
+- [x] **S0-01** · Add `"baseUrl": "src"` and five `paths` entries to
   `electric-kar-front/tsconfig.json` under `compilerOptions`:
 
   ```json
@@ -50,14 +50,15 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
   - Spec: `path-aliases/spec.md` § baseUrl and Paths Declared in tsconfig.json
   - File: `electric-kar-front/tsconfig.json`
 
-- [ ] **S0-02** · (Optional verification import) Update one cross-cutting import in an existing
+- [x] **S0-02** · (Optional verification import) Update one cross-cutting import in an existing
   file to alias form (e.g. `@core/auth.service`) to prove resolution end-to-end.
   The design's empirical experiment already proved this works; apply may rely on that proof
-  and skip this task, but a live token is useful insurance.
+  and skip this task, but a live token is useful insurance. **Skipped — relying on the
+  empirical experiment proof recorded in design.md (14/39 tests passed with @core/* imports).**
   - Spec: `path-aliases/spec.md` § Angular Production Build Resolves Aliases (requires
     "at least one component uses an `@core/*` import")
 
-- [ ] **S0-03** · **Slice 0 Green Gate** — run from a clean state:
+- [x] **S0-03** · **Slice 0 Green Gate** — run from a clean state:
 
   ```bash
   cd electric-kar-front && rm -rf dist .angular/cache
@@ -88,7 +89,7 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
 ### Pre-move setup
 
-- [ ] **S1-01** · Create the `panel/` directory tree (empty folders):
+- [x] **S1-01** · Create the `panel/` directory tree (empty folders):
 
   ```
   src/app/panel/operaciones/dashboard/
@@ -110,7 +111,7 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
 ### Domain: `operaciones/` (dashboard, control, sesiones, auditoria, integraciones, reportes, menu)
 
-- [ ] **S1-02** · Move `operaciones/` components and co-located spec:
+- [x] **S1-02** · Move `operaciones/` components and co-located spec:
 
   ```bash
   git mv src/app/admin/dashboard.component.ts \
@@ -135,12 +136,12 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
   - Spec: `target-structure/spec.md` § Back-Office Context Layout + Spec Co-Location
 
-- [ ] **S1-03** · Update cross-cutting imports in all 9 moved `operaciones/` files from relative
+- [x] **S1-03** · Update cross-cutting imports in all 9 moved `operaciones/` files from relative
   (`../core/`, `../../core/`, `../shared/`) to alias form (`@core/*`, `@shared/*`).
   No relative import into `core/`, `shared/`, or `layout/` may remain.
   - Spec: `path-aliases/spec.md` § All Moved Files Use Aliases for Cross-Cutting Imports
 
-- [ ] **S1-04** · Commit `operaciones/` domain:
+- [x] **S1-04** · Commit `operaciones/` domain:
 
   ```
   refactor(panel): move operaciones domain (dashboard, control, sesiones, auditoria, integraciones, reportes, menu)
@@ -148,7 +149,7 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
 ### Domain: `pedidos/`
 
-- [ ] **S1-05** · Move `pedidos.component.ts` + spec:
+- [x] **S1-05** · Move `pedidos.component.ts` + spec:
 
   ```bash
   git mv src/app/admin/pedidos.component.ts \
@@ -157,9 +158,9 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
          src/app/panel/pedidos/pedidos/pedidos.component.spec.ts
   ```
 
-- [ ] **S1-06** · Update cross-cutting imports in the two moved files to alias form.
+- [x] **S1-06** · Update cross-cutting imports in the two moved files to alias form.
 
-- [ ] **S1-07** · Commit `pedidos/` domain:
+- [x] **S1-07** · Commit `pedidos/` domain:
 
   ```
   refactor(panel): move pedidos domain
@@ -167,16 +168,16 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
 ### Domain: `catalogo/` (admin)
 
-- [ ] **S1-08** · Move `productos.component.ts`:
+- [x] **S1-08** · Move `productos.component.ts`:
 
   ```bash
   git mv src/app/admin/productos.component.ts \
          src/app/panel/catalogo/productos/productos.component.ts
   ```
 
-- [ ] **S1-09** · Update cross-cutting imports to alias form.
+- [x] **S1-09** · Update cross-cutting imports to alias form.
 
-- [ ] **S1-10** · Commit `catalogo/` domain:
+- [x] **S1-10** · Commit `catalogo/` domain:
 
   ```
   refactor(panel): move catalogo domain (admin productos)
@@ -184,7 +185,7 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
 ### Domain: `clientes/` (clientes + usuarios)
 
-- [ ] **S1-11** · Move `clientes.component.ts` + spec and `usuarios.component.ts`:
+- [x] **S1-11** · Move `clientes.component.ts` + spec and `usuarios.component.ts`:
 
   ```bash
   git mv src/app/admin/clientes.component.ts \
@@ -195,9 +196,9 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
          src/app/panel/clientes/usuarios/usuarios.component.ts
   ```
 
-- [ ] **S1-12** · Update cross-cutting imports to alias form.
+- [x] **S1-12** · Update cross-cutting imports to alias form.
 
-- [ ] **S1-13** · Commit `clientes/` domain:
+- [x] **S1-13** · Commit `clientes/` domain:
 
   ```
   refactor(panel): move clientes domain (clientes, usuarios)
@@ -205,16 +206,16 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
 ### Domain: `cupones/`
 
-- [ ] **S1-14** · Move `cupones.component.ts`:
+- [x] **S1-14** · Move `cupones.component.ts`:
 
   ```bash
   git mv src/app/admin/cupones.component.ts \
          src/app/panel/cupones/cupones/cupones.component.ts
   ```
 
-- [ ] **S1-15** · Update cross-cutting imports to alias form.
+- [x] **S1-15** · Update cross-cutting imports to alias form.
 
-- [ ] **S1-16** · Commit `cupones/` domain:
+- [x] **S1-16** · Commit `cupones/` domain:
 
   ```
   refactor(panel): move cupones domain
@@ -222,7 +223,7 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
 ### Domain: `facturacion/` (cfdi)
 
-- [ ] **S1-17** · Move `cfdi.component.ts` + spec:
+- [x] **S1-17** · Move `cfdi.component.ts` + spec:
 
   ```bash
   git mv src/app/admin/cfdi.component.ts \
@@ -231,9 +232,9 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
          src/app/panel/facturacion/cfdi/cfdi.component.spec.ts
   ```
 
-- [ ] **S1-18** · Update cross-cutting imports to alias form.
+- [x] **S1-18** · Update cross-cutting imports to alias form.
 
-- [ ] **S1-19** · Commit `facturacion/` domain:
+- [x] **S1-19** · Commit `facturacion/` domain:
 
   ```
   refactor(panel): move facturacion domain (cfdi)
@@ -241,16 +242,16 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
 ### Domain: `perfil/`
 
-- [ ] **S1-20** · Move `perfil.component.ts`:
+- [x] **S1-20** · Move `perfil.component.ts`:
 
   ```bash
   git mv src/app/admin/perfil.component.ts \
          src/app/panel/perfil/perfil/perfil.component.ts
   ```
 
-- [ ] **S1-21** · Update cross-cutting imports to alias form.
+- [x] **S1-21** · Update cross-cutting imports to alias form.
 
-- [ ] **S1-22** · Commit `perfil/` domain:
+- [x] **S1-22** · Commit `perfil/` domain:
 
   ```
   refactor(panel): move perfil domain
@@ -258,7 +259,7 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
 ### Domain: `acceso/` (admin-login)
 
-- [ ] **S1-23** · Move `admin-login.component.ts` (note: this file has an uncommitted modification —
+- [x] **S1-23** · Move `admin-login.component.ts` (note: this file has an uncommitted modification —
   `git mv` preserves the working-tree content, so the modification rides along):
 
   ```bash
@@ -270,9 +271,9 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
   `git diff HEAD -- src/app/panel/acceso/admin-login/admin-login.component.ts`).
   - Design: § `admin-login.component.ts` uncommitted-M note
 
-- [ ] **S1-24** · Update cross-cutting imports to alias form.
+- [x] **S1-24** · Update cross-cutting imports to alias form.
 
-- [ ] **S1-25** · Commit `acceso/` domain:
+- [x] **S1-25** · Commit `acceso/` domain:
 
   ```
   refactor(panel): move acceso domain (admin-login, preserves uncommitted edit)
@@ -280,7 +281,7 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
 ### Panel root files (admin-layout + placeholder decision)
 
-- [ ] **S1-26** · Move `admin-layout.component.ts` to the `panel/` root:
+- [x] **S1-26** · Move `admin-layout.component.ts` to the `panel/` root:
 
   ```bash
   git mv src/app/admin/admin-layout.component.ts \
@@ -289,7 +290,7 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
   Update cross-cutting imports to alias form.
 
-- [ ] **S1-27** · Apply D-01 decision for `placeholder.component.ts`:
+- [x] **S1-27** · Apply D-01 decision for `placeholder.component.ts`:
   - If decision = **leave**: do nothing. Verify `admin/` now contains only
     `placeholder.component.ts` (all other files have moved).
   - If decision = **delete**: `git rm src/app/admin/placeholder.component.ts`.
@@ -297,21 +298,21 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
 ### Route file rewire
 
-- [ ] **S1-28** · Move `admin.routes.ts` to the `panel/` root:
+- [x] **S1-28** · Move `admin.routes.ts` to the `panel/` root:
 
   ```bash
   git mv src/app/admin/admin.routes.ts \
          src/app/panel/admin.routes.ts
   ```
 
-- [ ] **S1-29** · In `panel/admin.routes.ts`, rewrite all `loadComponent(() => import(...))` strings
+- [x] **S1-29** · In `panel/admin.routes.ts`, rewrite all `loadComponent(() => import(...))` strings
   from relative `'./<x>.component'` to alias form `'@panel/<domain>/<x>/<x>.component'`.
   Also rewrite the static `import { adminAuthGuard, rolesGuard }` from `'../core/admin.guards'`
   to `'@core/admin.guards'`.
   - Spec: `path-aliases/spec.md` § Lazy loadComponent / loadChildren Strings Updated
   - Design: § Slice 1 — Route-file edits
 
-- [ ] **S1-30** · In `src/app/app.routes.ts`, update the `panel` `loadChildren` entry:
+- [x] **S1-30** · In `src/app/app.routes.ts`, update the `panel` `loadChildren` entry:
 
   ```ts
   // Before
@@ -323,7 +324,7 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
   - Spec: `path-aliases/spec.md` § Lazy loadComponent / loadChildren Strings Updated
   - Design: § Slice 1 — Route-file edits
 
-- [ ] **S1-31** · Commit route file rewire:
+- [x] **S1-31** · Commit route file rewire:
 
   ```
   refactor(panel): rewire admin.routes and app.routes loadChildren to @panel alias
@@ -331,7 +332,7 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
 ### Slice 1 Green Gate
 
-- [ ] **S1-32** · Run Vitest suite:
+- [x] **S1-32** · Run Vitest suite:
 
   ```bash
   PATH="$HOME/.local/bin:$PATH" pnpm --filter electric-kar-front test
@@ -340,7 +341,7 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
   - Spec: `green-tests-per-stage/spec.md` § Gate 1 (Slice 1)
 
-- [ ] **S1-33** · Run production build from a clean state:
+- [x] **S1-33** · Run production build from a clean state:
 
   ```bash
   cd electric-kar-front && rm -rf dist .angular/cache
@@ -350,7 +351,7 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
   - Spec: `green-tests-per-stage/spec.md` § Gate 2 (Slice 1)
 
-- [ ] **S1-34** · Check A — assert admin lazy-chunk names are emitted in the build output:
+- [x] **S1-34** · Check A — assert admin lazy-chunk names are emitted in the build output:
 
   ```bash
   rg -l 'dashboard-component|pedidos-component|cfdi-component|cupones-component|control-component' \
@@ -360,7 +361,7 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
   - Spec: `green-tests-per-stage/spec.md` § Gate 3 + Design § Smoke-Check A
 
-- [ ] **S1-35** · Check B — start the SSR server and curl every admin route:
+- [x] **S1-35** · Check B — start the SSR server and curl every admin route:
 
   ```bash
   fuser -k 4200/tcp 2>/dev/null || true
@@ -390,7 +391,7 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
 ### Pre-move setup
 
-- [ ] **S2-01** · Create the `tienda/` directory tree (empty folders):
+- [x] **S2-01** · Create the `tienda/` directory tree (empty folders):
 
   ```
   src/app/tienda/catalogo/home/
@@ -414,7 +415,7 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
 ### Domain: `catalogo/` (storefront — home, tienda, producto, busqueda, destacados)
 
-- [ ] **S2-02** · Move `catalogo/` components:
+- [x] **S2-02** · Move `catalogo/` components:
 
   ```bash
   git mv src/app/pages/home/home.component.ts \
@@ -431,12 +432,12 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
   - Spec: `target-structure/spec.md` § Storefront Context Layout
 
-- [ ] **S2-03** · Update cross-cutting imports in all 5 moved `catalogo/` files to alias form
+- [x] **S2-03** · Update cross-cutting imports in all 5 moved `catalogo/` files to alias form
   (`@core/*`, `@shared/*`, `@layout/*`). No relative import into `core/`, `shared/`, or `layout/`
   may remain.
   - Spec: `path-aliases/spec.md` § All Moved Files Use Aliases for Cross-Cutting Imports
 
-- [ ] **S2-04** · Commit `catalogo/` domain:
+- [x] **S2-04** · Commit `catalogo/` domain:
 
   ```
   refactor(tienda): move catalogo domain (home, tienda, producto, busqueda, destacados)
@@ -444,16 +445,16 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
 ### Domain: `carrito/`
 
-- [ ] **S2-05** · Move `carrito.component.ts`:
+- [x] **S2-05** · Move `carrito.component.ts`:
 
   ```bash
   git mv src/app/pages/carrito/carrito.component.ts \
          src/app/tienda/carrito/carrito/carrito.component.ts
   ```
 
-- [ ] **S2-06** · Update cross-cutting imports to alias form.
+- [x] **S2-06** · Update cross-cutting imports to alias form.
 
-- [ ] **S2-07** · Commit `carrito/` domain:
+- [x] **S2-07** · Commit `carrito/` domain:
 
   ```
   refactor(tienda): move carrito domain
@@ -461,7 +462,7 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
 ### Domain: `checkout/` (checkout + confirmacion)
 
-- [ ] **S2-08** · Move `checkout/` components:
+- [x] **S2-08** · Move `checkout/` components:
 
   ```bash
   git mv src/app/pages/checkout/checkout.component.ts \
@@ -470,9 +471,9 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
          src/app/tienda/checkout/confirmacion/confirmacion.component.ts
   ```
 
-- [ ] **S2-09** · Update cross-cutting imports to alias form.
+- [x] **S2-09** · Update cross-cutting imports to alias form.
 
-- [ ] **S2-10** · Commit `checkout/` domain:
+- [x] **S2-10** · Commit `checkout/` domain:
 
   ```
   refactor(tienda): move checkout domain (checkout, confirmacion)
@@ -480,7 +481,7 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
 ### Domain: `cuenta/` (acceso, cuenta+spec, recuperar, favoritos)
 
-- [ ] **S2-11** · Move `cuenta/` components and co-located spec:
+- [x] **S2-11** · Move `cuenta/` components and co-located spec:
 
   ```bash
   git mv src/app/pages/acceso/acceso.component.ts \
@@ -497,10 +498,10 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
   - Spec: `target-structure/spec.md` § Spec Co-Location (Slice 2)
 
-- [ ] **S2-12** · Update cross-cutting imports to alias form in all 5 moved files
+- [x] **S2-12** · Update cross-cutting imports to alias form in all 5 moved files
   (including `cuenta.component.spec.ts`).
 
-- [ ] **S2-13** · Commit `cuenta/` domain:
+- [x] **S2-13** · Commit `cuenta/` domain:
 
   ```
   refactor(tienda): move cuenta domain (acceso, cuenta, recuperar, favoritos) + co-locate spec
@@ -508,7 +509,7 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
 ### Domain: `contenido/` (blog + blog.data, articulo, faq, nosotros, contacto)
 
-- [ ] **S2-14** · Move `contenido/` components and data file:
+- [x] **S2-14** · Move `contenido/` components and data file:
 
   ```bash
   git mv src/app/pages/blog/blog.component.ts \
@@ -527,13 +528,13 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
   - Spec: `target-structure/spec.md` § Storefront Context Layout
 
-- [ ] **S2-15** · Update cross-cutting imports to alias form in all 6 moved files.
+- [x] **S2-15** · Update cross-cutting imports to alias form in all 6 moved files.
   For `articulo.component.ts`: apply the D-02 decision for the `blog.data` import
   (relative `../blog/blog.data` OR `@tienda/contenido/blog/blog.data`).
   - Spec: `path-aliases/spec.md` § All Moved Files Use Aliases for Cross-Cutting Imports
   - Design: § `blog.data.ts` placement note
 
-- [ ] **S2-16** · Commit `contenido/` domain:
+- [x] **S2-16** · Commit `contenido/` domain:
 
   ```
   refactor(tienda): move contenido domain (blog, articulo, faq, nosotros, contacto)
@@ -541,7 +542,7 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
 ### Route file extraction and app.routes.ts rewire
 
-- [ ] **S2-17** · Create `src/app/tienda/tienda.routes.ts` exporting `TIENDA_ROUTES`.
+- [x] **S2-17** · Create `src/app/tienda/tienda.routes.ts` exporting `TIENDA_ROUTES`.
   Extract the 18 inline storefront `loadComponent` entries from `src/app/app.routes.ts`.
   Each entry's `import('...')` string MUST use `@tienda/<domain>/<component>/<component>.component`.
   Do NOT include the `**` wildcard redirect inside `TIENDA_ROUTES` — it stays in `app.routes.ts`.
@@ -561,7 +562,7 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
   - Spec: `path-aliases/spec.md` § Lazy loadComponent / loadChildren Strings Updated
   - Design: § Decision: `tienda.routes.ts` shape
 
-- [ ] **S2-18** · Rewire `src/app/app.routes.ts`:
+- [x] **S2-18** · Rewire `src/app/app.routes.ts`:
   - Replace the 18 inline storefront `loadComponent` entries with a single `loadChildren` entry:
     ```ts
     { path: '', loadChildren: () => import('@tienda/tienda.routes').then((m) => m.TIENDA_ROUTES) }
@@ -573,7 +574,7 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
   - Spec: `behavior-preservation/spec.md` (route URLs unchanged)
   - Design: § Decision: `tienda.routes.ts` shape — `**` wildcard caveat
 
-- [ ] **S2-19** · Commit route extraction and rewire:
+- [x] **S2-19** · Commit route extraction and rewire:
 
   ```
   refactor(tienda): extract tienda.routes.ts and rewire app.routes loadChildren
@@ -581,7 +582,7 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
 ### Slice 2 Green Gate
 
-- [ ] **S2-20** · Run Vitest suite:
+- [x] **S2-20** · Run Vitest suite:
 
   ```bash
   PATH="$HOME/.local/bin:$PATH" pnpm --filter electric-kar-front test
@@ -590,7 +591,7 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
   - Spec: `green-tests-per-stage/spec.md` § Gate 1 (Slice 2)
 
-- [ ] **S2-21** · Run production build from a clean state:
+- [x] **S2-21** · Run production build from a clean state:
 
   ```bash
   cd electric-kar-front && rm -rf dist .angular/cache
@@ -600,7 +601,7 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
   - Spec: `green-tests-per-stage/spec.md` § Gate 2 (Slice 2)
 
-- [ ] **S2-22** · Check A — assert storefront lazy-chunk names are emitted:
+- [x] **S2-22** · Check A — assert storefront lazy-chunk names are emitted:
 
   ```bash
   rg -l 'home-component|tienda-component|producto-component|blog-component|articulo-component' \
@@ -610,7 +611,7 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
   - Spec: `green-tests-per-stage/spec.md` § Gate 3 + Design § Smoke-Check A
 
-- [ ] **S2-23** · Check B — start the SSR server and curl every storefront route:
+- [x] **S2-23** · Check B — start the SSR server and curl every storefront route:
 
   ```bash
   fuser -k 4200/tcp 2>/dev/null || true
@@ -627,7 +628,7 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
 
   - Spec: `green-tests-per-stage/spec.md` § Gate 3 + Design § Smoke-Check B
 
-- [ ] **S2-24** · SSR populated-HTML check — assert `/` and `/producto/<slug>` render real content:
+- [x] **S2-24** · SSR populated-HTML check — assert `/` and `/producto/<slug>` render real content:
 
   ```bash
   curl -s http://localhost:4200/ | rg -q 'app-root>.*\S' && echo "/ SSR populated" || echo "FAIL: / empty"
@@ -638,7 +639,7 @@ Each domain within Slices 1 and 2 is its own commit (`refactor(<context>): move 
   Both checks MUST print the "populated" message, not "FAIL". Kill the server after verification.
   - Spec: `green-tests-per-stage/spec.md` § Gate 3 — SSR scenario
 
-- [ ] **S2-25** · Verify final directory invariants:
+- [x] **S2-25** · Verify final directory invariants:
 
   ```bash
   # pages/ and admin/ must NOT exist (or admin/ contains only placeholder)
