@@ -40,7 +40,7 @@ describe('ProductsService', () => {
       prisma.producto.findMany.mockResolvedValue([{ id: 'p1' }, { id: 'p2' }]);
       prisma.producto.count.mockResolvedValue(45);
 
-      const res = await service.findAll({} as any);
+      const res = await service.findAll({});
 
       expect(res.data).toHaveLength(2);
       expect(res.meta).toEqual({ total: 45, page: 1, limit: 20, pages: 3 });
@@ -54,7 +54,7 @@ describe('ProductsService', () => {
       prisma.producto.findMany.mockResolvedValue([]);
       prisma.producto.count.mockResolvedValue(0);
 
-      await service.findAll({ page: 3, limit: 10 } as any);
+      await service.findAll({ page: 3, limit: 10 });
 
       const findArgs = prisma.producto.findMany.mock.calls[0][0];
       expect(findArgs.skip).toBe(20); // (3-1)*10
@@ -65,7 +65,7 @@ describe('ProductsService', () => {
       prisma.producto.findMany.mockResolvedValue([]);
       prisma.producto.count.mockResolvedValue(0);
 
-      await service.findAll({ search: 'batería', categoriaId: 'cat-1' } as any);
+      await service.findAll({ search: 'batería', categoriaId: 'cat-1' });
 
       const where = prisma.producto.findMany.mock.calls[0][0].where;
       expect(where.categoriaId).toBe('cat-1');
@@ -79,7 +79,9 @@ describe('ProductsService', () => {
   describe('findOne', () => {
     it('lanza NotFound cuando no existe', async () => {
       prisma.producto.findUnique.mockResolvedValue(null);
-      await expect(service.findOne('x')).rejects.toBeInstanceOf(NotFoundException);
+      await expect(service.findOne('x')).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
     });
   });
 

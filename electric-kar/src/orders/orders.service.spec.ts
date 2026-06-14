@@ -4,7 +4,12 @@ import {
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
-import { EstadoCupon, EstadoProducto, Prisma, TipoCupon } from '../generated/prisma/client';
+import {
+  EstadoCupon,
+  EstadoProducto,
+  Prisma,
+  TipoCupon,
+} from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { OrdersService } from './orders.service';
 
@@ -33,7 +38,7 @@ function item(prod: any, cantidad = 1) {
  */
 function buildPrismaMock(tx: any) {
   return {
-    $transaction: jest.fn(async (cb: any) => cb(tx)),
+    $transaction: jest.fn((cb: any) => cb(tx)),
     pedido: { findUnique: jest.fn(), update: jest.fn() },
   };
 }
@@ -87,7 +92,9 @@ describe('OrdersService', () => {
       });
       const service = await makeService(buildPrismaMock(tx));
 
-      await expect(service.checkout('cli-1')).rejects.toThrow(/no está disponible/);
+      await expect(service.checkout('cli-1')).rejects.toThrow(
+        /no está disponible/,
+      );
     });
 
     it('rechaza cuando el stock es insuficiente', async () => {
@@ -98,13 +105,18 @@ describe('OrdersService', () => {
       });
       const service = await makeService(buildPrismaMock(tx));
 
-      await expect(service.checkout('cli-1')).rejects.toThrow(/Stock insuficiente/);
+      await expect(service.checkout('cli-1')).rejects.toThrow(
+        /Stock insuficiente/,
+      );
     });
 
     it('permite vender sin stock cuando permitirSinStock=true', async () => {
       const tx = buildTx();
       const prod = producto({ existencias: 0, permitirSinStock: true });
-      tx.carrito.findUnique.mockResolvedValue({ id: 'c1', items: [item(prod, 3)] });
+      tx.carrito.findUnique.mockResolvedValue({
+        id: 'c1',
+        items: [item(prod, 3)],
+      });
       tx.pedido.create.mockResolvedValue({ id: 'ped-1' });
       const service = await makeService(buildPrismaMock(tx));
 
@@ -147,7 +159,10 @@ describe('OrdersService', () => {
     it('no descuenta inventario de productos sin seguimiento', async () => {
       const tx = buildTx();
       const prod = producto({ seguirInventario: false });
-      tx.carrito.findUnique.mockResolvedValue({ id: 'c1', items: [item(prod, 1)] });
+      tx.carrito.findUnique.mockResolvedValue({
+        id: 'c1',
+        items: [item(prod, 1)],
+      });
       tx.pedido.create.mockResolvedValue({ id: 'ped-1' });
       const service = await makeService(buildPrismaMock(tx));
 
@@ -159,7 +174,10 @@ describe('OrdersService', () => {
     it('aplica un cupón de porcentaje e incrementa sus usos', async () => {
       const tx = buildTx();
       const prod = producto({ precio: new Prisma.Decimal(100) });
-      tx.carrito.findUnique.mockResolvedValue({ id: 'c1', items: [item(prod, 2)] }); // 200
+      tx.carrito.findUnique.mockResolvedValue({
+        id: 'c1',
+        items: [item(prod, 2)],
+      }); // 200
       tx.cupon.findUnique.mockResolvedValue({
         id: 'cup-1',
         codigo: 'DEMO10',
@@ -206,7 +224,9 @@ describe('OrdersService', () => {
       });
       const service = await makeService(buildPrismaMock(tx));
 
-      await expect(service.checkout('cli-1', 'VIEJO')).rejects.toThrow(/expirado/);
+      await expect(service.checkout('cli-1', 'VIEJO')).rejects.toThrow(
+        /expirado/,
+      );
     });
 
     it('rechaza un cupón inexistente', async () => {
@@ -261,11 +281,18 @@ describe('OrdersService', () => {
 
     it('impide que un cliente vea el pedido de otro', async () => {
       const prisma = buildPrismaMock(buildTx());
-      prisma.pedido.findUnique.mockResolvedValue({ id: 'p1', clienteId: 'otro' });
+      prisma.pedido.findUnique.mockResolvedValue({
+        id: 'p1',
+        clienteId: 'otro',
+      });
       const service = await makeService(prisma);
 
       await expect(
-        service.findOne('p1', { id: 'cli-1', correo: 'a@b.c', tipo: 'cliente' }),
+        service.findOne('p1', {
+          id: 'cli-1',
+          correo: 'a@b.c',
+          tipo: 'cliente',
+        }),
       ).rejects.toBeInstanceOf(ForbiddenException);
     });
 
@@ -276,7 +303,11 @@ describe('OrdersService', () => {
       const service = await makeService(prisma);
 
       await expect(
-        service.findOne('p1', { id: 'cli-1', correo: 'a@b.c', tipo: 'cliente' }),
+        service.findOne('p1', {
+          id: 'cli-1',
+          correo: 'a@b.c',
+          tipo: 'cliente',
+        }),
       ).resolves.toEqual(pedido);
     });
 

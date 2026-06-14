@@ -43,7 +43,9 @@ describe('RolesGuard', () => {
   it('permite a cualquier usuario cuando no se exigen roles', () => {
     setRequiredRoles(undefined);
     expect(
-      guard.canActivate(contextWithUser({ tipo: 'usuario', rol: Rol.VENDEDOR })),
+      guard.canActivate(
+        contextWithUser({ tipo: 'usuario', rol: Rol.VENDEDOR }),
+      ),
     ).toBe(true);
   });
 
@@ -57,7 +59,9 @@ describe('RolesGuard', () => {
   it('rechaza a un usuario sin el rol requerido', () => {
     setRequiredRoles([Rol.SUPER]);
     expect(() =>
-      guard.canActivate(contextWithUser({ tipo: 'usuario', rol: Rol.VENDEDOR })),
+      guard.canActivate(
+        contextWithUser({ tipo: 'usuario', rol: Rol.VENDEDOR }),
+      ),
     ).toThrow(ForbiddenException);
   });
 });

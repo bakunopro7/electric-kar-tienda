@@ -10,7 +10,11 @@ import { AuditoriaService } from '../auditoria/auditoria.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthService } from './auth.service';
 
-async function makeService(prisma: any, jwt: any, auditoria: any): Promise<AuthService> {
+async function makeService(
+  prisma: any,
+  jwt: any,
+  auditoria: any,
+): Promise<AuthService> {
   const moduleRef: TestingModule = await Test.createTestingModule({
     providers: [
       AuthService,
@@ -66,7 +70,9 @@ describe('AuthService', () => {
 
       const data = prisma.cliente.create.mock.calls[0][0].data;
       expect(data.password).not.toBe('secret123');
-      await expect(bcrypt.compare('secret123', data.password)).resolves.toBe(true);
+      await expect(bcrypt.compare('secret123', data.password)).resolves.toBe(
+        true,
+      );
     });
   });
 
@@ -125,9 +131,9 @@ describe('AuthService', () => {
   describe('resetPassword', () => {
     it('rechaza un token inexistente', async () => {
       prisma.cliente.findUnique.mockResolvedValue(null);
-      await expect(service.resetPassword('tok', 'nueva123')).rejects.toBeInstanceOf(
-        BadRequestException,
-      );
+      await expect(
+        service.resetPassword('tok', 'nueva123'),
+      ).rejects.toBeInstanceOf(BadRequestException);
     });
 
     it('rechaza un token expirado', async () => {
@@ -151,7 +157,9 @@ describe('AuthService', () => {
       const data = prisma.cliente.update.mock.calls[0][0].data;
       expect(data.resetToken).toBeNull();
       expect(data.resetTokenExpira).toBeNull();
-      await expect(bcrypt.compare('nueva123', data.password)).resolves.toBe(true);
+      await expect(bcrypt.compare('nueva123', data.password)).resolves.toBe(
+        true,
+      );
     });
   });
 

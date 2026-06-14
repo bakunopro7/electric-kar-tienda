@@ -1,9 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  BadRequestException,
-  ConflictException,
-  NotFoundException,
-} from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 import { EstadoCupon, Prisma, TipoCupon } from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CuponesService } from './cupones.service';
@@ -103,7 +99,10 @@ describe('CuponesService', () => {
 
     it('calcula el descuento de un cupón de porcentaje', async () => {
       prisma.cupon.findUnique.mockResolvedValue(
-        buildCupon({ tipo: TipoCupon.PORCENTAJE, valor: new Prisma.Decimal(20) }),
+        buildCupon({
+          tipo: TipoCupon.PORCENTAJE,
+          valor: new Prisma.Decimal(20),
+        }),
       );
       const r = await service.validate({ codigo: 'VERANO20', subtotal: 1500 });
       expect(r.descuento.toString()).toBe('300'); // 20% de 1500
@@ -112,7 +111,10 @@ describe('CuponesService', () => {
 
     it('limita el monto fijo al subtotal', async () => {
       prisma.cupon.findUnique.mockResolvedValue(
-        buildCupon({ tipo: TipoCupon.MONTO_FIJO, valor: new Prisma.Decimal(200) }),
+        buildCupon({
+          tipo: TipoCupon.MONTO_FIJO,
+          valor: new Prisma.Decimal(200),
+        }),
       );
       const r = await service.validate({ codigo: 'VERANO20', subtotal: 150 });
       expect(r.descuento.toString()).toBe('150'); // min(200, 150)
@@ -149,7 +151,9 @@ describe('CuponesService', () => {
   describe('findOne', () => {
     it('lanza NotFound cuando no existe', async () => {
       prisma.cupon.findUnique.mockResolvedValue(null);
-      await expect(service.findOne('x')).rejects.toBeInstanceOf(NotFoundException);
+      await expect(service.findOne('x')).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
     });
   });
 });
