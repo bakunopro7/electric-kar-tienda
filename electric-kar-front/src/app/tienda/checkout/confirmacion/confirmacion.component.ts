@@ -58,7 +58,7 @@ import { IconComponent } from '@shared/icon.component';
           <a routerLink="/cuenta" class="btn-primary mt-4 w-full">Ver mis pedidos</a>
           <a routerLink="/tienda" class="btn-outline mt-2 w-full text-sm">Seguir comprando</a>
         </div>
-        <div class="rounded-[14px] bg-gradient-to-br from-azul-700 to-navy-900 p-5 text-white">
+        <div class="rounded-ek bg-gradient-to-br from-azul-700 to-navy-900 p-5 text-white">
           <h3 class="flex items-center gap-2 font-bold"><ek-icon name="chat" class="h-5 w-5" /> ¿Necesitas ayuda?</h3>
           <p class="mt-2 text-sm text-white/70">¿Dudas con tu pedido o la instalación? Nuestros técnicos te asisten.</p>
           <a routerLink="/faq" class="btn-voltaje mt-4 w-full text-sm">Centro de ayuda</a>

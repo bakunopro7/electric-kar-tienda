@@ -44,7 +44,7 @@ interface QA { grupo: string; q: string; a: string; }
         <p class="text-center text-black/50 dark:text-white/50">No hay preguntas que coincidan con "{{ filtro }}".</p>
       }
 
-      <div class="mt-6 rounded-[18px] bg-gradient-to-br from-azul-700 to-navy-900 p-6 text-center text-white">
+      <div class="mt-6 rounded-ek-lg bg-gradient-to-br from-azul-700 to-navy-900 p-6 text-center text-white">
         <h3 class="font-bold">¿No encuentras lo que buscas?</h3>
         <p class="mt-1 text-sm text-white/70">Nuestro equipo de soporte te ayuda con gusto.</p>
         <a routerLink="/" class="btn-voltaje mt-4">Contactar soporte</a>

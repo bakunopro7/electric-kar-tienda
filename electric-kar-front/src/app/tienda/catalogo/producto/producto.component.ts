@@ -27,7 +27,7 @@ type Tab = 'desc' | 'specs' | 'ship';
       <div class="mt-5 grid gap-8 lg:grid-cols-2">
         <!-- GALERÍA -->
         <div>
-          <div class="group relative aspect-square overflow-hidden rounded-[14px] border border-black/10 bg-black/5 dark:border-white/10 dark:bg-white/5">
+          <div class="group relative aspect-square overflow-hidden rounded-ek border border-black/10 bg-black/5 dark:border-white/10 dark:bg-white/5">
             @if (ahorro() > 0) {
               <span class="absolute left-4 top-4 z-10 rounded-full bg-voltaje px-3 py-1 text-sm font-bold text-navy-900">-{{ descuentoPct() }}%</span>
             }
@@ -42,7 +42,7 @@ type Tab = 'desc' | 'specs' | 'ship';
             <div class="mt-3 flex gap-3">
               @for (img of p.imagenes; track img; let i = $index) {
                 <button type="button" (click)="imagenIdx.set(i)"
-                        class="aspect-square w-20 overflow-hidden rounded-[10px] border-2"
+                        class="aspect-square w-20 overflow-hidden rounded-ek-md border-2"
                         [class]="i === imagenIdx() ? 'border-azul-700' : 'border-transparent'">
                   <img [src]="img" [alt]="p.nombre" class="h-full w-full object-cover" />
                 </button>
@@ -83,7 +83,7 @@ type Tab = 'desc' | 'specs' | 'ship';
 
           <!-- Compra -->
           <div class="mt-6 flex flex-wrap items-center gap-3">
-            <div class="flex items-center rounded-[10px] border border-black/15 dark:border-white/15">
+            <div class="flex items-center rounded-ek-md border border-black/15 dark:border-white/15">
               <button type="button" class="px-4 py-3" (click)="cantidad.set(Math.max(1, cantidad() - 1))">−</button>
               <span class="w-10 text-center font-mono">{{ cantidad() }}</span>
               <button type="button" class="px-4 py-3" (click)="cantidad.set(cantidad() + 1)">+</button>
@@ -91,7 +91,7 @@ type Tab = 'desc' | 'specs' | 'ship';
             <button type="button" class="btn-primary flex-1" [disabled]="p.existencias <= 0" (click)="agregar(p)">
               <ek-icon name="cart" class="h-5 w-5" /> Agregar al carrito
             </button>
-            <button type="button" class="grid h-[50px] w-[50px] place-items-center rounded-[10px] border border-black/15 dark:border-white/15" aria-label="Favorito">
+            <button type="button" class="grid h-[50px] w-[50px] place-items-center rounded-ek-md border border-black/15 dark:border-white/15" aria-label="Favorito">
               <ek-icon name="heart" class="h-5 w-5" />
             </button>
           </div>
@@ -100,7 +100,7 @@ type Tab = 'desc' | 'specs' | 'ship';
           <!-- Garantías -->
           <div class="mt-6 grid grid-cols-2 gap-3">
             @for (a of garantias; track a.titulo) {
-              <div class="flex items-center gap-3 rounded-[12px] border border-black/10 p-3 dark:border-white/10">
+              <div class="flex items-center gap-3 rounded-ek-md border border-black/10 p-3 dark:border-white/10">
                 <ek-icon [name]="a.icon" class="h-6 w-6 shrink-0 text-azul-700" />
                 <div><b class="block text-sm">{{ a.titulo }}</b><small class="text-xs text-black/50 dark:text-white/50">{{ a.sub }}</small></div>
               </div>

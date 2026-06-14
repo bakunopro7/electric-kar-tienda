@@ -10,13 +10,14 @@ import { IconComponent } from '@shared/icon.component';
   template: `
     <div class="ek-grid-overlay absolute inset-0 opacity-50"></div>
     <div class="relative grid min-h-screen place-items-center p-4">
-      <div class="w-full max-w-sm rounded-[22px] bg-white p-8 text-navy-900 shadow-2xl dark:bg-navy-800 dark:text-white">
+      <div class="w-full max-w-sm rounded-ek-lg bg-white p-8 text-navy-900 shadow-2xl dark:bg-navy-800 dark:text-white">
+
         <div class="mb-6 flex items-center gap-2.5">
-          <span class="grid h-10 w-10 place-items-center rounded-[10px] bg-voltaje text-navy-900">
+          <span class="grid h-10 w-10 place-items-center rounded-ek-md bg-voltaje text-navy-900">
             <ek-icon name="bolt" class="h-6 w-6" />
           </span>
           <div>
-            <div class="font-display text-lg font-bold">electrick<span class="text-azul-700">-Kar</span></div>
+            <div class="font-display text-lg font-bold">electrick<span class="text-azul-700 dark:text-azul-500">-Kar</span></div>
             <small class="text-xs text-black/50 dark:text-white/50">Panel de administración</small>
           </div>
         </div>

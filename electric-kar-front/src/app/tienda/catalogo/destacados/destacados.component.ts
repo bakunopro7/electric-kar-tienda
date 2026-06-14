@@ -26,7 +26,7 @@ import { ProductCardComponent } from '@shared/product-card.component';
       <p class="mt-8 text-black/50 dark:text-white/50">Cargando…</p>
     } @else {
       @if (estrella(); as p) {
-        <section class="mt-8 grid items-center gap-6 overflow-hidden rounded-[22px] bg-gradient-to-br from-azul-700 to-navy-900 p-8 text-white md:grid-cols-2">
+        <section class="mt-8 grid items-center gap-6 overflow-hidden rounded-ek-lg bg-gradient-to-br from-azul-700 to-navy-900 p-8 text-white md:grid-cols-2">
           <div>
             <span class="inline-block rounded-full bg-voltaje px-3 py-1 text-xs font-bold text-navy-900">⚡ Producto estrella</span>
             <h2 class="mt-4 text-2xl font-bold">{{ p.nombre }}</h2>
@@ -40,7 +40,7 @@ import { ProductCardComponent } from '@shared/product-card.component';
               <button type="button" class="btn-outline border-white text-white hover:bg-white hover:text-navy-900" (click)="cart.add(p)">Agregar al carrito</button>
             </div>
           </div>
-          <div class="aspect-[4/3] overflow-hidden rounded-[14px] border border-white/15 bg-white/5">
+          <div class="aspect-[4/3] overflow-hidden rounded-ek border border-white/15 bg-white/5">
             @if (p.imagenes.length) { <img [src]="p.imagenes[0]" [alt]="p.nombre" class="h-full w-full object-cover" /> }
             @else { <div class="grid h-full place-items-center text-7xl">🔋</div> }
           </div>
