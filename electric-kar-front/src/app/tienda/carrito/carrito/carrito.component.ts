@@ -19,16 +19,16 @@ import { MoneyPipe } from '@shared/money.pipe';
         <div class="space-y-3 lg:col-span-2">
           @for (item of cart.items(); track item.producto.id) {
             <div class="card flex items-center gap-4">
-              <div class="grid h-16 w-16 shrink-0 place-items-center rounded-[8px] bg-black/5 text-2xl dark:bg-white/5">
+              <div class="grid h-16 w-16 shrink-0 place-items-center rounded-ek-sm bg-black/5 text-2xl dark:bg-white/5">
                 @if (item.producto.imagenes.length) {
-                  <img [src]="item.producto.imagenes[0]" [alt]="item.producto.nombre" class="h-full w-full rounded-[8px] object-cover" />
+                  <img [src]="item.producto.imagenes[0]" [alt]="item.producto.nombre" class="h-full w-full rounded-ek-sm object-cover" />
                 } @else { 🔋 }
               </div>
               <div class="min-w-0 flex-1">
                 <p class="truncate font-semibold">{{ item.producto.nombre }}</p>
                 <p class="font-mono text-sm text-black/50 dark:text-white/50">{{ item.producto.precio | money }}</p>
               </div>
-              <div class="flex items-center rounded-[8px] border border-black/15 dark:border-white/15">
+              <div class="flex items-center rounded-ek-sm border border-black/15 dark:border-white/15">
                 <button type="button" class="px-2 py-1" (click)="cart.setQty(item.producto.id, item.cantidad - 1)">−</button>
                 <span class="w-8 text-center font-mono text-sm">{{ item.cantidad }}</span>
                 <button type="button" class="px-2 py-1" (click)="cart.setQty(item.producto.id, item.cantidad + 1)">+</button>

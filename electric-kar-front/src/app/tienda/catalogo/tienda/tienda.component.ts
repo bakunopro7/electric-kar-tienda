@@ -34,13 +34,13 @@ import { ProductCardComponent } from '@shared/product-card.component';
           <h4 class="mb-3 font-display text-sm font-semibold">Categorías</h4>
           <div class="flex flex-col gap-1">
             <button type="button" (click)="seleccionarCategoria('')"
-                    class="flex items-center justify-between rounded-[8px] px-2 py-1.5 text-left text-sm hover:bg-black/5 dark:hover:bg-white/5"
+                    class="flex items-center justify-between rounded-ek-sm px-2 py-1.5 text-left text-sm hover:bg-black/5 dark:hover:bg-white/5"
                     [class.text-azul-700]="categoriaId() === ''" [class.font-semibold]="categoriaId() === ''">
               Todas
             </button>
             @for (c of categorias(); track c.id) {
               <button type="button" (click)="seleccionarCategoria(c.id)"
-                      class="flex items-center justify-between rounded-[8px] px-2 py-1.5 text-left text-sm hover:bg-black/5 dark:hover:bg-white/5"
+                      class="flex items-center justify-between rounded-ek-sm px-2 py-1.5 text-left text-sm hover:bg-black/5 dark:hover:bg-white/5"
                       [class.text-azul-700]="categoriaId() === c.id" [class.font-semibold]="categoriaId() === c.id">
                 {{ c.nombre }}
               </button>
@@ -65,7 +65,7 @@ import { ProductCardComponent } from '@shared/product-card.component';
           </div>
         }
 
-        <div class="rounded-[14px] bg-gradient-to-br from-azul-700 to-navy-900 p-5 text-white">
+        <div class="rounded-ek bg-gradient-to-br from-azul-700 to-navy-900 p-5 text-white">
           <h4 class="font-display text-sm font-semibold">¿Necesitas ayuda?</h4>
           <p class="mt-2 text-sm text-white/70">Nuestros técnicos te ayudan a elegir la pieza correcta para tu modelo.</p>
           <a routerLink="/" class="btn-voltaje mt-4 w-full text-sm">Hablar con un experto</a>
@@ -123,14 +123,14 @@ import { ProductCardComponent } from '@shared/product-card.component';
 
             @if (r.meta.pages > 1) {
               <div class="mt-10 flex items-center justify-center gap-1.5">
-                <button type="button" class="grid h-10 min-w-10 place-items-center rounded-[11px] border border-black/15 px-3 font-semibold disabled:opacity-40 dark:border-white/15"
+                <button type="button" class="grid h-10 min-w-10 place-items-center rounded-ek-md border border-black/15 px-3 font-semibold disabled:opacity-40 dark:border-white/15"
                         [disabled]="r.meta.page <= 1" (click)="irPagina(r.meta.page - 1)">‹</button>
                 @for (n of pageNumbers(); track n) {
                   <button type="button" (click)="irPagina(n)"
-                          class="grid h-10 min-w-10 place-items-center rounded-[11px] border px-3 font-semibold"
+                          class="grid h-10 min-w-10 place-items-center rounded-ek-md border px-3 font-semibold"
                           [class]="n === r.meta.page ? 'border-azul-700 bg-azul-700 text-white' : 'border-black/15 dark:border-white/15'">{{ n }}</button>
                 }
-                <button type="button" class="grid h-10 min-w-10 place-items-center rounded-[11px] border border-black/15 px-3 font-semibold disabled:opacity-40 dark:border-white/15"
+                <button type="button" class="grid h-10 min-w-10 place-items-center rounded-ek-md border border-black/15 px-3 font-semibold disabled:opacity-40 dark:border-white/15"
                         [disabled]="r.meta.page >= r.meta.pages" (click)="irPagina(r.meta.page + 1)">›</button>
               </div>
             }

@@ -19,7 +19,7 @@ interface Estado { label: string; detalle: string; nivel: 'ok' | 'warn' | 'off';
     <p class="mt-1 text-sm text-black/60 dark:text-white/60">Estado del sistema y mantenimiento (solo Super admin).</p>
 
     @if (mensaje()) {
-      <div class="mt-4 rounded-[12px] bg-exito/10 px-4 py-2.5 text-sm font-semibold text-exito">{{ mensaje() }}</div>
+      <div class="mt-4 rounded-ek-md bg-exito/10 px-4 py-2.5 text-sm font-semibold text-exito">{{ mensaje() }}</div>
     }
 
     <!-- Estado del sistema -->
@@ -42,7 +42,7 @@ interface Estado { label: string; detalle: string; nivel: 'ok' | 'warn' | 'off';
         <div class="card">
           <div class="flex items-center justify-between">
             <span class="text-sm text-black/50 dark:text-white/50">{{ k.label }}</span>
-            <span class="grid h-9 w-9 place-items-center rounded-[10px] bg-azul-700/10 text-azul-700"><ek-icon [name]="k.icon" class="h-5 w-5" /></span>
+            <span class="grid h-9 w-9 place-items-center rounded-ek-md bg-azul-700/10 text-azul-700"><ek-icon [name]="k.icon" class="h-5 w-5" /></span>
           </div>
           <div class="mt-2 font-display text-2xl font-bold">{{ k.value }}</div>
           @if (k.demo) { <span class="text-[10px] uppercase tracking-wide text-black/30 dark:text-white/30">demo</span> }
@@ -85,7 +85,7 @@ interface Estado { label: string; detalle: string; nivel: 'ok' | 'warn' | 'off';
 
           <button type="button" class="btn-outline w-full text-sm" (click)="demo('Respaldo de base de datos iniciado (demo).')">Respaldo de BD</button>
           <button type="button" class="btn-outline w-full text-sm" (click)="demo('Caché purgada (demo).')">Purgar caché</button>
-          <button type="button" class="btn w-full bg-peligro text-sm text-white hover:opacity-90" (click)="cerrarSesiones()">
+          <button type="button" class="btn-peligro w-full text-sm" (click)="cerrarSesiones()">
             Cerrar todas las sesiones del personal
           </button>
         </div>

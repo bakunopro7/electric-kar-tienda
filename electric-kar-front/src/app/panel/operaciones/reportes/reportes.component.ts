@@ -30,7 +30,7 @@ interface OrderStats {
         <div class="card">
           <div class="flex items-center justify-between">
             <span class="text-sm text-black/50 dark:text-white/50">{{ k.label }}</span>
-            <span class="grid h-9 w-9 place-items-center rounded-[10px] bg-azul-700/10 text-azul-700"><ek-icon [name]="k.icon" class="h-5 w-5" /></span>
+            <span class="grid h-9 w-9 place-items-center rounded-ek-md bg-azul-700/10 text-azul-700"><ek-icon [name]="k.icon" class="h-5 w-5" /></span>
           </div>
           <div class="mt-2 font-display text-2xl font-bold">{{ k.value }}</div>
         </div>

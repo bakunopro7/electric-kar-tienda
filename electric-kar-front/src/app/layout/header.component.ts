@@ -32,7 +32,7 @@ import { IconComponent } from '../shared/icon.component';
     <header class="sticky top-0 z-30 border-b border-black/10 bg-white/95 backdrop-blur dark:border-white/10 dark:bg-navy-900/95">
       <div class="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3">
         <a routerLink="/" class="flex items-center gap-2.5">
-          <span class="grid h-10 w-10 place-items-center rounded-[10px] bg-voltaje text-navy-900">
+          <span class="grid h-10 w-10 place-items-center rounded-ek-md bg-voltaje text-navy-900">
             <ek-icon name="bolt" class="h-6 w-6" />
           </span>
           <span class="leading-none">
@@ -79,7 +79,7 @@ import { IconComponent } from '../shared/icon.component';
           </a>
 
           @if (auth.isAuthenticated()) {
-            <button type="button" (click)="auth.logout()" class="ml-1 hidden rounded-[8px] px-3 py-2 text-sm font-semibold hover:text-azul-700 sm:block">Salir</button>
+            <button type="button" (click)="auth.logout()" class="ml-1 hidden rounded-ek-sm px-3 py-2 text-sm font-semibold hover:text-azul-700 sm:block">Salir</button>
           }
         </div>
       </div>
@@ -94,7 +94,7 @@ import { IconComponent } from '../shared/icon.component';
         <div class="flex flex-1 items-center gap-1 overflow-x-auto py-1">
           @for (m of menu(); track m.id) {
             <a [routerLink]="m.url" routerLinkActive="text-azul-700" [routerLinkActiveOptions]="{ exact: m.url === '/' }"
-               class="whitespace-nowrap rounded-[8px] px-3 py-2 text-sm font-medium text-black/70 hover:text-azul-700 dark:text-white/70 dark:hover:text-azul-500">{{ m.label }}</a>
+               class="whitespace-nowrap rounded-ek-sm px-3 py-2 text-sm font-medium text-black/70 hover:text-azul-700 dark:text-white/70 dark:hover:text-azul-500">{{ m.label }}</a>
           }
         </div>
         <span class="hidden items-center gap-1.5 whitespace-nowrap pl-3 text-sm font-semibold text-azul-700 lg:flex dark:text-azul-500">

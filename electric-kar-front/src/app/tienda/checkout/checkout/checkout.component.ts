@@ -67,7 +67,7 @@ interface Opcion {
             <div class="space-y-2">
               @for (o of envios; track o.id) {
                 <button type="button" (click)="envio.set(o.id)"
-                        class="flex w-full items-center gap-3 rounded-[12px] border p-3 text-left transition-colors"
+                        class="flex w-full items-center gap-3 rounded-ek-md border p-3 text-left transition-colors"
                         [class]="envio() === o.id ? 'border-azul-700 bg-azul-700/5' : 'border-black/15 dark:border-white/15'">
                   <span class="grid h-4 w-4 place-items-center rounded-full border-2" [class]="envio() === o.id ? 'border-azul-700' : 'border-black/30'">
                     @if (envio() === o.id) { <span class="h-2 w-2 rounded-full bg-azul-700"></span> }
@@ -89,7 +89,7 @@ interface Opcion {
             <div class="space-y-2">
               @for (o of pagos; track o.id) {
                 <button type="button" (click)="pago.set(o.id)"
-                        class="flex w-full items-center gap-3 rounded-[12px] border p-3 text-left transition-colors"
+                        class="flex w-full items-center gap-3 rounded-ek-md border p-3 text-left transition-colors"
                         [class]="pago() === o.id ? 'border-azul-700 bg-azul-700/5' : 'border-black/15 dark:border-white/15'">
                   <span class="grid h-4 w-4 place-items-center rounded-full border-2" [class]="pago() === o.id ? 'border-azul-700' : 'border-black/30'">
                     @if (pago() === o.id) { <span class="h-2 w-2 rounded-full bg-azul-700"></span> }
@@ -116,9 +116,9 @@ interface Opcion {
           <div class="mt-4 space-y-3">
             @for (item of cart.items(); track item.producto.id) {
               <div class="flex items-center gap-3">
-                <span class="relative grid h-12 w-12 shrink-0 place-items-center rounded-[8px] bg-black/5 dark:bg-white/5">
+                <span class="relative grid h-12 w-12 shrink-0 place-items-center rounded-ek-sm bg-black/5 dark:bg-white/5">
                   @if (item.producto.imagenes.length) {
-                    <img [src]="item.producto.imagenes[0]" [alt]="item.producto.nombre" class="h-full w-full rounded-[8px] object-cover" />
+                    <img [src]="item.producto.imagenes[0]" [alt]="item.producto.nombre" class="h-full w-full rounded-ek-sm object-cover" />
                   } @else { 🔋 }
                   <span class="absolute -right-1.5 -top-1.5 grid h-5 min-w-5 place-items-center rounded-full bg-navy-900 px-1 text-xs font-bold text-white">{{ item.cantidad }}</span>
                 </span>

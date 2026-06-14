@@ -18,7 +18,7 @@ import { MoneyPipe } from './money.pipe';
           <ek-icon name="heart" class="h-4 w-4" />
         </button>
         <a [routerLink]="['/producto', producto().id]" class="block">
-          <div class="aspect-square w-full overflow-hidden rounded-[8px] bg-black/5 dark:bg-white/5">
+          <div class="aspect-square w-full overflow-hidden rounded-ek-sm bg-black/5 dark:bg-white/5">
             @if (producto().imagenes.length) {
               <img [src]="producto().imagenes[0]" [alt]="producto().nombre"
                    class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />

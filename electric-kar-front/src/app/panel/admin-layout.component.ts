@@ -24,11 +24,11 @@ interface MenuItem {
       <!-- SIDEBAR -->
       <aside class="hidden w-64 shrink-0 flex-col bg-navy-900 text-white md:flex">
         <div class="flex items-center gap-2.5 border-b border-white/10 px-5 py-4">
-          <span class="grid h-9 w-9 place-items-center rounded-[10px] bg-voltaje text-navy-900">
+          <span class="grid h-9 w-9 place-items-center rounded-ek-md bg-voltaje text-navy-900">
             <ek-icon name="bolt" class="h-5 w-5" />
           </span>
           <div class="leading-none">
-            <div class="font-display text-base font-bold">electrick<span class="text-voltaje">-Kar</span></div>
+            <div class="font-display text-base font-bold">electrick<span class="text-azul-500">-Kar</span></div>
             <small class="text-[10px] uppercase tracking-widest text-white/40">Panel</small>
           </div>
         </div>
@@ -37,7 +37,7 @@ interface MenuItem {
           @for (item of visibleMenu(); track item.path) {
             <a [routerLink]="item.path" routerLinkActive="bg-azul-700 text-white"
                [routerLinkActiveOptions]="{ exact: !!item.exact }"
-               class="flex items-center gap-3 rounded-[10px] px-3 py-2.5 text-sm font-medium text-white/70 hover:bg-white/10 hover:text-white">
+               class="flex items-center gap-3 rounded-ek-md px-3 py-2.5 text-sm font-medium text-white/70 hover:bg-white/10 hover:text-white">
               <ek-icon [name]="item.icon" class="h-5 w-5" />
               {{ item.label }}
             </a>
@@ -45,7 +45,7 @@ interface MenuItem {
         </nav>
 
         <div class="border-t border-white/10 p-3">
-          <a routerLink="/" class="flex items-center gap-2 rounded-[10px] px-3 py-2 text-sm text-white/60 hover:text-white">
+          <a routerLink="/" class="flex items-center gap-2 rounded-ek-md px-3 py-2 text-sm text-white/60 hover:text-white">
             <ek-icon name="cart" class="h-4 w-4" /> Ver tienda
           </a>
         </div>
