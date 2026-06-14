@@ -10,7 +10,8 @@ import { IconComponent } from '@shared/icon.component';
   template: `
     <div class="ek-grid-overlay absolute inset-0 opacity-50"></div>
     <div class="relative grid min-h-screen place-items-center p-4">
-      <div class="w-full max-w-sm rounded-ek-lg bg-white p-8 shadow-2xl dark:bg-navy-800">
+      <div class="w-full max-w-sm rounded-ek-lg bg-white p-8 text-navy-900 shadow-2xl dark:bg-navy-800 dark:text-white">
+
         <div class="mb-6 flex items-center gap-2.5">
           <span class="grid h-10 w-10 place-items-center rounded-ek-md bg-voltaje text-navy-900">
             <ek-icon name="bolt" class="h-6 w-6" />
@@ -28,7 +29,12 @@ import { IconComponent } from '@shared/icon.component';
           </div>
           <div>
             <label class="text-sm font-semibold">Contraseña</label>
-            <input [(ngModel)]="password" name="password" type="password" required class="ek-input mt-1 w-full" />
+            <div class="relative mt-1">
+              <input [(ngModel)]="password" name="password" [type]="showPass() ? 'text' : 'password'" required class="ek-input w-full pr-10" />
+              <button type="button" (click)="showPass.set(!showPass())" class="absolute right-3 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40" [attr.aria-label]="showPass() ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+                <ek-icon [name]="showPass() ? 'eye-off' : 'eye'" class="h-5 w-5" />
+              </button>
+            </div>
           </div>
           @if (error()) {
             <p class="text-sm text-peligro">{{ error() }}</p>
@@ -49,6 +55,7 @@ export class AdminLoginComponent {
   correo = '';
   password = '';
   readonly loading = signal(false);
+  readonly showPass = signal(false);
   readonly error = signal<string | null>(null);
 
   submit() {
@@ -56,8 +63,17 @@ export class AdminLoginComponent {
     this.loading.set(true);
     this.auth.login(this.correo, this.password).subscribe({
       next: () => this.router.navigateByUrl('/admin'),
-      error: (e: { error?: { message?: string } }) => {
-        this.error.set(e?.error?.message ?? 'Credenciales inválidas');
+      error: (e: { status?: number }) => {
+        const status = e?.status ?? 0;
+        const msg =
+          status === 401
+            ? 'Correo o contraseña incorrectos.'
+            : status === 400
+              ? 'Revisa el correo y la contraseña ingresados.'
+              : status === 0 || status >= 500
+                ? 'No se pudo conectar con el servidor. Intenta de nuevo.'
+                : 'No se pudo iniciar sesión. Intenta de nuevo.';
+        this.error.set(msg);
         this.loading.set(false);
       },
     });
