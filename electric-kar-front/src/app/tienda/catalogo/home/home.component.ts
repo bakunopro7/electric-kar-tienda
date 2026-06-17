@@ -1,8 +1,9 @@
 import { DestroyRef, Component, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { Categoria, Producto } from '@core/models';
+import { Categoria, Marca, Producto } from '@core/models';
 import { CategoriasService } from '@core/categorias.service';
+import { MarcasService } from '@core/marcas.service';
 import { ProductosService } from '@core/productos.service';
 import { IconComponent, IconName } from '@shared/icon.component';
 import { ProductCardComponent } from '@shared/product-card.component';
@@ -159,8 +160,10 @@ import { ProductCardComponent } from '@shared/product-card.component';
     <section class="mt-14">
       <p class="mb-7 text-center font-mono text-xs uppercase tracking-[0.14em] text-black/50 dark:text-white/50">Trabajamos con las mejores marcas</p>
       <div class="flex flex-wrap justify-center gap-4">
-        @for (m of marcas; track m) {
-          <div class="grid h-16 w-36 place-items-center rounded-ek border border-black/10 bg-white font-display font-bold text-black/30 dark:border-white/10 dark:bg-navy-800 dark:text-white/30">{{ m }}</div>
+        @for (m of marcas(); track m.id) {
+          <div class="grid h-16 w-36 place-items-center rounded-ek border border-black/10 bg-white font-display font-bold text-black/30 dark:border-white/10 dark:bg-navy-800 dark:text-white/30">{{ m.nombre }}</div>
+        } @empty {
+          <p class="text-sm text-black/50 dark:text-white/50">Próximamente.</p>
         }
       </div>
     </section>
@@ -186,6 +189,7 @@ import { ProductCardComponent } from '@shared/product-card.component';
 export class HomeComponent {
   private readonly productos = inject(ProductosService);
   private readonly categoriasSvc = inject(CategoriasService);
+  private readonly marcasSvc = inject(MarcasService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly destacados = signal<Producto[]>([]);
@@ -222,7 +226,7 @@ export class HomeComponent {
     { icon: 'chat', titulo: 'Asesoría experta', texto: 'Te ayudamos a elegir la pieza correcta.' },
   ];
 
-  readonly marcas = ['Bosch', 'LTH', 'Pioneer', 'Hella', 'Valeo', 'NGK'];
+  readonly marcas = signal<Marca[]>([]);
 
   readonly countdown = signal<{ label: string; value: string }[]>([]);
 
@@ -233,6 +237,14 @@ export class HomeComponent {
       .subscribe({
         next: (c) => this.categorias.set(c),
         error: () => this.categorias.set([]),
+      });
+
+    this.marcasSvc
+      .list()
+      .pipe(takeUntilDestroyed())
+      .subscribe({
+        next: (m) => this.marcas.set(m),
+        error: () => this.marcas.set([]),
       });
 
     this.productos
