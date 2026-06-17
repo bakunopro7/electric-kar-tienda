@@ -17,12 +17,12 @@ interface Categoria {
   imports: [RouterLink, ProductCardComponent, IconComponent],
   template: `
     <!-- ===================== HERO ===================== -->
-    <section class="relative -mx-4 overflow-hidden bg-navy-900 px-4 text-white">
+    <section class="relative -mt-6 mx-[calc(50%-50vw)] overflow-hidden bg-navy-900 text-white">
       <div class="ek-grid-overlay pointer-events-none absolute inset-0"></div>
       <div class="pointer-events-none absolute -right-32 -top-52 h-[620px] w-[620px] rounded-full bg-azul-500/40 blur-[90px]"></div>
       <div class="pointer-events-none absolute -bottom-64 -left-40 h-[620px] w-[620px] rounded-full bg-azul-700/40 blur-[90px]"></div>
 
-      <div class="relative mx-auto grid max-w-7xl items-center gap-10 py-16 md:grid-cols-2 md:py-20">
+      <div class="relative mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 md:grid-cols-2 md:py-20">
         <div class="max-w-xl">
           <span class="font-mono text-sm font-bold uppercase tracking-widest text-azul-500">Refacciones eléctricas para autos</span>
           <h1 class="mt-3 text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">

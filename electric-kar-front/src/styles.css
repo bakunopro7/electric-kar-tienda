@@ -44,6 +44,11 @@
   }
   body {
     @apply bg-white text-navy-900 antialiased;
+    /* Permite secciones full-bleed (p. ej. el hero) sin scroll horizontal en
+       Windows. Usamos `clip` y no `hidden`: recorta el desborde SIN crear un
+       contenedor de scroll, así no rompe el `position: sticky` de los sidebars
+       del catálogo/checkout. */
+    overflow-x: clip;
   }
   .dark body {
     @apply bg-navy-900 text-white;
