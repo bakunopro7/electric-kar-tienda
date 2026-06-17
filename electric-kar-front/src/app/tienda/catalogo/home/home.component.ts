@@ -1,8 +1,9 @@
 import { DestroyRef, Component, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { Categoria, Marca, Producto } from '@core/models';
+import { Categoria, Feature, Marca, Producto, Promo } from '@core/models';
 import { CategoriasService } from '@core/categorias.service';
+import { ContenidoService } from '@core/contenido.service';
 import { MarcasService } from '@core/marcas.service';
 import { ProductosService } from '@core/productos.service';
 import { IconComponent, IconName } from '@shared/icon.component';
@@ -117,36 +118,38 @@ import { ProductCardComponent } from '@shared/product-card.component';
     </section>
 
     <!-- ===================== PROMO ===================== -->
-    <section class="mt-14">
-      <div class="relative grid overflow-hidden rounded-ek-lg bg-gradient-to-r from-azul-700 to-navy-900 text-white md:grid-cols-2">
-        <div class="ek-grid-overlay pointer-events-none absolute inset-0 opacity-60"></div>
-        <div class="relative p-10 sm:p-12">
-          <span class="inline-block rounded-full bg-voltaje px-3 py-1 text-xs font-bold text-navy-900">Oferta relámpago</span>
-          <h2 class="mt-4 text-3xl font-bold">Hasta -40% en baterías e iluminación</h2>
-          <p class="mt-3 max-w-md text-white/70">Renueva el sistema eléctrico de tu auto con las mejores marcas. Por tiempo limitado.</p>
-          <div class="mt-6 flex gap-2">
-            @for (b of countdown(); track b.label) {
-              <div class="min-w-16 rounded-ek-md border border-white/15 bg-white/10 px-3 py-2 text-center">
-                <b class="block font-display text-2xl leading-none">{{ b.value }}</b>
-                <small class="text-[10px] uppercase tracking-wide text-white/50">{{ b.label }}</small>
-              </div>
-            }
+    @if (promo(); as p) {
+      <section class="mt-14">
+        <div class="relative grid overflow-hidden rounded-ek-lg bg-gradient-to-r from-azul-700 to-navy-900 text-white md:grid-cols-2">
+          <div class="ek-grid-overlay pointer-events-none absolute inset-0 opacity-60"></div>
+          <div class="relative p-10 sm:p-12">
+            <span class="inline-block rounded-full bg-voltaje px-3 py-1 text-xs font-bold text-navy-900">{{ p.badge }}</span>
+            <h2 class="mt-4 text-3xl font-bold">{{ p.titulo }}</h2>
+            <p class="mt-3 max-w-md text-white/70">{{ p.texto }}</p>
+            <div class="mt-6 flex gap-2">
+              @for (b of countdown(); track b.label) {
+                <div class="min-w-16 rounded-ek-md border border-white/15 bg-white/10 px-3 py-2 text-center">
+                  <b class="block font-display text-2xl leading-none">{{ b.value }}</b>
+                  <small class="text-[10px] uppercase tracking-wide text-white/50">{{ b.label }}</small>
+                </div>
+              }
+            </div>
+            <a [routerLink]="p.ctaUrl" class="btn-voltaje mt-6">{{ p.ctaTexto }}</a>
           </div>
-          <a routerLink="/tienda" class="btn-voltaje mt-6">Aprovechar oferta →</a>
+          <div class="relative hidden min-h-72 md:block">
+            <span class="absolute right-6 top-6 z-10 rounded-full bg-peligro px-3 py-1 text-sm font-bold text-white">{{ p.descuento }}</span>
+            <div class="absolute inset-5 rounded-ek border border-white/15 bg-white/5"></div>
+          </div>
         </div>
-        <div class="relative hidden min-h-72 md:block">
-          <span class="absolute right-6 top-6 z-10 rounded-full bg-peligro px-3 py-1 text-sm font-bold text-white">-40%</span>
-          <div class="absolute inset-5 rounded-ek border border-white/15 bg-white/5"></div>
-        </div>
-      </div>
-    </section>
+      </section>
+    }
 
     <!-- ===================== FEATURES ===================== -->
     <section class="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-      @for (f of features; track f.titulo) {
+      @for (f of features(); track f.id) {
         <div class="card flex items-start gap-4 transition-shadow hover:shadow-lg">
           <span class="grid h-12 w-12 shrink-0 place-items-center rounded-ek-md bg-azul-700/10 text-azul-700">
-            <ek-icon [name]="f.icon" class="h-6 w-6" />
+            <ek-icon [name]="$any(f.icono)" class="h-6 w-6" />
           </span>
           <div>
             <b class="font-display text-base">{{ f.titulo }}</b>
@@ -190,6 +193,7 @@ export class HomeComponent {
   private readonly productos = inject(ProductosService);
   private readonly categoriasSvc = inject(CategoriasService);
   private readonly marcasSvc = inject(MarcasService);
+  private readonly contenido = inject(ContenidoService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly destacados = signal<Producto[]>([]);
@@ -219,12 +223,8 @@ export class HomeComponent {
     return this.iconosPorSlug[slug] ?? 'box';
   }
 
-  readonly features: { icon: IconName; titulo: string; texto: string }[] = [
-    { icon: 'truck', titulo: 'Envío a todo el país', texto: 'Exprés en 24-48 h y gratis desde $999.' },
-    { icon: 'shield', titulo: 'Garantía y originalidad', texto: 'Productos 100% originales con respaldo.' },
-    { icon: 'card', titulo: 'Pago seguro', texto: 'Tarjeta, transferencia y meses sin intereses.' },
-    { icon: 'chat', titulo: 'Asesoría experta', texto: 'Te ayudamos a elegir la pieza correcta.' },
-  ];
+  readonly features = signal<Feature[]>([]);
+  readonly promo = signal<Promo | null>(null);
 
   readonly marcas = signal<Marca[]>([]);
 
@@ -247,6 +247,25 @@ export class HomeComponent {
         error: () => this.marcas.set([]),
       });
 
+    this.contenido
+      .features()
+      .pipe(takeUntilDestroyed())
+      .subscribe({
+        next: (f) => this.features.set(f),
+        error: () => this.features.set([]),
+      });
+
+    this.contenido
+      .promo()
+      .pipe(takeUntilDestroyed())
+      .subscribe({
+        next: (p) => {
+          this.promo.set(p);
+          if (p) this.iniciarCountdown(new Date(p.fechaFin).getTime());
+        },
+        error: () => this.promo.set(null),
+      });
+
     this.productos
       .list({ limit: 8 })
       .pipe(takeUntilDestroyed())
@@ -258,10 +277,12 @@ export class HomeComponent {
         error: () => this.loading.set(false),
       });
 
-    // Cuenta regresiva (oferta relámpago) a ~2 días vista.
-    const target = Date.now() + (2 * 24 + 14) * 3600 * 1000;
+  }
+
+  /** Cuenta regresiva de la promo, basada en su fechaFin (desde la DB). */
+  private iniciarCountdown(targetMs: number) {
     const tick = () => {
-      const diff = Math.max(0, target - Date.now());
+      const diff = Math.max(0, targetMs - Date.now());
       const s = Math.floor(diff / 1000);
       const pad = (n: number) => String(n).padStart(2, '0');
       this.countdown.set([

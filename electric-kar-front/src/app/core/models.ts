@@ -14,6 +14,26 @@ export interface Marca {
   slug: string;
 }
 
+export interface Feature {
+  id: string;
+  icono: string;
+  titulo: string;
+  texto: string;
+  orden: number;
+}
+
+export interface Promo {
+  id: string;
+  badge: string;
+  titulo: string;
+  texto: string;
+  descuento: string;
+  /** ISO-8601; base de la cuenta regresiva. */
+  fechaFin: string;
+  ctaTexto: string;
+  ctaUrl: string;
+}
+
 export interface Producto {
   id: string;
   nombre: string;

@@ -8,6 +8,7 @@ import { CartModule } from './cart/cart.module';
 import { CategoriesModule } from './categories/categories.module';
 import { CfdiModule } from './cfdi/cfdi.module';
 import { ClientesModule } from './clientes/clientes.module';
+import { ContenidoModule } from './contenido/contenido.module';
 import { CuponesModule } from './cupones/cupones.module';
 import { IntegracionesModule } from './integraciones/integraciones.module';
 import { MarcasModule } from './marcas/marcas.module';
@@ -28,6 +29,7 @@ import { UsersModule } from './users/users.module';
     UsersModule,
     ClientesModule,
     CategoriesModule,
+    ContenidoModule,
     MarcasModule,
     ProductsModule,
     CartModule,
