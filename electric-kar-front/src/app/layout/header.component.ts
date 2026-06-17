@@ -79,7 +79,10 @@ import { IconComponent } from '../shared/icon.component';
           </a>
 
           @if (auth.isAuthenticated()) {
-            <button type="button" (click)="auth.logout()" class="ml-1 hidden rounded-ek-sm px-3 py-2 text-sm font-semibold hover:text-azul-700 sm:block">Salir</button>
+            <button type="button" (click)="auth.logout()" aria-label="Salir" title="Salir"
+                    class="grid h-10 w-10 place-items-center rounded-full hover:bg-black/5 hover:text-azul-700 dark:hover:bg-white/10 dark:hover:text-azul-500">
+              <ek-icon name="logout" class="h-5 w-5" />
+            </button>
           }
         </div>
       </div>
