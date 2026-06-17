@@ -1,16 +1,11 @@
 import { DestroyRef, Component, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { Producto } from '@core/models';
+import { Categoria, Producto } from '@core/models';
+import { CategoriasService } from '@core/categorias.service';
 import { ProductosService } from '@core/productos.service';
 import { IconComponent, IconName } from '@shared/icon.component';
 import { ProductCardComponent } from '@shared/product-card.component';
-
-interface Categoria {
-  nombre: string;
-  sub: string;
-  icon: IconName;
-}
 
 @Component({
   selector: 'ek-home',
@@ -75,14 +70,21 @@ interface Categoria {
         <a routerLink="/tienda" class="btn-outline px-3 py-1.5 text-sm">Ver todo</a>
       </div>
       <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-        @for (c of categorias; track c.nombre) {
-          <a routerLink="/tienda" class="group card text-center transition-all hover:-translate-y-1 hover:border-azul-500 hover:shadow-lg">
+        @for (c of categorias(); track c.id) {
+          <a [routerLink]="['/tienda']" [queryParams]="{ categoriaId: c.id }"
+             class="group card text-center transition-all hover:-translate-y-1 hover:border-azul-500 hover:shadow-lg">
             <span class="mx-auto mb-3 grid h-14 w-14 place-items-center rounded-ek bg-black/5 text-azul-700 transition-colors group-hover:bg-azul-700 group-hover:text-white dark:bg-white/5">
-              <ek-icon [name]="c.icon" class="h-7 w-7" />
+              <ek-icon [name]="iconoCategoria(c.slug)" class="h-7 w-7" />
             </span>
             <b class="block font-display text-sm">{{ c.nombre }}</b>
-            <small class="text-xs text-black/50 dark:text-white/50">{{ c.sub }}</small>
+            @if (c.descripcion) {
+              <small class="text-xs text-black/50 dark:text-white/50">{{ c.descripcion }}</small>
+            }
           </a>
+        } @empty {
+          <p class="col-span-full card text-center text-sm text-black/60 dark:text-white/60">
+            Aún no hay categorías para mostrar.
+          </p>
         }
       </div>
     </section>
@@ -183,6 +185,7 @@ interface Categoria {
 })
 export class HomeComponent {
   private readonly productos = inject(ProductosService);
+  private readonly categoriasSvc = inject(CategoriasService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly destacados = signal<Producto[]>([]);
@@ -194,14 +197,23 @@ export class HomeComponent {
     { icon: 'chat', titulo: 'Soporte técnico', sub: 'Expertos reales' },
   ];
 
-  readonly categorias: Categoria[] = [
-    { nombre: 'Baterías', sub: '320+ modelos', icon: 'battery' },
-    { nombre: 'Iluminación LED', sub: '480+ modelos', icon: 'bulb' },
-    { nombre: 'Audio & Estéreo', sub: '260+ modelos', icon: 'speaker' },
-    { nombre: 'Alternadores', sub: '140+ modelos', icon: 'alternator' },
-    { nombre: 'Alarmas', sub: '90+ modelos', icon: 'lock' },
-    { nombre: 'Cableado', sub: '200+ modelos', icon: 'cable' },
-  ];
+  readonly categorias = signal<Categoria[]>([]);
+
+  /** La DB no guarda un ícono por categoría: lo resolvemos por slug. */
+  private readonly iconosPorSlug: Record<string, IconName> = {
+    baterias: 'battery',
+    iluminacion: 'bulb',
+    'iluminacion-led': 'bulb',
+    audio: 'speaker',
+    'audio-estereo': 'speaker',
+    alternadores: 'alternator',
+    alarmas: 'lock',
+    cableado: 'cable',
+  };
+
+  iconoCategoria(slug: string): IconName {
+    return this.iconosPorSlug[slug] ?? 'box';
+  }
 
   readonly features: { icon: IconName; titulo: string; texto: string }[] = [
     { icon: 'truck', titulo: 'Envío a todo el país', texto: 'Exprés en 24-48 h y gratis desde $999.' },
@@ -215,6 +227,14 @@ export class HomeComponent {
   readonly countdown = signal<{ label: string; value: string }[]>([]);
 
   constructor() {
+    this.categoriasSvc
+      .list()
+      .pipe(takeUntilDestroyed())
+      .subscribe({
+        next: (c) => this.categorias.set(c),
+        error: () => this.categorias.set([]),
+      });
+
     this.productos
       .list({ limit: 8 })
       .pipe(takeUntilDestroyed())
