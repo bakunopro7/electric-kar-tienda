@@ -121,11 +121,19 @@ export class AccesoComponent implements AfterViewInit {
       callback: (resp: { credential: string }) =>
         this.zone.run(() => this.onGoogle(resp.credential)),
     });
-    google.accounts.id.renderButton(document.getElementById('ek-google-btn'), {
-      theme: 'outline',
+    // Google solo permite personalizar su botón vía estas opciones oficiales
+    // (no admite CSS arbitrario). `filled_black` + `pill` lo integran al tema
+    // oscuro; el ancho se ajusta al contenedor (máx. 400 que impone GIS).
+    const contenedor = document.getElementById('ek-google-btn');
+    google.accounts.id.renderButton(contenedor, {
+      type: 'standard',
+      theme: 'filled_black',
       size: 'large',
-      width: 300,
+      shape: 'pill',
+      text: 'continue_with',
+      logo_alignment: 'left',
       locale: 'es',
+      width: Math.min(contenedor?.clientWidth || 320, 400),
     });
   }
 
