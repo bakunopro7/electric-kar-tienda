@@ -1,0 +1,35 @@
+# Base de datos local para desarrollo (electric-kar-tienda)
+#
+# Uso:
+#   docker compose up -d            # levanta PostgreSQL en segundo plano
+#   docker compose down             # detiene y elimina el contenedor (conserva el volumen)
+#   docker compose down -v          # elimina también los datos persistidos
+#
+# Las credenciales coinciden con electric-kar/.env.example:
+#   DATABASE_URL=postgresql://postgres:postgres@localhost:5432/electric_kar?schema=public
+#
+# Tras levantar la DB, desde electric-kar/:
+#   pnpm install && pnpm prisma:deploy && pnpm db:seed && pnpm start:dev
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: electric-kar-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: electric_kar
+    ports:
+      - "5432:5432"
+    volumes:
+      - electric_kar_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d electric_kar"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  electric_kar_pgdata:
+    name: electric_kar_pgdata
