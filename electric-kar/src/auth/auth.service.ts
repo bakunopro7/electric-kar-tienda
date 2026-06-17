@@ -9,7 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { randomUUID } from 'node:crypto';
 import * as bcrypt from 'bcryptjs';
-import { OAuth2Client } from 'google-auth-library';
+import { OAuth2Client, type TokenPayload } from 'google-auth-library';
 import { AuditoriaService } from '../auditoria/auditoria.service';
 import { TipoActividad } from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
@@ -129,27 +129,51 @@ export class AuthService {
     }
 
     const client = new OAuth2Client(clientId);
-    let correo: string | undefined;
-    let nombre: string | undefined;
+    let payload: TokenPayload | undefined;
     try {
       const ticket = await client.verifyIdToken({ idToken, audience: clientId });
-      const payload = ticket.getPayload();
-      correo = payload?.email?.toLowerCase();
-      nombre = payload?.name ?? payload?.email;
+      payload = ticket.getPayload();
     } catch {
       throw new UnauthorizedException('Token de Google inválido');
     }
-    if (!correo) {
-      throw new UnauthorizedException('No se pudo obtener el correo de Google');
+
+    // Solo aceptamos correos cuya titularidad Google verificó. Sin esta
+    // comprobación, un correo no verificado podría dar de alta una cuenta.
+    if (!payload?.email_verified) {
+      throw new UnauthorizedException(
+        'La cuenta de Google no tiene el correo verificado',
+      );
+    }
+    const correo = payload.email?.toLowerCase();
+    const nombre = payload.name ?? payload.email;
+    const googleId = payload.sub;
+    if (!correo || !googleId) {
+      throw new UnauthorizedException('No se pudo obtener la identidad de Google');
     }
 
-    let cliente = await this.prisma.cliente.findUnique({ where: { correo } });
+    // Vinculación de cuenta:
+    // 1) Por googleId si la cuenta ya fue enlazada antes.
+    // 2) Por correo si existe una cuenta previa (email/contraseña) con ese mail:
+    //    se enlaza su googleId la primera vez.
+    // 3) Alta automática con contraseña aleatoria (el acceso es vía Google).
+    let cliente = await this.prisma.cliente.findUnique({ where: { googleId } });
     if (!cliente) {
-      // Alta automática: contraseña aleatoria (el acceso es vía Google).
-      const password = await bcrypt.hash(randomUUID(), SALT_ROUNDS);
-      cliente = await this.prisma.cliente.create({
-        data: { correo, nombre: nombre ?? correo, password },
+      const porCorreo = await this.prisma.cliente.findUnique({
+        where: { correo },
       });
+      if (porCorreo) {
+        cliente = porCorreo.googleId
+          ? porCorreo
+          : await this.prisma.cliente.update({
+              where: { id: porCorreo.id },
+              data: { googleId },
+            });
+      } else {
+        const password = await bcrypt.hash(randomUUID(), SALT_ROUNDS);
+        cliente = await this.prisma.cliente.create({
+          data: { correo, nombre: nombre ?? correo, password, googleId },
+        });
+      }
     }
     return this.tokenCliente(cliente.id, cliente.correo);
   }

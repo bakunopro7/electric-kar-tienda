@@ -195,6 +195,7 @@ model Cliente {
   totalGastado  Decimal         @default(0) @db.Decimal(12, 2)
   resetToken       String?   @unique
   resetTokenExpira DateTime?
+  googleId         String?   @unique
   direcciones   Direccion[]
   pedidos       Pedido[]
   carrito       Carrito?
