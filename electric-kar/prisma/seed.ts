@@ -96,6 +96,54 @@ async function main() {
     });
   }
 
+  // --- Contenido editorial del home: Features ------------------------------
+  if ((await prisma.feature.count()) === 0) {
+    await prisma.feature.createMany({
+      data: [
+        {
+          icono: 'truck',
+          titulo: 'Envío a todo el país',
+          texto: 'Exprés en 24-48 h y gratis desde $999.',
+          orden: 1,
+        },
+        {
+          icono: 'shield',
+          titulo: 'Garantía y originalidad',
+          texto: 'Productos 100% originales con respaldo.',
+          orden: 2,
+        },
+        {
+          icono: 'card',
+          titulo: 'Pago seguro',
+          texto: 'Tarjeta, transferencia y meses sin intereses.',
+          orden: 3,
+        },
+        {
+          icono: 'chat',
+          titulo: 'Asesoría experta',
+          texto: 'Te ayudamos a elegir la pieza correcta.',
+          orden: 4,
+        },
+      ],
+    });
+  }
+
+  // --- Contenido editorial del home: Promo ---------------------------------
+  if ((await prisma.promo.count()) === 0) {
+    await prisma.promo.create({
+      data: {
+        badge: 'Oferta relámpago',
+        titulo: 'Hasta -40% en baterías e iluminación',
+        texto:
+          'Renueva el sistema eléctrico de tu auto con las mejores marcas. Por tiempo limitado.',
+        descuento: '-40%',
+        fechaFin: new Date(Date.now() + 1000 * 60 * 60 * (24 * 2 + 14)),
+        ctaTexto: 'Aprovechar oferta →',
+        ctaUrl: '/tienda',
+      },
+    });
+  }
+
   console.log('Seed completado:');
   console.log(`  Panel : ${admin.correo} / admin123`);
   console.log(`  Tienda: ${cliente.correo} / cliente123`);

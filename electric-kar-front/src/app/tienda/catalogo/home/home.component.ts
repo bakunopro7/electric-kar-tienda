@@ -1,16 +1,13 @@
 import { DestroyRef, Component, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { Producto } from '@core/models';
+import { Categoria, Feature, Marca, Producto, Promo } from '@core/models';
+import { CategoriasService } from '@core/categorias.service';
+import { ContenidoService } from '@core/contenido.service';
+import { MarcasService } from '@core/marcas.service';
 import { ProductosService } from '@core/productos.service';
 import { IconComponent, IconName } from '@shared/icon.component';
 import { ProductCardComponent } from '@shared/product-card.component';
-
-interface Categoria {
-  nombre: string;
-  sub: string;
-  icon: IconName;
-}
 
 @Component({
   selector: 'ek-home',
@@ -75,14 +72,21 @@ interface Categoria {
         <a routerLink="/tienda" class="btn-outline px-3 py-1.5 text-sm">Ver todo</a>
       </div>
       <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-        @for (c of categorias; track c.nombre) {
-          <a routerLink="/tienda" class="group card text-center transition-all hover:-translate-y-1 hover:border-azul-500 hover:shadow-lg">
+        @for (c of categorias(); track c.id) {
+          <a [routerLink]="['/tienda']" [queryParams]="{ categoriaId: c.id }"
+             class="group card text-center transition-all hover:-translate-y-1 hover:border-azul-500 hover:shadow-lg">
             <span class="mx-auto mb-3 grid h-14 w-14 place-items-center rounded-ek bg-black/5 text-azul-700 transition-colors group-hover:bg-azul-700 group-hover:text-white dark:bg-white/5">
-              <ek-icon [name]="c.icon" class="h-7 w-7" />
+              <ek-icon [name]="iconoCategoria(c.slug)" class="h-7 w-7" />
             </span>
             <b class="block font-display text-sm">{{ c.nombre }}</b>
-            <small class="text-xs text-black/50 dark:text-white/50">{{ c.sub }}</small>
+            @if (c.descripcion) {
+              <small class="text-xs text-black/50 dark:text-white/50">{{ c.descripcion }}</small>
+            }
           </a>
+        } @empty {
+          <p class="col-span-full card text-center text-sm text-black/60 dark:text-white/60">
+            Aún no hay categorías para mostrar.
+          </p>
         }
       </div>
     </section>
@@ -114,36 +118,38 @@ interface Categoria {
     </section>
 
     <!-- ===================== PROMO ===================== -->
-    <section class="mt-14">
-      <div class="relative grid overflow-hidden rounded-ek-lg bg-gradient-to-r from-azul-700 to-navy-900 text-white md:grid-cols-2">
-        <div class="ek-grid-overlay pointer-events-none absolute inset-0 opacity-60"></div>
-        <div class="relative p-10 sm:p-12">
-          <span class="inline-block rounded-full bg-voltaje px-3 py-1 text-xs font-bold text-navy-900">Oferta relámpago</span>
-          <h2 class="mt-4 text-3xl font-bold">Hasta -40% en baterías e iluminación</h2>
-          <p class="mt-3 max-w-md text-white/70">Renueva el sistema eléctrico de tu auto con las mejores marcas. Por tiempo limitado.</p>
-          <div class="mt-6 flex gap-2">
-            @for (b of countdown(); track b.label) {
-              <div class="min-w-16 rounded-ek-md border border-white/15 bg-white/10 px-3 py-2 text-center">
-                <b class="block font-display text-2xl leading-none">{{ b.value }}</b>
-                <small class="text-[10px] uppercase tracking-wide text-white/50">{{ b.label }}</small>
-              </div>
-            }
+    @if (promo(); as p) {
+      <section class="mt-14">
+        <div class="relative grid overflow-hidden rounded-ek-lg bg-gradient-to-r from-azul-700 to-navy-900 text-white md:grid-cols-2">
+          <div class="ek-grid-overlay pointer-events-none absolute inset-0 opacity-60"></div>
+          <div class="relative p-10 sm:p-12">
+            <span class="inline-block rounded-full bg-voltaje px-3 py-1 text-xs font-bold text-navy-900">{{ p.badge }}</span>
+            <h2 class="mt-4 text-3xl font-bold">{{ p.titulo }}</h2>
+            <p class="mt-3 max-w-md text-white/70">{{ p.texto }}</p>
+            <div class="mt-6 flex gap-2">
+              @for (b of countdown(); track b.label) {
+                <div class="min-w-16 rounded-ek-md border border-white/15 bg-white/10 px-3 py-2 text-center">
+                  <b class="block font-display text-2xl leading-none">{{ b.value }}</b>
+                  <small class="text-[10px] uppercase tracking-wide text-white/50">{{ b.label }}</small>
+                </div>
+              }
+            </div>
+            <a [routerLink]="p.ctaUrl" class="btn-voltaje mt-6">{{ p.ctaTexto }}</a>
           </div>
-          <a routerLink="/tienda" class="btn-voltaje mt-6">Aprovechar oferta →</a>
+          <div class="relative hidden min-h-72 md:block">
+            <span class="absolute right-6 top-6 z-10 rounded-full bg-peligro px-3 py-1 text-sm font-bold text-white">{{ p.descuento }}</span>
+            <div class="absolute inset-5 rounded-ek border border-white/15 bg-white/5"></div>
+          </div>
         </div>
-        <div class="relative hidden min-h-72 md:block">
-          <span class="absolute right-6 top-6 z-10 rounded-full bg-peligro px-3 py-1 text-sm font-bold text-white">-40%</span>
-          <div class="absolute inset-5 rounded-ek border border-white/15 bg-white/5"></div>
-        </div>
-      </div>
-    </section>
+      </section>
+    }
 
     <!-- ===================== FEATURES ===================== -->
     <section class="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-      @for (f of features; track f.titulo) {
+      @for (f of features(); track f.id) {
         <div class="card flex items-start gap-4 transition-shadow hover:shadow-lg">
           <span class="grid h-12 w-12 shrink-0 place-items-center rounded-ek-md bg-azul-700/10 text-azul-700">
-            <ek-icon [name]="f.icon" class="h-6 w-6" />
+            <ek-icon [name]="$any(f.icono)" class="h-6 w-6" />
           </span>
           <div>
             <b class="font-display text-base">{{ f.titulo }}</b>
@@ -157,8 +163,10 @@ interface Categoria {
     <section class="mt-14">
       <p class="mb-7 text-center font-mono text-xs uppercase tracking-[0.14em] text-black/50 dark:text-white/50">Trabajamos con las mejores marcas</p>
       <div class="flex flex-wrap justify-center gap-4">
-        @for (m of marcas; track m) {
-          <div class="grid h-16 w-36 place-items-center rounded-ek border border-black/10 bg-white font-display font-bold text-black/30 dark:border-white/10 dark:bg-navy-800 dark:text-white/30">{{ m }}</div>
+        @for (m of marcas(); track m.id) {
+          <div class="grid h-16 w-36 place-items-center rounded-ek border border-black/10 bg-white font-display font-bold text-black/30 dark:border-white/10 dark:bg-navy-800 dark:text-white/30">{{ m.nombre }}</div>
+        } @empty {
+          <p class="text-sm text-black/50 dark:text-white/50">Próximamente.</p>
         }
       </div>
     </section>
@@ -183,6 +191,9 @@ interface Categoria {
 })
 export class HomeComponent {
   private readonly productos = inject(ProductosService);
+  private readonly categoriasSvc = inject(CategoriasService);
+  private readonly marcasSvc = inject(MarcasService);
+  private readonly contenido = inject(ContenidoService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly destacados = signal<Producto[]>([]);
@@ -194,27 +205,67 @@ export class HomeComponent {
     { icon: 'chat', titulo: 'Soporte técnico', sub: 'Expertos reales' },
   ];
 
-  readonly categorias: Categoria[] = [
-    { nombre: 'Baterías', sub: '320+ modelos', icon: 'battery' },
-    { nombre: 'Iluminación LED', sub: '480+ modelos', icon: 'bulb' },
-    { nombre: 'Audio & Estéreo', sub: '260+ modelos', icon: 'speaker' },
-    { nombre: 'Alternadores', sub: '140+ modelos', icon: 'alternator' },
-    { nombre: 'Alarmas', sub: '90+ modelos', icon: 'lock' },
-    { nombre: 'Cableado', sub: '200+ modelos', icon: 'cable' },
-  ];
+  readonly categorias = signal<Categoria[]>([]);
 
-  readonly features: { icon: IconName; titulo: string; texto: string }[] = [
-    { icon: 'truck', titulo: 'Envío a todo el país', texto: 'Exprés en 24-48 h y gratis desde $999.' },
-    { icon: 'shield', titulo: 'Garantía y originalidad', texto: 'Productos 100% originales con respaldo.' },
-    { icon: 'card', titulo: 'Pago seguro', texto: 'Tarjeta, transferencia y meses sin intereses.' },
-    { icon: 'chat', titulo: 'Asesoría experta', texto: 'Te ayudamos a elegir la pieza correcta.' },
-  ];
+  /** La DB no guarda un ícono por categoría: lo resolvemos por slug. */
+  private readonly iconosPorSlug: Record<string, IconName> = {
+    baterias: 'battery',
+    iluminacion: 'bulb',
+    'iluminacion-led': 'bulb',
+    audio: 'speaker',
+    'audio-estereo': 'speaker',
+    alternadores: 'alternator',
+    alarmas: 'lock',
+    cableado: 'cable',
+  };
 
-  readonly marcas = ['Bosch', 'LTH', 'Pioneer', 'Hella', 'Valeo', 'NGK'];
+  iconoCategoria(slug: string): IconName {
+    return this.iconosPorSlug[slug] ?? 'box';
+  }
+
+  readonly features = signal<Feature[]>([]);
+  readonly promo = signal<Promo | null>(null);
+
+  readonly marcas = signal<Marca[]>([]);
 
   readonly countdown = signal<{ label: string; value: string }[]>([]);
 
   constructor() {
+    this.categoriasSvc
+      .list()
+      .pipe(takeUntilDestroyed())
+      .subscribe({
+        next: (c) => this.categorias.set(c),
+        error: () => this.categorias.set([]),
+      });
+
+    this.marcasSvc
+      .list()
+      .pipe(takeUntilDestroyed())
+      .subscribe({
+        next: (m) => this.marcas.set(m),
+        error: () => this.marcas.set([]),
+      });
+
+    this.contenido
+      .features()
+      .pipe(takeUntilDestroyed())
+      .subscribe({
+        next: (f) => this.features.set(f),
+        error: () => this.features.set([]),
+      });
+
+    this.contenido
+      .promo()
+      .pipe(takeUntilDestroyed())
+      .subscribe({
+        next: (p) => {
+          this.promo.set(p);
+          if (p) this.iniciarCountdown(new Date(p.fechaFin).getTime());
+        },
+        error: () => this.promo.set(null),
+      });
+
     this.productos
       .list({ limit: 8 })
       .pipe(takeUntilDestroyed())
@@ -226,10 +277,12 @@ export class HomeComponent {
         error: () => this.loading.set(false),
       });
 
-    // Cuenta regresiva (oferta relámpago) a ~2 días vista.
-    const target = Date.now() + (2 * 24 + 14) * 3600 * 1000;
+  }
+
+  /** Cuenta regresiva de la promo, basada en su fechaFin (desde la DB). */
+  private iniciarCountdown(targetMs: number) {
     const tick = () => {
-      const diff = Math.max(0, target - Date.now());
+      const diff = Math.max(0, targetMs - Date.now());
       const s = Math.floor(diff / 1000);
       const pad = (n: number) => String(n).padStart(2, '0');
       this.countdown.set([

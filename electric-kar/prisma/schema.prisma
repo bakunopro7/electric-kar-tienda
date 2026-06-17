@@ -502,3 +502,32 @@ model MenuItem {
 
   @@index([orden])
 }
+
+// ===========================================================================
+// CONTENIDO EDITORIAL DEL HOME (features + promo)
+// ===========================================================================
+
+model Feature {
+  id            String   @id @default(uuid())
+  icono         String   @db.VarChar(40)
+  titulo        String   @db.VarChar(120)
+  texto         String   @db.VarChar(255)
+  orden         Int      @default(0)
+  activo        Boolean  @default(true)
+  creadoEn      DateTime @default(now())
+  actualizadoEn DateTime @updatedAt
+}
+
+model Promo {
+  id            String   @id @default(uuid())
+  badge         String   @db.VarChar(60)
+  titulo        String   @db.VarChar(160)
+  texto         String   @db.VarChar(255)
+  descuento     String   @db.VarChar(20)
+  fechaFin      DateTime
+  ctaTexto      String   @db.VarChar(60)
+  ctaUrl        String   @db.VarChar(255)
+  activo        Boolean  @default(true)
+  creadoEn      DateTime @default(now())
+  actualizadoEn DateTime @updatedAt
+}
