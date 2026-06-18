@@ -56,6 +56,65 @@ export interface Paginated<T> {
   meta: { total: number; page: number; limit: number; pages: number };
 }
 
+/** Un bucket de facetas devuelto por el endpoint de búsqueda. */
+export interface FacetCount {
+  value: string;
+  count: number;
+}
+
+/** Facetas por campo (categoriaId, marcaId, etiquetas, marcaNombre, …). */
+export type SearchFacets = Record<string, FacetCount[]>;
+
+/**
+ * Documento plano y desnormalizado tal como lo almacena/devuelve Typesense.
+ * OJO: `precio` es number (no string), la marca/categoría vienen como nombres
+ * planos (`marcaNombre`/`categoriaNombre`) y NO trae `precioComparativo`.
+ * El front lo adapta a `Producto` antes de renderizar (ver ProductosService).
+ */
+export interface ProductSearchDocument {
+  id: string;
+  nombre: string;
+  sku: string;
+  codigoBarras?: string;
+  descripcionCorta?: string;
+  descripcion?: string;
+  etiquetas: string[];
+  marcaNombre?: string;
+  categoriaNombre?: string;
+  marcaId?: string;
+  categoriaId?: string;
+  estado: string;
+  imagenes: string[];
+  precio: number;
+  existencias: number;
+  creadoEn: number;
+}
+
+/** Respuesta CRUDA del endpoint `GET /products/search`: docs planos + facetas. */
+export interface RawSearchResult {
+  data: ProductSearchDocument[];
+  meta: { total: number; page: number; limit: number; pages: number };
+  facets: SearchFacets;
+}
+
+/** Respuesta ADAPTADA al modelo de dominio del front (`Producto`) + facetas. */
+export interface SearchResult {
+  data: Producto[];
+  meta: { total: number; page: number; limit: number; pages: number };
+  facets: SearchFacets;
+}
+
+/** Parámetros aceptados por el endpoint de búsqueda. */
+export interface SearchQuery {
+  q?: string;
+  categoriaId?: string;
+  marcaId?: string;
+  etiquetas?: string[];
+  sort?: 'relevancia' | 'precio_asc' | 'precio_desc' | 'recientes';
+  page?: number;
+  perPage?: number;
+}
+
 export interface CartItem {
   producto: Producto;
   cantidad: number;

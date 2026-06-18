@@ -19,6 +19,7 @@ pago **Stripe** y catálogo en español.
 - [Requisitos](#requisitos)
 - [Puesta en marcha](#puesta-en-marcha)
 - [Scripts útiles](#scripts-útiles)
+- [Búsqueda (Typesense)](#búsqueda-typesense)
 - [Pruebas](#pruebas)
 - [Datos de ejemplo (seed)](#datos-de-ejemplo-seed)
 - [Estado del proyecto](#estado-del-proyecto)
@@ -57,6 +58,7 @@ carrito, cupones, CFDI, pagos, integraciones, etc.), con Prisma como ORM sobre P
 | **Frontend** | Angular 21 (standalone + signals), SSR con `@angular/ssr` + Express, Tailwind CSS v4, Vitest (unit), Playwright (e2e) |
 | **Backend** | NestJS 11, Prisma 7 (`@prisma/adapter-pg`), JWT + Passport, `class-validator`, Swagger, Jest |
 | **Base de datos** | PostgreSQL |
+| **Buscador** | Typesense 27.1 (índice derivado y reconstruible desde PostgreSQL) |
 | **Pagos** | Stripe (tarjeta, OXXO) |
 | **Facturación** | CFDI 4.0 / SAT (datos del emisor configurables) |
 | **Autenticación** | JWT propio + Login con Google (OAuth) |
@@ -113,6 +115,8 @@ tiendaOnline/
 - **Node.js** 20.19+ o 22+
 - **pnpm** 9+
 - **PostgreSQL** 14+
+- **Docker** + Docker Compose *(recomendado)* — levanta PostgreSQL y Typesense con un solo comando
+- **Typesense** 27.1 — motor de búsqueda; lo más simple es usarlo vía Docker (ver [Puesta en marcha](#puesta-en-marcha))
 
 ---
 
@@ -121,6 +125,9 @@ tiendaOnline/
 La guía completa está en **[INSTALL.md](INSTALL.md)**. Versión resumida:
 
 ```bash
+# 0) Infraestructura (PostgreSQL + Typesense) — desde la raíz del repo
+docker compose up -d            # levanta electric-kar-db y electric-kar-search
+
 # 1) Backend
 cd electric-kar
 cp .env.example .env            # y completar DATABASE_URL, JWT_SECRET, etc.
@@ -128,6 +135,7 @@ pnpm install
 pnpm prisma:generate
 pnpm prisma:deploy              # aplica migraciones
 pnpm db:seed                    # datos de ejemplo
+pnpm search:reindex             # indexa los productos en Typesense
 pnpm start:dev                  # API en http://localhost:3000/api
 
 # 2) Frontend (en otra terminal)
@@ -135,6 +143,11 @@ cd electric-kar-front
 pnpm install
 pnpm start                      # tienda en http://localhost:4200
 ```
+
+> El orden de bootstrap es **`prisma:deploy` → `db:seed` → `search:reindex`**: primero la base
+> (fuente de verdad), luego los datos de ejemplo y por último el índice de búsqueda. Si Typesense
+> no está disponible, la API arranca igual y la búsqueda cae a PostgreSQL (ver
+> [Búsqueda (Typesense)](#búsqueda-typesense)).
 
 ---
 
@@ -151,6 +164,7 @@ pnpm start                      # tienda en http://localhost:4200
 | `pnpm prisma:deploy` | Aplica migraciones (`migrate deploy`) |
 | `pnpm prisma:studio` | Explorador visual de la base de datos |
 | `pnpm db:seed` | Carga datos de ejemplo |
+| `pnpm search:reindex` | Reindexa todos los productos en Typesense (bootstrap + auto-reparación de drift) |
 | `pnpm test` | Pruebas unitarias (Jest) |
 
 **Frontend (`electric-kar-front/`)**
@@ -162,6 +176,81 @@ pnpm start                      # tienda en http://localhost:4200
 | `pnpm start:prod` | Sirve el build SSR (`node dist/.../server/server.mjs`) |
 | `pnpm test` | Pruebas unitarias (Vitest) |
 | `pnpm e2e` | Pruebas end-to-end (Playwright) |
+
+---
+
+## Búsqueda (Typesense)
+
+La búsqueda pública del storefront (caja del header y página `/busqueda`) se sirve desde
+**Typesense**, que actúa como un **índice derivado y totalmente reconstruible**: la fuente de verdad
+sigue siendo **PostgreSQL** y Typesense guarda una copia desnormalizada y plana de cada producto que
+se puede borrar y reconstruir en cualquier momento sin pérdida de datos.
+
+- **Servicio Docker:** definido en el `docker-compose.yml` de la raíz como `typesense`
+  (`typesense/typesense:27.1`, contenedor `electric-kar-search`, puerto `8108`, `--enable-cors`,
+  volumen `electric_kar_typesense`).
+- **Configuración:** las variables `TYPESENSE_HOST`, `TYPESENSE_PORT`, `TYPESENSE_PROTOCOL` y
+  `TYPESENSE_API_KEY` viven en `electric-kar/.env` (plantilla en `.env.example`).
+- **Degradación elegante:** si Typesense no está disponible, la API **arranca igual** y la búsqueda
+  cae automáticamente a una consulta `contains` sobre PostgreSQL (sin tolerancia a errores de tipeo
+  ni facetas, pero la tienda no se rompe). El catálogo `/tienda` no usa Typesense: sigue contra
+  `GET /products`.
+
+### Orden de bootstrap
+
+En cada despliegue o alta de entorno:
+
+```bash
+pnpm prisma:deploy && pnpm db:seed && pnpm search:reindex
+```
+
+Primero la base (fuente de verdad), luego los datos de ejemplo y por último el índice. El comando
+`search:reindex` es **idempotente**: re-ejecutarlo reimporta todos los productos con `action: upsert`
+y verifica que el conteo del índice iguale al de PostgreSQL.
+
+> **OJO con el drift por borrados:** el modo por defecto (`upsert`) repara **altas y cambios**, pero
+> NO elimina documentos huérfanos (filas borradas en Postgres cuya baja no llegó al índice). Si hay
+> huérfanos, el reindex por defecto **falla** la verificación de convergencia. Para podarlos hay que
+> reconstruir la colección:
+>
+> ```bash
+> pnpm search:reindex -- --rebuild      # drop + recreate + import (poda huérfanos)
+> ```
+>
+> Ver [Política de migración de schema](#búsqueda-typesense) más abajo.
+
+### Política de migración de schema
+
+Los esquemas de colección de Typesense son **inmutables** para los tipos de campo. Por eso el
+`search:reindex` tiene dos modos:
+
+- **Reparación de drift de rutina** (modo por defecto, sin flags): hace `action: upsert` sobre la
+  colección viva. Repara altas y cambios; **no poda huérfanos** y exige convergencia exacta.
+- **Rebuild / cambio de schema** (`--rebuild`): recrea la colección física desde cero (drop +
+  create), importa todos los productos y **repunta el alias `productos`** a la colección destino —
+  es el único modo que **elimina documentos huérfanos**. Para un rebuild sin downtime usa una
+  colección versionada nueva y deja que el swap del alias haga la transición:
+
+  ```bash
+  pnpm search:reindex -- --rebuild                      # recrea la colección actual (productos_v1)
+  pnpm search:reindex -- --rebuild --target=productos_v2 # zero-downtime: nueva colección + alias swap
+  ```
+
+Las consultas y las escrituras siempre van contra el **alias** `productos`, nunca contra la
+colección física, así que el swap es transparente para la API.
+
+### Verificación de seguridad (manual)
+
+La `TYPESENSE_API_KEY` es una **clave de administración** y vive solo en el backend: el browser
+nunca debe verla. Las consultas pasan por el proxy `GET /api/products/search`, que aplica
+server-side el filtro obligatorio `estado = PUBLICADO`. Para verificarlo con la app corriendo:
+
+1. Abre la tienda y la pestaña **Network** del navegador.
+2. Escribe en la caja de búsqueda y localiza la request a `/api/products/search`.
+3. Confirma que **ni la `TYPESENSE_API_KEY` ni el host/puerto de Typesense** (`:8108`) aparecen en
+   la URL, los headers ni el cuerpo de la respuesta.
+4. Confirma que productos en estado `BORRADOR` o `PROGRAMADO` **no** aparecen en `data`, `facets`
+   ni `meta.total`.
 
 ---
 

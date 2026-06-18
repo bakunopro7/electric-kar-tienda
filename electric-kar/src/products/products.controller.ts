@@ -16,6 +16,7 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { Rol } from '../generated/prisma/client';
 import { CreateProductDto } from './dto/create-product.dto';
 import { QueryProductDto } from './dto/query-product.dto';
+import { SearchProductDto } from './dto/search-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductsService } from './products.service';
 
@@ -28,6 +29,12 @@ export class ProductsController {
   @ApiOperation({ summary: 'Listar productos (con filtros y paginación)' })
   findAll(@Query() query: QueryProductDto) {
     return this.productsService.findAll(query);
+  }
+
+  @Get('search')
+  @ApiOperation({ summary: 'Buscar productos (Typesense, público)' })
+  search(@Query() dto: SearchProductDto) {
+    return this.productsService.searchPublic(dto);
   }
 
   @Get(':id')

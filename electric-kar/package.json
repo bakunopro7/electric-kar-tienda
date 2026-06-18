@@ -17,13 +17,14 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:e2e": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config ./test/jest-e2e.json",
     "test:functional": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config ./test/jest-functional.json --runInBand",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "tsx prisma/seed.ts",
+    "search:reindex": "tsx prisma/reindex.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -45,7 +46,8 @@
     "pg": "^8.21.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
-    "stripe": "^22.2.0"
+    "stripe": "^22.2.0",
+    "typesense": "^2.0.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
