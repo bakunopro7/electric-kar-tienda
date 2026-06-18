@@ -8,8 +8,10 @@
 # Las credenciales coinciden con electric-kar/.env.example:
 #   DATABASE_URL=postgresql://postgres:postgres@localhost:5432/electric_kar?schema=public
 #
-# Tras levantar la DB, desde electric-kar/:
-#   pnpm install && pnpm prisma:deploy && pnpm db:seed && pnpm start:dev
+# Tras levantar los servicios, desde electric-kar/:
+#   pnpm install && pnpm prisma:deploy && pnpm db:seed && pnpm search:reindex && pnpm start:dev
+#
+# Servicios: postgres (electric-kar-db, :5432) y typesense (electric-kar-search, :8108).
 
 services:
   postgres:
@@ -30,6 +32,27 @@ services:
       timeout: 5s
       retries: 10
 
+  typesense:
+    image: typesense/typesense:27.1
+    container_name: electric-kar-search
+    restart: unless-stopped
+    command: '--data-dir /data --api-key=${TYPESENSE_API_KEY:-dev_local_key} --enable-cors'
+    environment:
+      TYPESENSE_API_KEY: ${TYPESENSE_API_KEY:-dev_local_key}
+    ports:
+      - "8108:8108"
+    volumes:
+      - electric_kar_typesense:/data
+    healthcheck:
+      # La imagen de Typesense no incluye curl/wget; usamos bash /dev/tcp contra /health
+      # (grep 'ok' en minúscula matchea el body {"ok":true}, no el "200 OK" del status line).
+      test: ['CMD', 'bash', '-c', 'exec 3<>/dev/tcp/localhost/8108 && printf "GET /health HTTP/1.0\r\n\r\n" >&3 && grep -q ok <&3']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
 volumes:
   electric_kar_pgdata:
     name: electric_kar_pgdata
+  electric_kar_typesense:
+    name: electric_kar_typesense

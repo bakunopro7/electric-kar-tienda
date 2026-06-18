@@ -1,7 +1,8 @@
-import { Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { catchError, of } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, of } from 'rxjs';
 import { AuthService } from '../core/auth.service';
 import { CartService } from '../core/cart.service';
 import { FavoritesService } from '../core/favorites.service';
@@ -11,7 +12,8 @@ import { IconComponent } from '../shared/icon.component';
 
 @Component({
   selector: 'ek-header',
-  imports: [RouterLink, RouterLinkActive, IconComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FormsModule, RouterLink, RouterLinkActive, IconComponent],
   template: `
     <!-- ===== TOPBAR ===== -->
     <div class="hidden bg-navy-900 text-white/70 sm:block">
@@ -43,9 +45,11 @@ import { IconComponent } from '../shared/icon.component';
 
         <!-- Buscador -->
         <form class="ml-2 hidden flex-1 items-center gap-2 rounded-full border border-black/15 px-4 py-2 focus-within:border-azul-500 md:flex dark:border-white/15"
-              (submit)="$event.preventDefault(); buscar(q.value)">
+              (submit)="$event.preventDefault(); buscarAhora()">
           <ek-icon name="search" class="h-5 w-5 text-black/40 dark:text-white/40" />
-          <input #q type="text" placeholder="Busca baterías, luces LED, alternadores…"
+          <input [ngModel]="q()" (ngModelChange)="q.set($event)" name="q" type="text"
+                 aria-label="Buscar productos"
+                 placeholder="Busca baterías, luces LED, alternadores…"
                  class="min-w-0 flex-1 bg-transparent text-sm outline-none" />
           <button type="submit" class="btn-primary px-4 py-1.5 text-sm">Buscar</button>
         </form>
@@ -119,9 +123,29 @@ export class HeaderComponent {
     { initialValue: [] as MenuItem[] },
   );
 
-  buscar(term: string) {
+  readonly q = signal('');
+
+  constructor() {
+    // As-you-type con ~250 ms de debounce: navega a /busqueda mientras se
+    // escribe. `replaceUrl` evita ensuciar el historial con cada tecla.
+    toObservable(this.q)
+      .pipe(debounceTime(250), distinctUntilChanged(), takeUntilDestroyed())
+      .subscribe((term) => {
+        const t = term.trim();
+        if (t) {
+          this.router.navigate(['/busqueda'], {
+            queryParams: { q: t },
+            replaceUrl: true,
+          });
+        }
+      });
+  }
+
+  /** Envío inmediato (Enter) sin esperar al debounce. */
+  buscarAhora() {
+    const t = this.q().trim();
     this.router.navigate(['/busqueda'], {
-      queryParams: term ? { q: term } : {},
+      queryParams: t ? { q: t } : {},
     });
   }
 }
