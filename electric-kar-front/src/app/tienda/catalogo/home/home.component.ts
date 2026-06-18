@@ -1,17 +1,25 @@
 import { DestroyRef, Component, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Categoria, Feature, Marca, Producto, Promo } from '@core/models';
 import { CategoriasService } from '@core/categorias.service';
 import { ContenidoService } from '@core/contenido.service';
 import { MarcasService } from '@core/marcas.service';
+import { NewsletterService } from '@core/newsletter.service';
+import { NotificationService } from '@core/notification.service';
 import { ProductosService } from '@core/productos.service';
 import { IconComponent, IconName } from '@shared/icon.component';
 import { ProductCardComponent } from '@shared/product-card.component';
 
 @Component({
   selector: 'ek-home',
-  imports: [RouterLink, ProductCardComponent, IconComponent],
+  imports: [RouterLink, ReactiveFormsModule, ProductCardComponent, IconComponent],
   template: `
     <!-- ===================== HERO ===================== -->
     <section class="relative -mx-4 overflow-hidden bg-navy-900 px-4 text-white">
@@ -180,10 +188,13 @@ import { ProductCardComponent } from '@shared/product-card.component';
           <h2 class="mt-3 text-3xl font-bold">Recibe ofertas y novedades eléctricas</h2>
           <p class="mt-3 text-white/70">Suscríbete y obtén <b class="text-voltaje">10% de descuento</b> en tu primera compra.</p>
         </div>
-        <form class="relative flex gap-2" (submit)="$event.preventDefault()">
-          <input type="email" placeholder="tu@correo.com"
+        <form class="relative flex gap-2" [formGroup]="form" (ngSubmit)="suscribir()">
+          <input type="email" placeholder="tu@correo.com" formControlName="correo"
                  class="flex-1 rounded-full border border-white/20 bg-white/10 px-5 py-3 text-white outline-none placeholder:text-white/50 focus:border-azul-500" />
-          <button type="submit" class="btn-voltaje rounded-full">Suscribirme</button>
+          <button type="submit" [disabled]="enviando()"
+                  class="btn-voltaje rounded-full disabled:opacity-60">
+            {{ enviando() ? 'Enviando…' : 'Suscribirme' }}
+          </button>
         </form>
       </div>
     </section>
@@ -194,7 +205,44 @@ export class HomeComponent {
   private readonly categoriasSvc = inject(CategoriasService);
   private readonly marcasSvc = inject(MarcasService);
   private readonly contenido = inject(ContenidoService);
+  private readonly newsletter = inject(NewsletterService);
+  private readonly notifications = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
+
+  // --- Newsletter (captación de correos) ---
+  readonly form = new FormGroup({
+    correo: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.email],
+    }),
+  });
+  readonly enviando = signal(false);
+
+  suscribir(): void {
+    if (this.form.invalid) {
+      this.notifications.error('Ingresá un correo válido.');
+      return;
+    }
+    this.enviando.set(true);
+    this.newsletter
+      .suscribir(this.form.controls.correo.value)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.enviando.set(false);
+          this.form.reset();
+          if (res.nuevo) {
+            this.notifications.success('¡Listo! Te suscribiste correctamente. 🎉');
+          } else {
+            this.notifications.info('Este correo ya estaba suscrito. ¡Gracias! 👍');
+          }
+        },
+        error: () => {
+          this.enviando.set(false);
+          this.notifications.error('No pudimos suscribirte. Intentá de nuevo.');
+        },
+      });
+  }
 
   readonly destacados = signal<Producto[]>([]);
   readonly loading = signal(true);

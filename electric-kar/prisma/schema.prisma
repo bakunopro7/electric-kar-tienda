@@ -531,3 +531,16 @@ model Promo {
   creadoEn      DateTime @default(now())
   actualizadoEn DateTime @updatedAt
 }
+
+// ===========================================================================
+// NEWSLETTER (captación de correos para campañas / cupones)
+// ===========================================================================
+
+model Suscriptor {
+  id       String   @id @default(uuid())
+  correo   String   @unique @db.VarChar(254)
+  origen   String   @default("newsletter") @db.VarChar(40) // de dónde se captó
+  creadoEn DateTime @default(now())
+
+  @@index([creadoEn])
+}
