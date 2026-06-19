@@ -1,5 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ContenidoService } from '@core/contenido.service';
+import { DatosContacto } from '@core/models';
 import { IconComponent } from '@shared/icon.component';
 
 @Component({
@@ -16,10 +18,12 @@ import { IconComponent } from '@shared/icon.component';
 
     <div class="mx-auto mt-8 grid max-w-4xl gap-6 lg:grid-cols-[1fr_1.2fr]">
       <div class="space-y-3">
-        <div class="card flex items-center gap-3"><span class="text-2xl">📍</span><div><b class="text-sm">Dirección</b><p class="text-sm text-black/60 dark:text-white/60">Av. Tecnología 1200, CDMX</p></div></div>
-        <div class="card flex items-center gap-3"><span class="text-2xl">📞</span><div><b class="text-sm">Teléfono</b><p class="text-sm text-black/60 dark:text-white/60">55 1234 5678</p></div></div>
-        <div class="card flex items-center gap-3"><span class="text-2xl">✉️</span><div><b class="text-sm">Correo</b><p class="text-sm text-black/60 dark:text-white/60">hola&#64;electrick-kar.com</p></div></div>
-        <div class="card flex items-center gap-3"><span class="text-2xl">🕒</span><div><b class="text-sm">Horario</b><p class="text-sm text-black/60 dark:text-white/60">Lun a Sáb · 9:00 - 19:00</p></div></div>
+        @if (contacto(); as c) {
+          <div class="card flex items-center gap-3"><span class="text-2xl">📍</span><div><b class="text-sm">Dirección</b><p class="text-sm text-black/60 dark:text-white/60">{{ c.direccion }}</p></div></div>
+          <div class="card flex items-center gap-3"><span class="text-2xl">📞</span><div><b class="text-sm">Teléfono</b><p class="text-sm text-black/60 dark:text-white/60">{{ c.telefono }}</p></div></div>
+          <div class="card flex items-center gap-3"><span class="text-2xl">✉️</span><div><b class="text-sm">Correo</b><p class="text-sm text-black/60 dark:text-white/60">{{ c.correo }}</p></div></div>
+          <div class="card flex items-center gap-3"><span class="text-2xl">🕒</span><div><b class="text-sm">Horario</b><p class="text-sm text-black/60 dark:text-white/60">{{ c.horario }}</p></div></div>
+        }
       </div>
 
       <form class="card" (submit)="enviar($event)">
@@ -38,10 +42,20 @@ import { IconComponent } from '@shared/icon.component';
   `,
 })
 export class ContactoComponent {
+  private readonly contenido = inject(ContenidoService);
+  readonly contacto = signal<DatosContacto | null>(null);
+
   nombre = '';
   correo = '';
   mensaje = '';
   readonly enviado = signal(false);
+
+  constructor() {
+    this.contenido.contacto().subscribe({
+      next: (c) => this.contacto.set(c),
+      error: () => this.contacto.set(null),
+    });
+  }
 
   enviar(e: Event) {
     e.preventDefault();

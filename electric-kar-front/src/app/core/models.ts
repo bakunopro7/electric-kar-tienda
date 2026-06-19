@@ -34,6 +34,14 @@ export interface Promo {
   ctaUrl: string;
 }
 
+/** Datos de contacto del sitio (singleton, editable por admin). */
+export interface DatosContacto {
+  direccion: string;
+  telefono: string;
+  correo: string;
+  horario: string;
+}
+
 export interface Producto {
   id: string;
   nombre: string;

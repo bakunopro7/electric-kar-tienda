@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { ContenidoService } from '@core/contenido.service';
+import { DatosContacto } from '@core/models';
 
 @Component({
   selector: 'ek-footer',
@@ -32,11 +34,13 @@ import { RouterLink } from '@angular/router';
         </div>
         <div>
           <h4 class="font-display font-bold text-white">Contacto</h4>
-          <ul class="mt-3 space-y-1.5 text-white/60">
-            <li>📍 Av. Tecnología 1200, CDMX</li>
-            <li>📞 55 1234 5678</li>
-            <li>✉ hola@electrick-kar.com</li>
-          </ul>
+          @if (contacto(); as c) {
+            <ul class="mt-3 space-y-1.5 text-white/60">
+              <li>📍 {{ c.direccion }}</li>
+              <li>📞 {{ c.telefono }}</li>
+              <li>✉ {{ c.correo }}</li>
+            </ul>
+          }
         </div>
       </div>
       <div class="border-t border-white/10 px-4 py-4 text-center text-xs text-white/40">
@@ -45,4 +49,14 @@ import { RouterLink } from '@angular/router';
     </footer>
   `,
 })
-export class FooterComponent {}
+export class FooterComponent {
+  private readonly contenido = inject(ContenidoService);
+  readonly contacto = signal<DatosContacto | null>(null);
+
+  constructor() {
+    this.contenido.contacto().subscribe({
+      next: (c) => this.contacto.set(c),
+      error: () => this.contacto.set(null),
+    });
+  }
+}

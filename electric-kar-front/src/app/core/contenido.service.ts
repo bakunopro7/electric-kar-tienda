@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { Feature, Promo } from './models';
+import { DatosContacto, Feature, Promo } from './models';
 
 /** Contenido editorial de la tienda (features, promo) servido desde la API. */
 @Injectable({ providedIn: 'root' })
@@ -16,5 +16,10 @@ export class ContenidoService {
   /** Devuelve la promo activa, o `null` si no hay ninguna. */
   promo() {
     return this.http.get<Promo | null>(`${this.base}/promo`);
+  }
+
+  /** Datos de contacto del sitio (dirección, teléfono, correo, horario). */
+  contacto() {
+    return this.http.get<DatosContacto | null>(`${this.base}/contacto`);
   }
 }

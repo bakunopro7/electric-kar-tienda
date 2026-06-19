@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { Categoria, Marca, Paginated, Producto } from './models';
+import { Categoria, DatosContacto, Marca, Paginated, Producto } from './models';
 import { Rol, UsuarioPanel } from './admin-auth.service';
 import { adminContext } from './http-context';
 
@@ -274,5 +274,13 @@ export class AdminService {
   // --- Auditoría (SUPER) ----------------------------------------------------
   auditoria() {
     return this.http.get<ActividadAdmin[]>(`${this.api}/auditoria`, this.ctx);
+  }
+
+  // --- Datos de contacto del sitio -----------------------------------------
+  datosContacto() {
+    return this.http.get<DatosContacto | null>(`${this.api}/contenido/contacto`, this.ctx);
+  }
+  actualizarContacto(dto: DatosContacto) {
+    return this.http.patch<DatosContacto>(`${this.api}/contenido/contacto`, dto, this.ctx);
   }
 }

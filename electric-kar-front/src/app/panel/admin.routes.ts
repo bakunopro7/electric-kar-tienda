@@ -98,6 +98,13 @@ export const ADMIN_ROUTES: Routes = [
         title: 'Panel · Menú',
       },
       {
+        path: 'contacto',
+        canActivate: [rolesGuard('SUPER', 'ADMIN')],
+        loadComponent: () =>
+          import('@panel/operaciones/contacto/contacto.component').then((m) => m.ContactoAdminComponent),
+        title: 'Panel · Datos de contacto',
+      },
+      {
         path: 'usuarios',
         canActivate: [rolesGuard('SUPER')],
         loadComponent: () =>
