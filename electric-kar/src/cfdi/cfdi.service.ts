@@ -89,6 +89,7 @@ export class CfdiService {
     if (cfdi.estado !== EstadoCfdi.POR_TIMBRAR) {
       throw new BadRequestException('El CFDI no está pendiente de timbrar');
     }
+    await this.assertEmisorListo();
     return this.prisma.cfdi.update({
       where: { id },
       data: {
@@ -139,6 +140,26 @@ export class CfdiService {
       },
     });
     return this.findOne(id);
+  }
+
+  /** Exige datos de emisor y un CSD activo+vigente antes de timbrar. */
+  private async assertEmisorListo() {
+    const emisorRfc = this.config.get<string>('EMISOR_RFC');
+    if (!emisorRfc) {
+      throw new BadRequestException('Falta configurar el RFC del emisor (EMISOR_RFC)');
+    }
+    const csd = await this.prisma.certificadoSello.findFirst({
+      where: { activo: true },
+      orderBy: { creadoEn: 'desc' },
+    });
+    if (!csd) {
+      throw new BadRequestException(
+        'No hay un CSD activo; cargá el Certificado de Sello Digital antes de timbrar',
+      );
+    }
+    if (csd.vigenciaHasta < new Date()) {
+      throw new BadRequestException('El CSD activo está vencido');
+    }
   }
 
   async findAll(page = 1, limit = 20) {
