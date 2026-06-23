@@ -13,6 +13,7 @@ import { CuponesModule } from './cupones/cupones.module';
 import { IntegracionesModule } from './integraciones/integraciones.module';
 import { MarcasModule } from './marcas/marcas.module';
 import { MenuModule } from './menu/menu.module';
+import { NewsletterModule } from './newsletter/newsletter.module';
 import { OrdersModule } from './orders/orders.module';
 import { PaymentsModule } from './payments/payments.module';
 import { SesionesModule } from './sesiones/sesiones.module';
@@ -40,6 +41,7 @@ import { UsersModule } from './users/users.module';
     AuditoriaModule,
     SesionesModule,
     MenuModule,
+    NewsletterModule,
     UploadsModule,
     PaymentsModule,
   ],
