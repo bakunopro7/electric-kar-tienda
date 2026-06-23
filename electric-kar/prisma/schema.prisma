@@ -531,3 +531,25 @@ model Promo {
   creadoEn      DateTime @default(now())
   actualizadoEn DateTime @updatedAt
 }
+
+// ===========================================================================
+// CERTIFICADO DE SELLO DIGITAL (CSD) — para timbrado puro CFDI 4.0
+// La llave privada y la contraseña se guardan cifradas (AES-256-GCM).
+// ===========================================================================
+
+model CertificadoSello {
+  id            String          @id @default(uuid())
+  rfc           String          @db.VarChar(13)
+  noCertificado String          @db.VarChar(20)
+  cerPem        String          // certificado público en PEM (no secreto)
+  keyEnc        String          // llave privada cifrada (base64 AES-256-GCM)
+  passEnc       String          // contraseña cifrada (base64 AES-256-GCM)
+  vigenciaDesde DateTime
+  vigenciaHasta DateTime
+  modo          ModoIntegracion @default(PRUEBAS)
+  activo        Boolean         @default(true)
+  creadoEn      DateTime        @default(now())
+  actualizadoEn DateTime        @updatedAt
+
+  @@index([modo, activo])
+}
