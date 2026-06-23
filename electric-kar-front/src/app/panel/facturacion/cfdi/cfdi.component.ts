@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AdminService, CfdiAdmin, PedidoAdmin } from '@core/admin.service';
+import { AdminService, CfdiAdmin, DatosFiscales, PedidoAdmin } from '@core/admin.service';
 import { MoneyPipe } from '@shared/money.pipe';
 
 interface EmitirForm {
@@ -30,12 +30,15 @@ const VACIO: EmitirForm = {
 
     @if (mostrarForm()) {
       <form (ngSubmit)="emitir()" class="card mt-4 grid gap-3 sm:grid-cols-2">
-        <select [(ngModel)]="form.pedidoId" name="pedidoId" required class="ek-input sm:col-span-2">
+        <select [(ngModel)]="form.pedidoId" name="pedidoId" required class="ek-input sm:col-span-2" (ngModelChange)="onPedidoChange($event)">
           <option value="">— Selecciona un pedido —</option>
           @for (p of pedidos(); track p.id) {
             <option [value]="p.id">{{ p.folio || p.id.slice(0,8) }} · {{ p.cliente?.nombre }} · {{ p.total | money }}</option>
           }
         </select>
+        @if (cargandoFiscales()) {
+          <p class="text-xs text-black/50 dark:text-white/50 sm:col-span-2">Cargando datos fiscales del cliente…</p>
+        }
         <input [(ngModel)]="form.receptorNombre" name="rn" placeholder="Nombre/Razón social receptor" required class="ek-input" />
         <input [(ngModel)]="form.receptorRfc" name="rfc" placeholder="RFC receptor" required class="ek-input uppercase" />
         <input [(ngModel)]="form.receptorCp" name="cp" placeholder="C.P. receptor" required class="ek-input" />
@@ -46,6 +49,10 @@ const VACIO: EmitirForm = {
           <option value="PUE">PUE — Pago en una exhibición</option>
           <option value="PPD">PPD — Pago en parcialidades/diferido</option>
         </select>
+        <label class="flex items-center gap-2 text-sm sm:col-span-2">
+          <input type="checkbox" [(ngModel)]="guardarFiscales" name="gf" />
+          Guardar estos datos fiscales para el cliente (se reutilizan en próximas facturas)
+        </label>
         @if (error()) { <p class="text-sm text-peligro sm:col-span-2">{{ error() }}</p> }
         <button type="submit" class="btn-primary sm:col-span-2" [disabled]="saving()">{{ saving() ? 'Emitiendo…' : 'Emitir CFDI' }}</button>
       </form>
@@ -133,7 +140,10 @@ export class CfdiComponent {
   readonly saving = signal(false);
   readonly busy = signal<string | null>(null);
   readonly error = signal<string | null>(null);
+  readonly cargandoFiscales = signal(false);
   form: EmitirForm = { ...VACIO };
+  selectedClienteId: string | null = null;
+  guardarFiscales = false;
 
   // Cancelación
   readonly cancelTarget = signal<CfdiAdmin | null>(null);
@@ -155,11 +165,56 @@ export class CfdiComponent {
     this.cargar();
   }
 
+  /** Al elegir un pedido, precarga los datos fiscales guardados del cliente. */
+  onPedidoChange(pedidoId: string) {
+    const pedido = this.pedidos().find((p) => p.id === pedidoId);
+    this.selectedClienteId = pedido?.cliente?.id ?? null;
+    if (!this.selectedClienteId) return;
+    this.cargandoFiscales.set(true);
+    this.admin.datosFiscales(this.selectedClienteId).subscribe({
+      next: (df) => {
+        if (df) {
+          this.form.receptorNombre = df.razonSocial;
+          this.form.receptorRfc = df.rfc;
+          this.form.receptorCp = df.cpFiscal;
+          this.form.receptorRegimen = df.regimenFiscal;
+          this.form.usoCfdi = df.usoCfdi;
+        }
+        this.cargandoFiscales.set(false);
+      },
+      error: () => this.cargandoFiscales.set(false),
+    });
+  }
+
   emitir() {
     this.error.set(null);
     this.saving.set(true);
-    this.admin.emitirCfdi({ ...this.form, receptorRfc: this.form.receptorRfc.toUpperCase() }).subscribe({
-      next: () => { this.saving.set(false); this.mostrarForm.set(false); this.form = { ...VACIO }; this.cargar(); },
+    const rfc = this.form.receptorRfc.toUpperCase();
+    if (this.guardarFiscales && this.selectedClienteId) {
+      this.admin
+        .guardarDatosFiscales(this.selectedClienteId, {
+          razonSocial: this.form.receptorNombre,
+          rfc,
+          cpFiscal: this.form.receptorCp,
+          regimenFiscal: this.form.receptorRegimen,
+          usoCfdi: this.form.usoCfdi,
+        })
+        .subscribe({ next: () => this.doEmitir(rfc), error: () => this.doEmitir(rfc) });
+    } else {
+      this.doEmitir(rfc);
+    }
+  }
+
+  private doEmitir(rfc: string) {
+    this.admin.emitirCfdi({ ...this.form, receptorRfc: rfc }).subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.mostrarForm.set(false);
+        this.form = { ...VACIO };
+        this.selectedClienteId = null;
+        this.guardarFiscales = false;
+        this.cargar();
+      },
       error: (e: { error?: { message?: string | string[] } }) => {
         const m = e?.error?.message;
         this.error.set(Array.isArray(m) ? m.join(', ') : m ?? 'No se pudo emitir');
