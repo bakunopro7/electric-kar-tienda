@@ -5,13 +5,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { randomUUID } from 'node:crypto';
 import { EstadoCfdi, MetodoPagoSat, Prisma } from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CancelarCfdiDto } from './dto/cancelar-cfdi.dto';
 import { ComplementoPagoDto } from './dto/complemento-pago.dto';
 import { EmitirCfdiDto } from './dto/emitir-cfdi.dto';
 import { calcLineaImpuesto, calcTotales } from './impuestos';
+import { FacturapiProvider } from './facturapi/facturapi.provider';
+import { mapToFacturapiInvoice } from './facturapi/cfdi-facturapi.mapper';
 
 const cfdiInclude = {
   lineas: true,
@@ -24,6 +25,7 @@ export class CfdiService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
+    private readonly facturapi: FacturapiProvider,
   ) {}
 
   /**
@@ -93,21 +95,45 @@ export class CfdiService {
   }
 
   /**
-   * Simula el timbrado ante el PAC: asigna folio fiscal (UUID) y pasa a
-   * TIMBRADA. El timbrado real requiere integrar un PAC autorizado.
+   * Timbra el CFDI vía Facturapi (PAC full-service): le manda los datos, el PAC
+   * arma el XML, sella con el CSD y timbra. Guarda el folio fiscal (UUID) y el
+   * id de Facturapi para cancelar/descargar después.
    */
   async timbrar(id: string) {
     const cfdi = await this.findOne(id);
     if (cfdi.estado !== EstadoCfdi.POR_TIMBRAR) {
       throw new BadRequestException('El CFDI no está pendiente de timbrar');
     }
-    await this.assertEmisorListo();
+
+    const payload = mapToFacturapiInvoice({
+      receptorNombre: cfdi.receptorNombre,
+      receptorRfc: cfdi.receptorRfc,
+      receptorRegimen: cfdi.receptorRegimen,
+      receptorCp: cfdi.receptorCp,
+      usoCfdi: cfdi.usoCfdi,
+      formaPago: cfdi.formaPago,
+      metodoPago: cfdi.metodoPago,
+      lineas: cfdi.lineas.map((l) => ({
+        cantidad: l.cantidad,
+        descripcion: l.descripcion,
+        claveProdSat: l.claveProdSat,
+        claveUnidadSat: l.claveUnidadSat,
+        precioUnitario: l.precioUnitario.toString(),
+        tasaOCuota: l.tasaOCuota,
+      })),
+    });
+
+    const factura = await this.facturapi.timbrar(payload);
+    const serieFolio =
+      [factura.series, factura.folio_number].filter(Boolean).join('-') || cfdi.serieFolio;
+
     return this.prisma.cfdi.update({
       where: { id },
       data: {
         estado: EstadoCfdi.TIMBRADA,
-        uuidFiscal: randomUUID(),
-        serieFolio: cfdi.serieFolio ?? `A-${Date.now()}`,
+        uuidFiscal: factura.uuid,
+        facturapiId: factura.id,
+        serieFolio,
       },
       include: cfdiInclude,
     });
@@ -152,26 +178,6 @@ export class CfdiService {
       },
     });
     return this.findOne(id);
-  }
-
-  /** Exige datos de emisor y un CSD activo+vigente antes de timbrar. */
-  private async assertEmisorListo() {
-    const emisorRfc = this.config.get<string>('EMISOR_RFC');
-    if (!emisorRfc) {
-      throw new BadRequestException('Falta configurar el RFC del emisor (EMISOR_RFC)');
-    }
-    const csd = await this.prisma.certificadoSello.findFirst({
-      where: { activo: true },
-      orderBy: { creadoEn: 'desc' },
-    });
-    if (!csd) {
-      throw new BadRequestException(
-        'No hay un CSD activo; cargá el Certificado de Sello Digital antes de timbrar',
-      );
-    }
-    if (csd.vigenciaHasta < new Date()) {
-      throw new BadRequestException('El CSD activo está vencido');
-    }
   }
 
   async findAll(page = 1, limit = 20) {

@@ -399,6 +399,7 @@ model Cfdi {
   id                String             @id @default(uuid())
   serieFolio        String? // p.ej. A-18451
   uuidFiscal        String?            @unique // folio fiscal (timbre SAT)
+  facturapiId       String?            @unique // id de la factura en Facturapi (PAC)
   pedido            Pedido             @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
   pedidoId          String             @unique
   emisorRfc         String
