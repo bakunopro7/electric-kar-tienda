@@ -1,8 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createPrivateKey, X509Certificate } from 'node:crypto';
+import { Credential } from '@nodecfdi/credentials/node';
 import { PrismaService } from '../../prisma/prisma.service';
-import { encryptSecret } from '../../common/crypto/aes-gcm';
+import { decryptSecret, encryptSecret } from '../../common/crypto/aes-gcm';
 import { ModoIntegracion } from '../../generated/prisma/client';
 import { assertCsdUsable, CsdDatos } from './csd.validation';
 import { UploadCsdDto } from '../dto/upload-csd.dto';
@@ -98,6 +99,31 @@ export class CsdService {
       }),
     ]);
     return creado;
+  }
+
+  /**
+   * Carga la credencial (@nodecfdi) del CSD activo para sellar: descifra la
+   * llave y la contraseña, y devuelve la Credential + datos para el XML.
+   * Requiere un CSD real cargado; se usa en la fase de sellado/timbrado.
+   */
+  async cargarCredencial(modo?: ModoIntegracion): Promise<{
+    credential: Credential;
+    noCertificado: string;
+    certificadoB64: string;
+  }> {
+    const csd = await this.prisma.certificadoSello.findFirst({
+      where: { activo: true, ...(modo ? { modo } : {}) },
+      orderBy: { creadoEn: 'desc' },
+    });
+    if (!csd) {
+      throw new BadRequestException('No hay un CSD activo para sellar');
+    }
+    const masterKey = this.config.getOrThrow<string>('CSD_MASTER_KEY');
+    const keyDerBin = Buffer.from(decryptSecret(csd.keyEnc, masterKey), 'base64').toString('binary');
+    const password = decryptSecret(csd.passEnc, masterKey);
+    const credential = Credential.create(csd.cerPem, keyDerBin, password);
+    const certificadoB64 = csd.cerPem.replace(/-----[^-]+-----/g, '').replace(/\s+/g, '');
+    return { credential, noCertificado: csd.noCertificado, certificadoB64 };
   }
 
   /** Lista los CSD activos (sin exponer secretos). */
