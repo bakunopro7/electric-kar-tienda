@@ -198,8 +198,24 @@ model Cliente {
   direcciones   Direccion[]
   pedidos       Pedido[]
   carrito       Carrito?
+  datosFiscales DatosFiscales?
   creadoEn      DateTime        @default(now())
   actualizadoEn DateTime        @updatedAt
+}
+
+// Datos fiscales del receptor (CFDI 4.0). Una fila por cliente; se reutilizan
+// en cada emisión sin reescribirlos.
+model DatosFiscales {
+  id            String   @id @default(uuid())
+  cliente       Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  clienteId     String   @unique
+  razonSocial   String   @db.VarChar(254)
+  rfc           String   @db.VarChar(13)
+  cpFiscal      String   @db.VarChar(10)
+  regimenFiscal String   @db.VarChar(5) // c_RegimenFiscal
+  usoCfdi       String   @db.VarChar(5) // c_UsoCFDI
+  creadoEn      DateTime @default(now())
+  actualizadoEn DateTime @updatedAt
 }
 
 model Direccion {
@@ -410,15 +426,23 @@ model Cfdi {
 }
 
 model CfdiLinea {
-  id             String  @id @default(uuid())
-  cfdi           Cfdi    @relation(fields: [cfdiId], references: [id], onDelete: Cascade)
-  cfdiId         String
-  claveProdSat   String // c_ClaveProdServ
-  claveUnidadSat String // c_ClaveUnidad
-  descripcion    String
-  cantidad       Int
-  precioUnitario Decimal @db.Decimal(12, 2)
-  importe        Decimal @db.Decimal(12, 2)
+  id               String  @id @default(uuid())
+  cfdi             Cfdi    @relation(fields: [cfdiId], references: [id], onDelete: Cascade)
+  cfdiId           String
+  claveProdSat     String // c_ClaveProdServ
+  claveUnidadSat   String // c_ClaveUnidad
+  noIdentificacion String? // SKU del producto
+  descripcion      String
+  cantidad         Int
+  precioUnitario   Decimal @db.Decimal(12, 2)
+  importe          Decimal @db.Decimal(12, 2)
+  // Impuestos por línea (CFDI 4.0)
+  base             Decimal @default(0) @db.Decimal(12, 2)
+  impuesto         String  @default("002") // c_Impuesto (002 = IVA)
+  tipoFactor       String  @default("Tasa")
+  tasaOCuota       String  @default("0.160000")
+  importeImpuesto  Decimal @default(0) @db.Decimal(12, 2)
+  objetoImp        String  @default("02") // c_ObjetoImp
 
   @@index([cfdiId])
 }

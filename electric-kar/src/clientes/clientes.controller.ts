@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -23,6 +24,7 @@ import { QueryClientesDto } from './dto/query-clientes.dto';
 import { UpdateClienteDto } from './dto/update-cliente.dto';
 import { UpdateDireccionDto } from './dto/update-direccion.dto';
 import { UpdateSegmentoDto } from './dto/update-segmento.dto';
+import { UpsertDatosFiscalesDto } from './dto/upsert-datos-fiscales.dto';
 
 @ApiTags('clientes')
 @ApiBearerAuth()
@@ -83,6 +85,25 @@ export class ClientesController {
     return this.clientesService.removeAddress(user.id, direccionId);
   }
 
+  // --- Mis datos fiscales (cliente) ----------------------------------------
+
+  @Get('me/datos-fiscales')
+  @UseGuards(JwtAuthGuard, ClienteGuard)
+  @ApiOperation({ summary: 'Mis datos fiscales (cliente)' })
+  myDatosFiscales(@CurrentUser() user: AuthUser) {
+    return this.clientesService.getDatosFiscales(user.id);
+  }
+
+  @Put('me/datos-fiscales')
+  @UseGuards(JwtAuthGuard, ClienteGuard)
+  @ApiOperation({ summary: 'Guardar mis datos fiscales (cliente)' })
+  upsertMyDatosFiscales(
+    @CurrentUser() user: AuthUser,
+    @Body() dto: UpsertDatosFiscalesDto,
+  ) {
+    return this.clientesService.upsertDatosFiscales(user.id, dto);
+  }
+
   // --- Gestión (personal del panel) ----------------------------------------
   // IMPORTANT: 'top' and 'stats' MUST be declared BEFORE '/:id' to prevent
   // NestJS from matching the literal strings "top" and "stats" as :id values.
@@ -125,5 +146,24 @@ export class ClientesController {
   @ApiOperation({ summary: 'Cambiar el segmento de un cliente (personal)' })
   updateSegmento(@Param('id') id: string, @Body() dto: UpdateSegmentoDto) {
     return this.clientesService.updateSegmento(id, dto);
+  }
+
+  @Get(':id/datos-fiscales')
+  @Roles(Rol.ADMIN, Rol.SUPER, Rol.VENDEDOR, Rol.CONTADOR)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({ summary: 'Datos fiscales de un cliente (personal)' })
+  datosFiscales(@Param('id') id: string) {
+    return this.clientesService.getDatosFiscales(id);
+  }
+
+  @Put(':id/datos-fiscales')
+  @Roles(Rol.ADMIN, Rol.SUPER, Rol.CONTADOR)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({ summary: 'Guardar datos fiscales de un cliente (personal)' })
+  upsertDatosFiscales(
+    @Param('id') id: string,
+    @Body() dto: UpsertDatosFiscalesDto,
+  ) {
+    return this.clientesService.upsertDatosFiscales(id, dto);
   }
 }

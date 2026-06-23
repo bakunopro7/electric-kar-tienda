@@ -11,6 +11,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CancelarCfdiDto } from './dto/cancelar-cfdi.dto';
 import { ComplementoPagoDto } from './dto/complemento-pago.dto';
 import { EmitirCfdiDto } from './dto/emitir-cfdi.dto';
+import { calcLineaImpuesto, calcTotales } from './impuestos';
 
 const cfdiInclude = {
   lineas: true,
@@ -45,10 +46,11 @@ export class CfdiService {
       throw new ConflictException('El pedido ya tiene un CFDI');
     }
 
-    const tasaIva = Number(this.config.get<string>('IVA_TASA', '16'));
-    const subtotal = pedido.subtotal;
-    const iva = subtotal.mul(tasaIva).div(100);
-    const total = subtotal.add(iva);
+    // Impuestos POR LÍNEA (CFDI 4.0): el IVA se calcula con la tasa de cada
+    // producto y los totales son la suma de las líneas (cuadre garantizado).
+    const { subtotal, iva, total } = calcTotales(
+      pedido.lineas.map((l) => ({ importe: l.importe, tasaIva: l.producto.tasaIva })),
+    );
 
     return this.prisma.cfdi.create({
       data: {
@@ -66,14 +68,24 @@ export class CfdiService {
         iva,
         total,
         lineas: {
-          create: pedido.lineas.map((linea) => ({
-            claveProdSat: linea.producto.claveProdSat ?? '01010101',
-            claveUnidadSat: 'H87', // Pieza
-            descripcion: linea.producto.nombre,
-            cantidad: linea.cantidad,
-            precioUnitario: linea.precioUnitario,
-            importe: linea.importe,
-          })),
+          create: pedido.lineas.map((linea) => {
+            const imp = calcLineaImpuesto(linea.importe, linea.producto.tasaIva);
+            return {
+              claveProdSat: linea.producto.claveProdSat ?? '01010101',
+              claveUnidadSat: 'H87', // Pieza
+              noIdentificacion: linea.producto.sku,
+              descripcion: linea.producto.nombre,
+              cantidad: linea.cantidad,
+              precioUnitario: linea.precioUnitario,
+              importe: linea.importe,
+              base: imp.base,
+              impuesto: imp.impuesto,
+              tipoFactor: imp.tipoFactor,
+              tasaOCuota: imp.tasaOCuota,
+              importeImpuesto: imp.importeImpuesto,
+              objetoImp: imp.objetoImp,
+            };
+          }),
         },
       },
       include: cfdiInclude,
