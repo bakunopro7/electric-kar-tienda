@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { CfdiService } from './cfdi.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { QueryCfdiDto } from './dto/query-cfdi.dto';
+import { FacturapiProvider } from './facturapi/facturapi.provider';
 
 const mockPrisma = {
   $transaction: jest.fn(),
@@ -42,6 +43,7 @@ describe('CfdiService.findAll', () => {
         CfdiService,
         { provide: PrismaService, useValue: mockPrisma },
         { provide: ConfigService, useValue: mockConfig },
+        { provide: FacturapiProvider, useValue: { timbrar: jest.fn() } },
       ],
     }).compile();
     service = module.get<CfdiService>(CfdiService);
