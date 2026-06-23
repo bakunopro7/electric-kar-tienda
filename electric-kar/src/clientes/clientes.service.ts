@@ -5,6 +5,7 @@ import { CreateDireccionDto } from './dto/create-direccion.dto';
 import { UpdateClienteDto } from './dto/update-cliente.dto';
 import { UpdateDireccionDto } from './dto/update-direccion.dto';
 import { UpdateSegmentoDto } from './dto/update-segmento.dto';
+import { UpsertDatosFiscalesDto } from './dto/upsert-datos-fiscales.dto';
 
 /** Campos públicos del cliente (sin el hash de contraseña). */
 const clienteSelect = {
@@ -121,6 +122,22 @@ export class ClientesService {
       where: { id },
       data: { segmento: dto.segmento },
       select: clienteSelect,
+    });
+  }
+
+  // --- Datos fiscales del receptor (CFDI) ----------------------------------
+
+  async getDatosFiscales(clienteId: string) {
+    await this.findOne(clienteId);
+    return this.prisma.datosFiscales.findUnique({ where: { clienteId } });
+  }
+
+  async upsertDatosFiscales(clienteId: string, dto: UpsertDatosFiscalesDto) {
+    await this.findOne(clienteId);
+    return this.prisma.datosFiscales.upsert({
+      where: { clienteId },
+      create: { clienteId, ...dto },
+      update: { ...dto },
     });
   }
 

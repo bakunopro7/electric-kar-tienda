@@ -55,6 +55,14 @@ export interface CfdiAdmin {
   fecha: string;
 }
 
+export interface DatosFiscales {
+  razonSocial: string;
+  rfc: string;
+  cpFiscal: string;
+  regimenFiscal: string;
+  usoCfdi: string;
+}
+
 export interface CreateUsuarioDto {
   nombre: string;
   correo: string;
@@ -228,6 +236,19 @@ export class AdminService {
     return this.http.post<CfdiAdmin>(
       `${this.api}/cfdi/${id}/cancelar`,
       { motivoCancelacion, uuidSustituye: uuidSustituye || undefined },
+      this.ctx,
+    );
+  }
+  datosFiscales(clienteId: string) {
+    return this.http.get<DatosFiscales | null>(
+      `${this.api}/clientes/${clienteId}/datos-fiscales`,
+      this.ctx,
+    );
+  }
+  guardarDatosFiscales(clienteId: string, dto: DatosFiscales) {
+    return this.http.put<DatosFiscales>(
+      `${this.api}/clientes/${clienteId}/datos-fiscales`,
+      dto,
       this.ctx,
     );
   }

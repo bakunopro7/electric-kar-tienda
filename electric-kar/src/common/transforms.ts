@@ -22,3 +22,14 @@ export function LowerTrim(): PropertyDecorator {
     typeof value === 'string' ? value.trim().toLowerCase() : value,
   );
 }
+
+/**
+ * Trims and uppercases a string value. Use on fields like RFC, where the SAT
+ * expects uppercase and the value must match exactly.
+ * No-op for non-string values.
+ */
+export function UpperTrim(): PropertyDecorator {
+  return Transform(({ value }) =>
+    typeof value === 'string' ? value.trim().toUpperCase() : value,
+  );
+}
