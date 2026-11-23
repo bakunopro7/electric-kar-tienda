@@ -7,132 +7,136 @@ import { MarcasService } from '@core/marcas.service';
 import { Categoria, Marca, Paginated, Producto } from '@core/models';
 import { ProductosService } from '@core/productos.service';
 import { IconComponent } from '@shared/icon.component';
+import { PageHeadComponent } from '@shared/page-head.component';
 import { ProductCardComponent } from '@shared/product-card.component';
 
 @Component({
   selector: 'ek-tienda',
-  imports: [FormsModule, RouterLink, ProductCardComponent, IconComponent],
+  imports: [FormsModule, RouterLink, ProductCardComponent, IconComponent, PageHeadComponent],
   template: `
-    <!-- ===== PAGE HEAD ===== -->
-    <section class="relative -mx-4 overflow-hidden bg-navy-900 px-4 text-white">
-      <div class="ek-grid-overlay pointer-events-none absolute inset-0"></div>
-      <div class="relative mx-auto max-w-7xl py-10">
-        <nav class="flex items-center gap-2 text-sm text-white/50">
-          <a routerLink="/" class="hover:text-white">Inicio</a>
-          <ek-icon name="chevron" class="h-3 w-3" />
-          <span>Catálogo</span>
-        </nav>
-        <h1 class="mt-3 text-3xl font-bold sm:text-4xl">Catálogo de productos</h1>
-        <p class="mt-2 text-white/70">Encuentra la pieza eléctrica exacta para tu vehículo.</p>
-      </div>
-    </section>
+    <ek-page-head [titulo]="catNombre() || 'Catálogo'" subtitulo="Encuentra la pieza eléctrica exacta para tu vehículo."
+                  [migas]="[{ label: 'Catálogo' }]" />
 
-    <div class="mt-8 grid gap-8 lg:grid-cols-[268px_1fr]">
-      <!-- ===== SIDEBAR ===== -->
-      <aside class="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
+    <!-- Filtros en móvil: chips deslizables -->
+    <div class="space-y-2 lg:hidden">
+      <div class="ek-scroll-x" role="group" aria-label="Categorías">
+        <button type="button" class="ek-chip" [class.ek-chip-activo]="categoriaId() === ''" (click)="seleccionarCategoria('')">Todas</button>
+        @for (c of categorias(); track c.id) {
+          <button type="button" class="ek-chip" [class.ek-chip-activo]="categoriaId() === c.id" (click)="seleccionarCategoria(c.id)">{{ c.nombre }}</button>
+        }
+      </div>
+      @if (marcas().length) {
+        <div class="ek-scroll-x" role="group" aria-label="Marcas">
+          @for (m of marcas(); track m.id) {
+            <button type="button" class="ek-chip" [class.ek-chip-activo]="marcaId() === m.id" [attr.aria-pressed]="marcaId() === m.id" (click)="toggleMarca(m.id)">{{ m.nombre }}</button>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="mt-4 grid gap-8 lg:mt-0 lg:grid-cols-[250px_1fr]">
+      <!-- Filtros en escritorio -->
+      <aside class="hidden flex-col gap-4 lg:sticky lg:top-24 lg:flex lg:self-start">
         <div class="card">
-          <h4 class="mb-3 font-display text-sm font-semibold">Categorías</h4>
-          <div class="flex flex-col gap-1">
+          <h2 class="mb-2 font-display text-sm font-semibold">Categorías</h2>
+          <div class="flex flex-col">
             <button type="button" (click)="seleccionarCategoria('')"
-                    class="flex items-center justify-between rounded-ek-sm px-2 py-1.5 text-left text-sm hover:bg-black/5 dark:hover:bg-white/5"
-                    [class.text-azul-700]="categoriaId() === ''" [class.font-semibold]="categoriaId() === ''">
-              Todas
-            </button>
+                    class="rounded-ek-sm px-2 py-2 text-left text-sm hover:bg-superficie-2"
+                    [class.text-marca]="categoriaId() === ''" [class.font-semibold]="categoriaId() === ''">Todas</button>
             @for (c of categorias(); track c.id) {
               <button type="button" (click)="seleccionarCategoria(c.id)"
-                      class="flex items-center justify-between rounded-ek-sm px-2 py-1.5 text-left text-sm hover:bg-black/5 dark:hover:bg-white/5"
-                      [class.text-azul-700]="categoriaId() === c.id" [class.font-semibold]="categoriaId() === c.id">
-                {{ c.nombre }}
-              </button>
+                      class="rounded-ek-sm px-2 py-2 text-left text-sm hover:bg-superficie-2"
+                      [class.text-marca]="categoriaId() === c.id" [class.font-semibold]="categoriaId() === c.id">{{ c.nombre }}</button>
             }
           </div>
         </div>
 
         @if (marcas().length) {
           <div class="card">
-            <h4 class="mb-3 font-display text-sm font-semibold">Marca</h4>
+            <h2 class="mb-3 font-display text-sm font-semibold">Marca</h2>
             <div class="flex flex-wrap gap-2">
               @for (m of marcas(); track m.id) {
-                <button type="button" (click)="toggleMarca(m.id)"
-                        class="rounded-full border px-3 py-1.5 text-sm transition-colors"
-                        [class]="marcaId() === m.id
-                          ? 'border-azul-700 bg-azul-700 text-white'
-                          : 'border-black/15 hover:border-azul-500 dark:border-white/15'">
-                  {{ m.nombre }}
-                </button>
+                <button type="button" (click)="toggleMarca(m.id)" class="ek-chip min-h-9 px-3"
+                        [class.ek-chip-activo]="marcaId() === m.id" [attr.aria-pressed]="marcaId() === m.id">{{ m.nombre }}</button>
               }
             </div>
           </div>
         }
 
-        <div class="rounded-ek bg-gradient-to-br from-azul-700 to-navy-900 p-5 text-white">
-          <h4 class="font-display text-sm font-semibold">¿Necesitas ayuda?</h4>
-          <p class="mt-2 text-sm text-white/70">Nuestros técnicos te ayudan a elegir la pieza correcta para tu modelo.</p>
-          <a routerLink="/" class="btn-voltaje mt-4 w-full text-sm">Hablar con un experto</a>
+        <div class="card">
+          <h2 class="font-display text-sm font-semibold">¿No sabes qué pieza es?</h2>
+          <p class="mt-1 text-sm text-texto-suave">Un técnico te ayuda a elegir la correcta para tu modelo.</p>
+          <a routerLink="/contacto" class="btn-outline mt-3 w-full text-sm">Pedir asesoría</a>
         </div>
       </aside>
 
-      <!-- ===== LISTADO ===== -->
       <div>
-        <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
-          <span class="text-sm text-black/60 dark:text-white/60">
-            <b class="font-display text-black dark:text-white">{{ resultado()?.meta?.total ?? 0 }}</b> productos encontrados
+        <div class="mb-4 flex items-center justify-between gap-3">
+          <span class="whitespace-nowrap text-sm text-texto-suave">
+            <b class="ek-num text-texto">{{ resultado()?.meta?.total ?? 0 }}</b> productos
           </span>
-          <div class="flex items-center gap-2 rounded-full border border-black/15 px-4 py-2 text-sm dark:border-white/15">
-            Ordenar:
-            <select [(ngModel)]="orden" (ngModelChange)="ordenar()" class="bg-transparent font-semibold outline-none">
+          <label class="flex items-center gap-2 text-sm text-texto-suave">
+            Ordenar
+            <select [(ngModel)]="orden" (ngModelChange)="ordenar()" class="ek-input font-semibold">
               <option value="recientes">Más nuevos</option>
               <option value="precio_asc">Precio: menor a mayor</option>
               <option value="precio_desc">Precio: mayor a menor</option>
             </select>
-          </div>
+          </label>
         </div>
 
         @if (tieneFiltros()) {
           <div class="mb-4 flex flex-wrap items-center gap-2">
             @if (search) {
-              <span class="inline-flex items-center gap-2 rounded-full bg-azul-700/10 px-3 py-1 text-sm font-semibold text-azul-700">
-                "{{ search }}" <button type="button" (click)="quitarBusqueda()">✕</button>
-              </span>
+              <button type="button" class="ek-chip min-h-9 px-3" (click)="quitarBusqueda()" [attr.aria-label]="'Quitar búsqueda ' + search">
+                “{{ search }}” <ek-icon name="x" class="h-3.5 w-3.5" />
+              </button>
             }
             @if (catNombre()) {
-              <span class="inline-flex items-center gap-2 rounded-full bg-azul-700/10 px-3 py-1 text-sm font-semibold text-azul-700">
-                {{ catNombre() }} <button type="button" (click)="seleccionarCategoria('')">✕</button>
-              </span>
+              <button type="button" class="ek-chip min-h-9 px-3" (click)="seleccionarCategoria('')" [attr.aria-label]="'Quitar filtro ' + catNombre()">
+                {{ catNombre() }} <ek-icon name="x" class="h-3.5 w-3.5" />
+              </button>
             }
             @if (marcaNombre()) {
-              <span class="inline-flex items-center gap-2 rounded-full bg-azul-700/10 px-3 py-1 text-sm font-semibold text-azul-700">
-                {{ marcaNombre() }} <button type="button" (click)="toggleMarca(marcaId())">✕</button>
-              </span>
+              <button type="button" class="ek-chip min-h-9 px-3" (click)="toggleMarca(marcaId())" [attr.aria-label]="'Quitar filtro ' + marcaNombre()">
+                {{ marcaNombre() }} <ek-icon name="x" class="h-3.5 w-3.5" />
+              </button>
             }
-            <button type="button" (click)="limpiarTodo()" class="text-sm text-black/50 underline dark:text-white/50">Limpiar todo</button>
+            <button type="button" (click)="limpiarTodo()" class="ek-enlace min-h-9 px-1">Quitar filtros</button>
           </div>
         }
 
         @if (loading()) {
-          <p class="text-black/50 dark:text-white/50">Cargando…</p>
+          <div class="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3" aria-busy="true" aria-label="Cargando productos">
+            @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+              <div class="ek-skeleton aspect-[3/5]"></div>
+            }
+          </div>
         } @else if (resultado(); as r) {
           @if (r.data.length === 0) {
-            <div class="card text-center text-black/60 dark:text-white/60">No se encontraron productos con esos filtros.</div>
+            <div class="card py-10 text-center">
+              <p class="font-display font-semibold">No hay productos con esos filtros</p>
+              <button type="button" class="btn-outline mt-4" (click)="limpiarTodo()">Quitar filtros</button>
+            </div>
           } @else {
-            <div class="grid grid-cols-2 gap-4 md:grid-cols-3">
+            <div class="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3">
               @for (p of r.data; track p.id) {
                 <ek-product-card [producto]="p" />
               }
             </div>
 
             @if (r.meta.pages > 1) {
-              <div class="mt-10 flex items-center justify-center gap-1.5">
-                <button type="button" class="grid h-10 min-w-10 place-items-center rounded-ek-md border border-black/15 px-3 font-semibold disabled:opacity-40 dark:border-white/15"
-                        [disabled]="r.meta.page <= 1" (click)="irPagina(r.meta.page - 1)">‹</button>
+              <nav aria-label="Páginas" class="mt-8 flex items-center justify-center gap-1.5">
+                <button type="button" class="ek-icon-btn rotate-180 rounded-ek-md border border-borde disabled:opacity-40" aria-label="Página anterior"
+                        [disabled]="r.meta.page <= 1" (click)="irPagina(r.meta.page - 1)"><ek-icon name="chevron" class="h-4 w-4" /></button>
                 @for (n of pageNumbers(); track n) {
-                  <button type="button" (click)="irPagina(n)"
-                          class="grid h-10 min-w-10 place-items-center rounded-ek-md border px-3 font-semibold"
-                          [class]="n === r.meta.page ? 'border-azul-700 bg-azul-700 text-white' : 'border-black/15 dark:border-white/15'">{{ n }}</button>
+                  <button type="button" (click)="irPagina(n)" [attr.aria-current]="n === r.meta.page ? 'page' : null"
+                          class="ek-num grid h-11 min-w-11 place-items-center rounded-ek-md border px-3 font-semibold"
+                          [class]="n === r.meta.page ? 'border-azul-700 bg-azul-700 text-white' : 'border-borde bg-superficie'">{{ n }}</button>
                 }
-                <button type="button" class="grid h-10 min-w-10 place-items-center rounded-ek-md border border-black/15 px-3 font-semibold disabled:opacity-40 dark:border-white/15"
-                        [disabled]="r.meta.page >= r.meta.pages" (click)="irPagina(r.meta.page + 1)">›</button>
-              </div>
+                <button type="button" class="ek-icon-btn rounded-ek-md border border-borde disabled:opacity-40" aria-label="Página siguiente"
+                        [disabled]="r.meta.page >= r.meta.pages" (click)="irPagina(r.meta.page + 1)"><ek-icon name="chevron" class="h-4 w-4" /></button>
+              </nav>
             }
           }
         }

@@ -6,6 +6,7 @@ import { CartService } from '@core/cart.service';
 import { CheckoutService } from '@core/checkout.service';
 import { IconComponent, IconName } from '@shared/icon.component';
 import { MoneyPipe } from '@shared/money.pipe';
+import { PageHeadComponent } from '@shared/page-head.component';
 
 interface Opcion {
   id: string;
@@ -17,24 +18,24 @@ interface Opcion {
 
 @Component({
   selector: 'ek-checkout',
-  imports: [FormsModule, RouterLink, MoneyPipe, IconComponent],
+  imports: [FormsModule, RouterLink, MoneyPipe, IconComponent, PageHeadComponent],
   template: `
-    <h1 class="text-2xl font-bold">Finalizar compra</h1>
+    <ek-page-head titulo="Finalizar compra" [migas]="[{ label: 'Carrito', url: '/carrito' }, { label: 'Pago' }]" />
 
     @if (cart.items().length === 0) {
-      <div class="card mt-4 text-center text-black/60 dark:text-white/60">
-        <p>No hay nada en el carrito.</p>
-        <a routerLink="/tienda" class="btn-primary mt-4">Ir a la tienda</a>
+      <div class="card py-10 text-center">
+        <p class="font-display font-semibold">Tu carrito está vacío</p>
+        <a routerLink="/tienda" class="btn-primary btn-lg mt-4">Ver catálogo</a>
       </div>
     } @else {
-      <div class="mt-6 grid gap-6 lg:grid-cols-[1fr_360px]">
+      <div class="grid gap-6 lg:grid-cols-[1fr_360px]">
         <!-- FORMULARIO -->
         <div class="space-y-5">
           <!-- 1. Contacto -->
           <section class="card">
             <div class="mb-4 flex items-center gap-3">
               <span class="grid h-7 w-7 place-items-center rounded-full bg-azul-700 text-sm font-bold text-white">1</span>
-              <h2 class="text-lg font-bold">Datos de contacto</h2>
+              <h2 class="font-display text-lg font-bold">Datos de contacto</h2>
             </div>
             <div class="grid gap-3 sm:grid-cols-2">
               <input [(ngModel)]="nombre" placeholder="Nombre completo" class="ek-input sm:col-span-2" />
@@ -47,7 +48,7 @@ interface Opcion {
           <section class="card">
             <div class="mb-4 flex items-center gap-3">
               <span class="grid h-7 w-7 place-items-center rounded-full bg-azul-700 text-sm font-bold text-white">2</span>
-              <h2 class="text-lg font-bold">Dirección de envío</h2>
+              <h2 class="font-display text-lg font-bold">Dirección de envío</h2>
             </div>
             <div class="grid gap-3 sm:grid-cols-2">
               <input [(ngModel)]="calle" placeholder="Calle y número" class="ek-input sm:col-span-2" />
@@ -62,18 +63,18 @@ interface Opcion {
           <section class="card">
             <div class="mb-4 flex items-center gap-3">
               <span class="grid h-7 w-7 place-items-center rounded-full bg-azul-700 text-sm font-bold text-white">3</span>
-              <h2 class="text-lg font-bold">Método de envío</h2>
+              <h2 class="font-display text-lg font-bold">Método de envío</h2>
             </div>
             <div class="space-y-2">
               @for (o of envios; track o.id) {
                 <button type="button" (click)="envio.set(o.id)"
                         class="flex w-full items-center gap-3 rounded-ek-md border p-3 text-left transition-colors"
-                        [class]="envio() === o.id ? 'border-azul-700 bg-azul-700/5' : 'border-black/15 dark:border-white/15'">
-                  <span class="grid h-4 w-4 place-items-center rounded-full border-2" [class]="envio() === o.id ? 'border-azul-700' : 'border-black/30'">
+                        [class]="envio() === o.id ? 'border-azul-700 bg-azul-700/5' : 'border-borde'">
+                  <span class="grid h-4 w-4 place-items-center rounded-full border-2" [class]="envio() === o.id ? 'border-azul-700' : 'border-borde'">
                     @if (envio() === o.id) { <span class="h-2 w-2 rounded-full bg-azul-700"></span> }
                   </span>
-                  <ek-icon [name]="o.icon" class="h-5 w-5 text-azul-700" />
-                  <span class="flex-1"><b class="block text-sm">{{ o.titulo }}</b><small class="text-xs text-black/50 dark:text-white/50">{{ o.sub }}</small></span>
+                  <ek-icon [name]="o.icon" class="h-5 w-5 text-marca" />
+                  <span class="flex-1"><b class="block text-sm">{{ o.titulo }}</b><small class="text-xs text-texto-suave">{{ o.sub }}</small></span>
                   <span class="text-sm font-semibold" [class.text-exito]="o.precio === 0">{{ o.precio === 0 ? 'Gratis' : (o.precio | money) }}</span>
                 </button>
               }
@@ -84,18 +85,18 @@ interface Opcion {
           <section class="card">
             <div class="mb-4 flex items-center gap-3">
               <span class="grid h-7 w-7 place-items-center rounded-full bg-azul-700 text-sm font-bold text-white">4</span>
-              <h2 class="text-lg font-bold">Método de pago</h2>
+              <h2 class="font-display text-lg font-bold">Método de pago</h2>
             </div>
             <div class="space-y-2">
               @for (o of pagos; track o.id) {
                 <button type="button" (click)="pago.set(o.id)"
                         class="flex w-full items-center gap-3 rounded-ek-md border p-3 text-left transition-colors"
-                        [class]="pago() === o.id ? 'border-azul-700 bg-azul-700/5' : 'border-black/15 dark:border-white/15'">
-                  <span class="grid h-4 w-4 place-items-center rounded-full border-2" [class]="pago() === o.id ? 'border-azul-700' : 'border-black/30'">
+                        [class]="pago() === o.id ? 'border-azul-700 bg-azul-700/5' : 'border-borde'">
+                  <span class="grid h-4 w-4 place-items-center rounded-full border-2" [class]="pago() === o.id ? 'border-azul-700' : 'border-borde'">
                     @if (pago() === o.id) { <span class="h-2 w-2 rounded-full bg-azul-700"></span> }
                   </span>
-                  <ek-icon [name]="o.icon" class="h-5 w-5 text-azul-700" />
-                  <span class="flex-1"><b class="block text-sm">{{ o.titulo }}</b><small class="text-xs text-black/50 dark:text-white/50">{{ o.sub }}</small></span>
+                  <ek-icon [name]="o.icon" class="h-5 w-5 text-marca" />
+                  <span class="flex-1"><b class="block text-sm">{{ o.titulo }}</b><small class="text-xs text-texto-suave">{{ o.sub }}</small></span>
                 </button>
               }
             </div>
@@ -112,24 +113,24 @@ interface Opcion {
 
         <!-- RESUMEN -->
         <aside class="card h-fit lg:sticky lg:top-24">
-          <h3 class="text-lg font-bold">Resumen del pedido</h3>
+          <h2 class="font-display text-lg font-bold">Resumen del pedido</h2>
           <div class="mt-4 space-y-3">
             @for (item of cart.items(); track item.producto.id) {
               <div class="flex items-center gap-3">
-                <span class="relative grid h-12 w-12 shrink-0 place-items-center rounded-ek-sm bg-black/5 dark:bg-white/5">
+                <span class="relative grid h-12 w-12 shrink-0 place-items-center rounded-ek-sm bg-superficie-2">
                   @if (item.producto.imagenes.length) {
                     <img [src]="item.producto.imagenes[0]" [alt]="item.producto.nombre" class="h-full w-full rounded-ek-sm object-cover" />
-                  } @else { 🔋 }
+                  } @else { <ek-icon name="box" class="h-6 w-6 text-texto-tenue" /> }
                   <span class="absolute -right-1.5 -top-1.5 grid h-5 min-w-5 place-items-center rounded-full bg-navy-900 px-1 text-xs font-bold text-white">{{ item.cantidad }}</span>
                 </span>
                 <span class="min-w-0 flex-1 truncate text-sm">{{ item.producto.nombre }}</span>
-                <span class="font-mono text-sm">{{ +item.producto.precio * item.cantidad | money }}</span>
+                <span class="ek-num text-sm">{{ +item.producto.precio * item.cantidad | money }}</span>
               </div>
             }
           </div>
 
           <!-- Cupón -->
-          <div class="mt-4 border-t border-black/10 pt-4 dark:border-white/10">
+          <div class="mt-4 border-t border-borde pt-4">
             <div class="flex gap-2">
               <input [(ngModel)]="cupon" placeholder="Código de cupón" class="ek-input flex-1 uppercase" [disabled]="!!codigoAplicado()" />
               @if (codigoAplicado()) {
@@ -141,14 +142,14 @@ interface Opcion {
             @if (cuponMsg()) { <p class="mt-2 text-xs" [class.text-exito]="codigoAplicado()" [class.text-peligro]="!codigoAplicado()">{{ cuponMsg() }}</p> }
           </div>
 
-          <div class="mt-4 space-y-1.5 border-t border-black/10 pt-4 text-sm dark:border-white/10">
-            <div class="flex justify-between"><span>Subtotal</span><span class="font-mono">{{ cart.total() | money }}</span></div>
+          <div class="mt-4 space-y-1.5 border-t border-borde pt-4 text-sm">
+            <div class="flex justify-between"><span>Subtotal</span><span class="ek-num">{{ cart.total() | money }}</span></div>
             @if (descuento() > 0) {
-              <div class="flex justify-between text-exito"><span>Descuento ({{ codigoAplicado() }})</span><span class="font-mono">−{{ descuento() | money }}</span></div>
+              <div class="flex justify-between text-exito"><span>Descuento ({{ codigoAplicado() }})</span><span class="ek-num">−{{ descuento() | money }}</span></div>
             }
-            <div class="flex justify-between"><span>Envío</span><span class="font-mono" [class.text-exito]="envioCosto() === 0">{{ envioCosto() === 0 ? 'Gratis' : (envioCosto() | money) }}</span></div>
-            <div class="flex justify-between text-black/50 dark:text-white/50"><span>IVA incluido</span><span class="font-mono">{{ ivaIncluido() | money }}</span></div>
-            <div class="mt-2 flex justify-between border-t border-black/10 pt-2 text-base font-bold dark:border-white/10"><span>Total</span><span class="font-mono">{{ total() | money }}</span></div>
+            <div class="flex justify-between"><span>Envío</span><span class="ek-num" [class.text-exito]="envioCosto() === 0">{{ envioCosto() === 0 ? 'Gratis' : (envioCosto() | money) }}</span></div>
+            <div class="flex justify-between text-texto-suave"><span>IVA incluido</span><span class="ek-num">{{ ivaIncluido() | money }}</span></div>
+            <div class="mt-2 flex justify-between border-t border-borde pt-2 text-base font-bold"><span>Total</span><span class="ek-num">{{ total() | money }}</span></div>
           </div>
 
           @if (!auth.isAuthenticated()) {
@@ -156,12 +157,12 @@ interface Opcion {
             <a routerLink="/acceso" class="btn-primary mt-2 w-full">Iniciar sesión</a>
           } @else {
             @if (error()) { <p class="mt-3 text-sm text-peligro">{{ error() }}</p> }
-            <button type="button" class="btn-primary mt-4 w-full" [disabled]="procesando()" (click)="pagar()">
+            <button type="button" class="btn-voltaje btn-lg mt-4 w-full uppercase tracking-wide" [disabled]="procesando()" (click)="pagar()">
               <ek-icon name="lock" class="h-5 w-5" /> {{ procesando() ? 'Procesando…' : 'Pagar ' + (total() | money) }}
             </button>
           }
 
-          <div class="mt-4 space-y-2 text-xs text-black/50 dark:text-white/50">
+          <div class="mt-4 space-y-2 text-xs text-texto-suave">
             <p class="flex items-center gap-2"><ek-icon name="lock" class="h-4 w-4" /> Datos protegidos con cifrado SSL</p>
             <p class="flex items-center gap-2"><ek-icon name="shield" class="h-4 w-4" /> Garantía en todos los productos</p>
           </div>

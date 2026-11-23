@@ -3,12 +3,14 @@
 } @else {
   <ek-header />
 
-  <main class="mx-auto min-h-[70vh] w-full max-w-7xl px-4 py-6">
+  <main class="mx-auto min-h-[70vh] w-full max-w-7xl px-4 py-5 sm:py-8">
     <router-outlet />
   </main>
 
   <ek-footer />
+  <!-- Reserva el alto de la barra inferior para que no tape el final de la página. -->
+  <div class="h-[var(--ek-tabbar)] bg-navy-900" aria-hidden="true"></div>
+  <ek-tab-bar />
 }
 
-<ngx-sonner-toaster position="top-right" [closeButton]="true" [toastOptions]="toastOptions" />
-
+<ngx-sonner-toaster position="top-center" [closeButton]="true" [toastOptions]="toastOptions" />

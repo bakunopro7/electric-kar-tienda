@@ -1,28 +1,31 @@
 import { DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { IconComponent } from '@shared/icon.component';
+import { PageHeadComponent } from '@shared/page-head.component';
+import { RevealDirective } from '@shared/reveal.directive';
 import { ARTICULOS } from './blog.data';
 
 @Component({
   selector: 'ek-blog',
-  imports: [RouterLink, DatePipe],
+  imports: [RouterLink, DatePipe, IconComponent, PageHeadComponent, RevealDirective],
   template: `
-    <section class="relative -mx-4 overflow-hidden bg-navy-900 px-4 text-white">
-      <div class="ek-grid-overlay pointer-events-none absolute inset-0"></div>
-      <div class="relative mx-auto max-w-7xl py-10">
-        <h1 class="text-3xl font-bold sm:text-4xl">Blog electrick-Kar</h1>
-        <p class="mt-2 text-white/70">Guías, comparativas y consejos para el sistema eléctrico de tu auto.</p>
-      </div>
-    </section>
+    <ek-page-head titulo="Blog" subtitulo="Guías, comparativas y consejos para el sistema eléctrico de tu auto."
+                  [migas]="[{ label: 'Blog' }]" />
 
-    <div class="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      @for (a of articulos; track a.slug) {
-        <a [routerLink]="['/blog', a.slug]" class="card group flex flex-col overflow-hidden transition-shadow hover:shadow-lg">
-          <div class="-m-4 mb-3 grid aspect-video place-items-center bg-gradient-to-br from-azul-700 to-navy-900 text-5xl">📰</div>
-          <span class="text-xs font-semibold uppercase tracking-wide text-azul-500">{{ a.categoria }}</span>
-          <h2 class="mt-1 font-display text-lg font-bold group-hover:text-azul-700">{{ a.titulo }}</h2>
-          <p class="mt-2 flex-1 text-sm text-black/60 dark:text-white/60">{{ a.resumen }}</p>
-          <span class="mt-3 text-xs text-black/40 dark:text-white/40">{{ a.fecha | date: 'longDate' }}</span>
+    <div class="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
+      @for (a of articulos; track a.slug; let i = $index) {
+        <a [routerLink]="['/blog', a.slug]" class="ek-tarjeta group flex flex-col overflow-hidden rounded-ek border border-borde bg-superficie" ekReveal [ekRevealDelay]="(i % 3) * 80">
+          <div class="relative grid aspect-video place-items-center overflow-hidden bg-navy-950 text-voltaje">
+            <div class="ek-grid-overlay absolute inset-0"></div>
+            <ek-icon name="doc" class="relative h-10 w-10" />
+          </div>
+          <div class="flex flex-1 flex-col p-4">
+            <span class="text-xs font-bold uppercase tracking-wide text-marca">{{ a.categoria }}</span>
+            <h2 class="mt-1 font-display text-lg font-bold leading-snug group-hover:text-marca">{{ a.titulo }}</h2>
+            <p class="mt-2 flex-1 text-sm text-texto-suave">{{ a.resumen }}</p>
+            <time class="mt-3 text-xs text-texto-tenue">{{ a.fecha | date: 'longDate' }}</time>
+          </div>
         </a>
       }
     </div>

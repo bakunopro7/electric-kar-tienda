@@ -1,23 +1,26 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FavoritesService } from '@core/favorites.service';
+import { IconComponent } from '@shared/icon.component';
+import { PageHeadComponent } from '@shared/page-head.component';
 import { ProductCardComponent } from '@shared/product-card.component';
 
 @Component({
   selector: 'ek-favoritos',
-  imports: [RouterLink, ProductCardComponent],
+  imports: [RouterLink, ProductCardComponent, IconComponent, PageHeadComponent],
   template: `
-    <h1 class="text-2xl font-bold">Mis favoritos</h1>
-    <p class="mt-1 text-sm text-black/60 dark:text-white/60">{{ favs.count() }} producto(s) guardado(s).</p>
+    <ek-page-head titulo="Mis favoritos" [migas]="[{ label: 'Favoritos' }]" />
 
     @if (favs.count() === 0) {
-      <div class="card mt-6 text-center">
-        <div class="text-4xl">🤍</div>
-        <p class="mt-2 text-black/60 dark:text-white/60">Aún no tienes favoritos. Toca el corazón en un producto para guardarlo.</p>
-        <a routerLink="/tienda" class="btn-primary mt-4">Explorar la tienda</a>
+      <div class="card py-10 text-center">
+        <span class="mx-auto grid h-14 w-14 place-items-center rounded-full bg-superficie-2 text-texto-tenue"><ek-icon name="heart" class="h-7 w-7" /></span>
+        <p class="mt-3 font-display font-semibold">Aún no tienes favoritos</p>
+        <p class="mt-1 text-sm text-texto-suave">Toca el corazón de un producto para guardarlo aquí.</p>
+        <a routerLink="/tienda" class="btn-primary btn-lg mt-5">Ver catálogo</a>
       </div>
     } @else {
-      <div class="mt-6 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+      <p class="mb-4 text-sm text-texto-suave"><b class="ek-num text-texto">{{ favs.count() }}</b> {{ favs.count() === 1 ? 'producto guardado' : 'productos guardados' }}</p>
+      <div class="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
         @for (p of favs.items(); track p.id) {
           <ek-product-card [producto]="p" />
         }

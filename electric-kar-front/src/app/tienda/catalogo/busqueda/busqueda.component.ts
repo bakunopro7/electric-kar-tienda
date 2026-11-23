@@ -14,6 +14,7 @@ import { MarcasService } from '@core/marcas.service';
 import { Categoria, Marca, Producto, SearchFacets, SearchQuery, SearchResult } from '@core/models';
 import { ProductosService } from '@core/productos.service';
 import { IconComponent } from '@shared/icon.component';
+import { PageHeadComponent } from '@shared/page-head.component';
 import { ProductCardComponent } from '@shared/product-card.component';
 
 const PER_PAGE = 24;
@@ -28,19 +29,19 @@ type OrdenBusqueda = NonNullable<SearchQuery['sort']>;
 @Component({
   selector: 'ek-busqueda',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, ProductCardComponent, IconComponent],
+  imports: [FormsModule, ProductCardComponent, IconComponent, PageHeadComponent],
   template: `
-    <h1 class="text-2xl font-bold">Búsqueda</h1>
+    <ek-page-head [titulo]="q() ? 'Resultados para “' + q() + '”' : 'Búsqueda'" [migas]="[{ label: 'Búsqueda' }]" />
 
-    <div class="mt-4 flex max-w-xl items-center gap-2 rounded-full border border-black/15 px-4 py-2 focus-within:border-azul-500 dark:border-white/15">
-      <ek-icon name="search" class="h-5 w-5 text-black/40 dark:text-white/40" />
+    <div class="flex max-w-xl items-center gap-2 rounded-ek border border-borde bg-superficie px-4 focus-within:border-azul-500">
+      <ek-icon name="search" class="h-5 w-5 shrink-0 text-texto-tenue" />
       <input [ngModel]="q()" (ngModelChange)="q.set($event)" name="q"
              placeholder="¿Qué buscas? baterías, LED, alternadores…"
              aria-label="Buscar productos"
-             class="min-w-0 flex-1 bg-transparent outline-none" />
+             class="min-h-11 min-w-0 flex-1 bg-transparent outline-none" />
       @if (q()) {
-        <button type="button" (click)="q.set('')" aria-label="Limpiar búsqueda"
-                class="text-black/40 hover:text-black dark:text-white/40 dark:hover:text-white">✕</button>
+        <button type="button" (click)="q.set('')" aria-label="Borrar búsqueda"
+                class="ek-icon-btn h-9 w-9 text-texto-tenue"><ek-icon name="x" class="h-4 w-4" /></button>
       }
     </div>
 
@@ -54,10 +55,10 @@ type OrdenBusqueda = NonNullable<SearchQuery['sort']>;
               <div class="flex flex-col gap-1">
                 @for (f of facetasCategorias(); track f.id) {
                   <button type="button" (click)="alternarCategoria(f.id)"
-                          class="flex items-center justify-between rounded-ek-sm px-2 py-1.5 text-left text-sm hover:bg-black/5 dark:hover:bg-white/5"
-                          [class.text-azul-700]="categoriaId() === f.id" [class.font-semibold]="categoriaId() === f.id">
+                          class="flex items-center justify-between rounded-ek-sm px-2 py-1.5 text-left text-sm hover:bg-superficie-2"
+                          [class.text-marca]="categoriaId() === f.id" [class.font-semibold]="categoriaId() === f.id">
                     <span>{{ f.nombre }}</span>
-                    <span class="text-xs text-black/40 dark:text-white/40">{{ f.count }}</span>
+                    <span class="text-xs text-texto-tenue">{{ f.count }}</span>
                   </button>
                 }
               </div>
@@ -73,7 +74,7 @@ type OrdenBusqueda = NonNullable<SearchQuery['sort']>;
                           class="rounded-full border px-3 py-1.5 text-sm transition-colors"
                           [class]="marcaId() === f.id
                             ? 'border-azul-700 bg-azul-700 text-white'
-                            : 'border-black/15 hover:border-azul-500 dark:border-white/15'">
+                            : 'border-borde bg-superficie hover:border-marca'">
                     {{ f.nombre }} ({{ f.count }})
                   </button>
                 }
@@ -90,7 +91,7 @@ type OrdenBusqueda = NonNullable<SearchQuery['sort']>;
                           class="rounded-full border px-3 py-1 text-xs transition-colors"
                           [class]="etiquetas().includes(f.value)
                             ? 'border-azul-700 bg-azul-700 text-white'
-                            : 'border-black/15 hover:border-azul-500 dark:border-white/15'">
+                            : 'border-borde bg-superficie hover:border-marca'">
                     {{ f.value }} ({{ f.count }})
                   </button>
                 }
@@ -100,7 +101,7 @@ type OrdenBusqueda = NonNullable<SearchQuery['sort']>;
 
           @if (hayFiltros()) {
             <button type="button" (click)="limpiarFiltros()"
-                    class="text-left text-sm text-black/50 underline dark:text-white/50">Limpiar filtros</button>
+                    class="ek-enlace text-left">Limpiar filtros</button>
           }
         </aside>
       } @else {
@@ -111,15 +112,15 @@ type OrdenBusqueda = NonNullable<SearchQuery['sort']>;
       <div>
         <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
           @if (termino()) {
-            <p class="text-sm text-black/60 dark:text-white/60">
-              Resultados para <b class="text-black dark:text-white">"{{ termino() }}"</b> — {{ total() }} encontrados
+            <p class="text-sm text-texto-suave">
+              Resultados para <b class="text-texto">"{{ termino() }}"</b> — {{ total() }} encontrados
             </p>
           } @else {
-            <p class="text-sm text-black/60 dark:text-white/60">
-              <b class="text-black dark:text-white">{{ total() }}</b> productos
+            <p class="text-sm text-texto-suave">
+              <b class="text-texto">{{ total() }}</b> productos
             </p>
           }
-          <div class="flex items-center gap-2 rounded-full border border-black/15 px-4 py-2 text-sm dark:border-white/15">
+          <div class="flex items-center gap-2 rounded-ek border border-borde bg-superficie px-3 py-1 text-sm">
             Ordenar:
             <select [ngModel]="sort()" (ngModelChange)="sort.set($event)"
                     aria-label="Ordenar resultados"
@@ -133,7 +134,7 @@ type OrdenBusqueda = NonNullable<SearchQuery['sort']>;
         </div>
 
         @if (loading()) {
-          <p class="text-black/50 dark:text-white/50">Buscando…</p>
+          <p class="text-texto-suave">Buscando…</p>
         } @else if (resultados().length) {
           <div class="grid grid-cols-2 gap-4 md:grid-cols-3">
             @for (p of resultados(); track p.id) {
@@ -141,11 +142,11 @@ type OrdenBusqueda = NonNullable<SearchQuery['sort']>;
             }
           </div>
         } @else if (termino() || hayFiltros()) {
-          <div class="card text-center text-black/60 dark:text-white/60">
+          <div class="card text-center text-texto-suave">
             Sin resultados. Prueba con otra palabra o quita algún filtro.
           </div>
         } @else {
-          <div class="card text-center text-black/60 dark:text-white/60">
+          <div class="card text-center text-texto-suave">
             Empieza a escribir para buscar productos.
           </div>
         }
