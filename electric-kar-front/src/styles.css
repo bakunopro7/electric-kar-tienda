@@ -4,7 +4,16 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ===========================================================================
-   Sistema de diseño electrick-Kar (recursos/README.md)
+   Sistema de diseño electrick-Kar
+   ---------------------------------------------------------------------------
+   Reglas de uso (mantener al agregar pantallas):
+   - Amarillo voltaje = la acción de compra principal de la pantalla (una sola).
+   - Azul = navegación, selección y acciones secundarias.
+   - Usar los colores semánticos (fondo, superficie, borde, texto, texto-suave,
+     texto-tenue, marca): ya cambian solos entre claro y oscuro. No escribir
+     pares `text-black/60 dark:text-white/60`.
+   - Objetivos táctiles de 44 px como mínimo (`btn`, `ek-icon-btn`, `ek-chip`).
+   - Iconos solo con <ek-icon>; nada de emojis como iconos.
    =========================================================================== */
 @theme {
   /* Marca — azul eléctrico */
@@ -12,6 +21,7 @@
   --color-azul-500: #2f74ff;
 
   /* Fondos oscuros — navy */
+  --color-navy-950: #020c1b;
   --color-navy-900: #04132a;
   --color-navy-800: #071f3d;
 
@@ -27,26 +37,65 @@
   --font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
   --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'Space Mono', ui-monospace, monospace;
+  /* Titulares de impacto: condensada, itálica, en mayúsculas (.ek-titular) */
+  --font-impacto: 'Barlow Condensed', 'Arial Narrow', sans-serif;
 
   /* Radios */
-  --radius-ek-sm: 8px;
-  --radius-ek-md: 12px;
-  --radius-ek: 14px;
-  --radius-ek-lg: 22px;
+  --radius-ek-sm: 3px;
+  --radius-ek-md: 4px;
+  --radius-ek: 6px;
+  --radius-ek-lg: 10px;
+}
 
-  /* Fondos oscuros — extensión navy */
-  --color-navy-950: #020c1b;
+/* Colores semánticos: un solo nombre, dos temas. */
+:root {
+  --ek-fondo: #f4f6fb;
+  --ek-superficie: #ffffff;
+  --ek-superficie-2: #e9eef7;
+  --ek-borde: #d9e0ec;
+  --ek-texto: #04132a;
+  --ek-texto-suave: #4c5a74;
+  --ek-texto-tenue: #7b879d;
+  --ek-marca: #0f4bd1;
+  /* Alto de la barra inferior de navegación móvil (0 en escritorio). */
+  --ek-tabbar: calc(60px + env(safe-area-inset-bottom, 0px));
+}
+.dark {
+  --ek-fondo: #04132a;
+  --ek-superficie: #071f3d;
+  --ek-superficie-2: #0d2b54;
+  --ek-borde: #1b3a66;
+  --ek-texto: #ffffff;
+  --ek-texto-suave: #b4c1d8;
+  --ek-texto-tenue: #8494b0;
+  --ek-marca: #7ea8ff;
+}
+@media (min-width: 768px) {
+  :root {
+    --ek-tabbar: 0px;
+  }
+}
+
+@theme inline {
+  --color-fondo: var(--ek-fondo);
+  --color-superficie: var(--ek-superficie);
+  --color-superficie-2: var(--ek-superficie-2);
+  --color-borde: var(--ek-borde);
+  --color-texto: var(--ek-texto);
+  --color-texto-suave: var(--ek-texto-suave);
+  --color-texto-tenue: var(--ek-texto-tenue);
+  --color-marca: var(--ek-marca);
 }
 
 @layer base {
   html {
     font-family: var(--font-sans);
+    -webkit-text-size-adjust: 100%;
   }
   body {
-    @apply bg-white text-navy-900 antialiased;
-  }
-  .dark body {
-    @apply bg-navy-900 text-white;
+    @apply bg-fondo text-texto antialiased;
+    /* .ek-sangrado usa 100vw (incluye la barra de scroll): evitar scroll horizontal */
+    overflow-x: clip;
   }
   h1,
   h2,
@@ -54,12 +103,23 @@
   h4 {
     font-family: var(--font-display);
     @apply font-semibold;
+    text-wrap: balance;
   }
-  /* Global focus-visible fallback — covers links and bare buttons not using .btn */
   a:focus-visible,
-  button:focus-visible {
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
     outline: 2px solid var(--color-azul-500);
     outline-offset: 2px;
+  }
+  /* iOS hace zoom al enfocar campos con texto menor a 16 px. */
+  @media (max-width: 767px) {
+    input,
+    select,
+    textarea {
+      font-size: 16px;
+    }
   }
 }
 
@@ -72,51 +132,364 @@
   .btn-peligro {
     @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-ek px-4 py-2.5 font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50;
   }
-  .btn:focus-visible,
-  .btn-primary:focus-visible,
-  .btn-voltaje:focus-visible,
-  .btn-outline:focus-visible,
-  .btn-peligro:focus-visible {
-    outline: 2px solid var(--color-azul-500);
-    outline-offset: 2px;
-  }
   .btn-primary {
     @apply bg-azul-700 text-white hover:bg-azul-500;
   }
   .btn-voltaje {
-    @apply bg-voltaje text-navy-900 hover:bg-voltaje-600;
+    @apply relative overflow-hidden bg-voltaje text-navy-900 hover:bg-voltaje-600;
+  }
+  /* Destello que cruza el botón de compra al pasar el cursor o tocarlo */
+  .btn-voltaje::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, 0.65) 50%, transparent 65%);
+    transform: translateX(-120%);
+    pointer-events: none;
+  }
+  .btn-voltaje:hover::after,
+  .btn-voltaje:active::after {
+    transform: translateX(120%);
+    transition: transform 0.55s ease-out;
+  }
+  .btn:active,
+  .btn-primary:active,
+  .btn-voltaje:active,
+  .btn-outline:active {
+    transform: scale(0.97);
   }
   .btn-outline {
-    @apply border border-azul-700 text-azul-700 hover:bg-azul-700 hover:text-white;
+    @apply border border-borde bg-superficie text-texto hover:border-marca hover:text-marca;
   }
   .btn-peligro {
     @apply bg-peligro text-white hover:opacity-90;
   }
+  /* Acción principal de una pantalla en móvil: más alta y a todo el ancho. */
+  .btn-lg {
+    @apply min-h-12 px-5 text-base;
+  }
+
+  /* Botón de solo icono: 44 px táctiles. */
+  .ek-icon-btn {
+    @apply relative grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-full text-texto transition-colors hover:bg-superficie-2;
+  }
+
   .card {
-    @apply rounded-ek border border-black/10 bg-white p-4 dark:border-white/10 dark:bg-navy-800;
+    @apply rounded-ek border border-borde bg-superficie p-4;
   }
+
   .ek-input {
-    @apply rounded-ek-sm border border-black/15 bg-transparent px-3 py-2 text-sm outline-none focus:border-azul-500 dark:border-white/15;
+    @apply min-h-11 rounded-ek-sm border border-borde bg-superficie px-3 py-2 text-sm text-texto outline-none placeholder:text-texto-tenue focus:border-azul-500;
   }
-  .ek-input:focus-visible {
-    outline: 2px solid var(--color-azul-500);
-    outline-offset: 2px;
+
+  /* Filtros y atajos (categorías, marcas, filtros activos). */
+  .ek-chip {
+    @apply inline-flex min-h-11 shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border border-borde bg-superficie px-4 text-sm font-medium text-texto transition-colors hover:border-marca;
+  }
+  .ek-chip-activo {
+    @apply border-azul-700 bg-azul-700 text-white hover:border-azul-700;
+  }
+
+  /* Etiqueta pequeña sobre imágenes o junto a precios. */
+  .ek-badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold;
+  }
+
+  /* Cifras: precios, cantidades, totales. */
+  .ek-num {
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Encabezado de sección: título a la izquierda, enlace a la derecha. */
+  .ek-seccion {
+    @apply mb-4 flex items-end justify-between gap-4 sm:mb-6;
+  }
+  .ek-seccion h2 {
+    @apply ek-titular flex items-center gap-2.5 text-3xl sm:text-4xl;
+  }
+  /* Barra amarilla inclinada antes de cada título de sección */
+  .ek-seccion h2::before {
+    content: '';
+    @apply h-[0.8em] w-2 shrink-0 -skew-x-12 bg-voltaje;
+  }
+  .ek-enlace {
+    @apply shrink-0 text-sm font-semibold text-marca underline-offset-4 hover:underline;
+  }
+
+  /* Carrusel horizontal táctil que sangra hasta el borde en móvil. */
+  .ek-scroll-x {
+    @apply -mx-4 flex gap-3 overflow-x-auto px-4 pb-1;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+  }
+  .ek-scroll-x::-webkit-scrollbar {
+    display: none;
+  }
+  .ek-scroll-x > * {
+    scroll-snap-align: start;
+  }
+
+  /* Barra de acción fija en móvil, por encima de la barra de navegación. */
+  .ek-barra-accion {
+    @apply fixed inset-x-0 z-30 flex items-center gap-3 border-t border-borde bg-superficie px-4 py-3 md:hidden;
+    bottom: var(--ek-tabbar);
+  }
+
+  .ek-skeleton {
+    @apply animate-pulse rounded-ek bg-superficie-2;
   }
 }
 
-/* Animaciones y patrones del hero (Inicio) */
-@keyframes ek-floaty {
+/* ===========================================================================
+   Estilo de impacto y movimiento
+   ---------------------------------------------------------------------------
+   El movimiento responde a algo: carga de la página (hero), entrada en pantalla
+   (ekReveal), una acción del usuario (agregar al carrito) o un dato vivo
+   (existencias, cuenta regresiva). Todo se apaga con prefers-reduced-motion.
+   =========================================================================== */
+@utility ek-titular {
+  font-family: var(--font-impacto);
+  font-style: italic;
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: 0.95;
+  letter-spacing: 0.005em;
+}
+
+/* Rompe el contenedor central y ocupa todo el ancho de la ventana.
+   El contenido interno se vuelve a centrar con `mx-auto max-w-7xl px-4`. */
+@utility ek-sangrado {
+  margin-inline: calc(50% - 50vw);
+}
+
+/* Píldora del menú principal (activa = amarillo) */
+@utility ek-pildora {
+  display: inline-flex;
+  min-height: 2.25rem;
+  flex-shrink: 0;
+  align-items: center;
+  white-space: nowrap;
+  border-radius: 9999px;
+  border: 1px solid rgb(255 255 255 / 0.18);
+  padding-inline: 1rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 0.8);
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    color 0.2s;
+  &:hover {
+    border-color: var(--color-voltaje);
+    color: var(--color-voltaje);
+  }
+}
+@utility ek-pildora-activa {
+  border-color: var(--color-voltaje);
+  background-color: var(--color-voltaje);
+  color: var(--color-navy-950);
+  &:hover {
+    color: var(--color-navy-950);
+  }
+}
+
+/* Corte diagonal en la esquina: tarjetas y bloques "de taller" */
+@utility ek-corte {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%);
+}
+
+/* Franja de precaución amarillo/negro */
+@utility ek-franja {
+  background-image: repeating-linear-gradient(-45deg, var(--color-voltaje) 0 14px, var(--color-navy-950) 14px 28px);
+}
+
+/* Resaltado amarillo inclinado detrás de una palabra del titular */
+.ek-marcado {
+  position: relative;
+  z-index: 0;
+  display: inline-block;
+  padding: 0 0.18em;
+  color: var(--color-navy-950);
+}
+.ek-marcado::before {
+  content: '';
+  position: absolute;
+  inset: 0.06em 0;
+  z-index: -1;
+  background: var(--color-voltaje);
+  transform: skewX(-10deg) scaleX(0);
+  transform-origin: left;
+  animation: ek-barrer 0.5s 0.45s cubic-bezier(0.2, 0.9, 0.2, 1) forwards;
+}
+@keyframes ek-barrer {
+  to {
+    transform: skewX(-10deg) scaleX(1);
+  }
+}
+
+/* Entrada del hero: las líneas suben una tras otra (una sola vez, al cargar) */
+.ek-entra {
+  opacity: 0;
+  transform: translateY(18px) skewY(1.5deg);
+  animation: ek-entra 0.6s cubic-bezier(0.2, 0.9, 0.2, 1) forwards;
+  animation-delay: calc(var(--i, 0) * 90ms);
+}
+@keyframes ek-entra {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Aparición al entrar en pantalla (directiva ekReveal) */
+.ek-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.5s ease-out,
+    transform 0.5s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+.ek-reveal.ek-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Cinta en movimiento continuo (avisos, marcas). El contenido va duplicado. */
+.ek-cinta {
+  display: flex;
+  overflow: hidden;
+  user-select: none;
+}
+.ek-cinta > * {
+  display: flex;
+  flex-shrink: 0;
+  min-width: 100%;
+  align-items: center;
+  justify-content: space-around;
+  animation: ek-cinta var(--ek-cinta-t, 28s) linear infinite;
+}
+.ek-cinta:hover > *,
+.ek-cinta:focus-within > * {
+  animation-play-state: paused;
+}
+@keyframes ek-cinta {
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+/* Corriente que recorre los trazos del circuito del hero */
+.ek-corriente {
+  stroke-dasharray: 14 130;
+  animation: ek-corriente 2.6s linear infinite;
+}
+@keyframes ek-corriente {
+  to {
+    stroke-dashoffset: -144;
+  }
+}
+.ek-nodo {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ek-latido 1.8s ease-in-out infinite;
+}
+.ek-celda {
+  animation: ek-carga 2.4s steps(1) infinite;
+}
+@keyframes ek-carga {
   0%,
   100% {
-    transform: translateY(0);
+    opacity: 0.15;
   }
   50% {
-    transform: translateY(-12px);
+    opacity: 1;
   }
 }
-.animate-floaty {
-  animation: ek-floaty 5s ease-in-out infinite;
+
+/* Punto vivo: "disponible", "oferta activa" */
+.ek-vivo {
+  position: relative;
+  display: inline-block;
+  height: 8px;
+  width: 8px;
+  border-radius: 9999px;
+  background: currentColor;
 }
+.ek-vivo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: currentColor;
+  animation: ek-onda 1.6s ease-out infinite;
+}
+@keyframes ek-onda {
+  to {
+    transform: scale(3.2);
+    opacity: 0;
+  }
+}
+@keyframes ek-latido {
+  50% {
+    transform: scale(1.35);
+    opacity: 0.6;
+  }
+}
+
+/* Rebote del contador del carrito cuando cambia la cantidad */
+.ek-salto {
+  animation: ek-salto 0.45s cubic-bezier(0.3, 1.8, 0.5, 1);
+}
+@keyframes ek-salto {
+  0% {
+    transform: scale(0.3);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Tarjeta de producto: sube y enciende una línea amarilla */
+.ek-tarjeta {
+  position: relative;
+  transition:
+    transform 0.25s cubic-bezier(0.2, 0.9, 0.2, 1),
+    box-shadow 0.25s,
+    border-color 0.25s;
+}
+.ek-tarjeta::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 3px;
+  background: var(--color-voltaje);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+@media (hover: hover) {
+  .ek-tarjeta:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 30px -12px rgba(15, 75, 209, 0.45);
+  }
+  .ek-tarjeta:hover::after {
+    transform: scaleX(1);
+  }
+  .ek-tarjeta:hover img {
+    transform: scale(1.06);
+  }
+}
+.ek-tarjeta img {
+  transition: transform 0.5s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+.ek-tarjeta:active {
+  transform: scale(0.985);
+}
+
+/* Retícula del hero y bloques navy */
 .ek-grid-overlay {
   background-image:
     linear-gradient(rgba(47, 116, 255, 0.1) 1px, transparent 1px),
@@ -124,4 +497,24 @@
   background-size: 54px 54px;
   -webkit-mask-image: radial-gradient(110% 90% at 75% 10%, #000 30%, transparent 75%);
   mask-image: radial-gradient(110% 90% at 75% 10%, #000 30%, transparent 75%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ek-entra,
+  .ek-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .ek-marcado::before {
+    transform: skewX(-10deg) !important;
+  }
+  .ek-cinta > * {
+    animation: none !important;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

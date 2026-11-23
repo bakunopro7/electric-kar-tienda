@@ -1,43 +1,56 @@
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { IconComponent } from '@shared/icon.component';
+import { IconComponent, IconName } from '@shared/icon.component';
+import { PageHeadComponent } from '@shared/page-head.component';
+import { RevealDirective } from '@shared/reveal.directive';
 
 @Component({
   selector: 'ek-contacto',
-  imports: [FormsModule, IconComponent],
+  imports: [FormsModule, IconComponent, PageHeadComponent, RevealDirective],
   template: `
-    <section class="relative -mx-4 overflow-hidden bg-navy-900 px-4 text-white">
-      <div class="ek-grid-overlay pointer-events-none absolute inset-0"></div>
-      <div class="relative mx-auto max-w-3xl py-12 text-center">
-        <h1 class="text-3xl font-bold sm:text-4xl">Contáctanos</h1>
-        <p class="mt-2 text-white/70">¿Dudas sobre un producto o tu pedido? Estamos para ayudarte.</p>
-      </div>
-    </section>
+    <ek-page-head titulo="Contáctanos" subtitulo="¿Dudas sobre un producto o tu pedido? Te ayudamos a elegir la pieza correcta."
+                  [migas]="[{ label: 'Contacto' }]" />
 
-    <div class="mx-auto mt-8 grid max-w-4xl gap-6 lg:grid-cols-[1fr_1.2fr]">
-      <div class="space-y-3">
-        <div class="card flex items-center gap-3"><span class="text-2xl">📍</span><div><b class="text-sm">Dirección</b><p class="text-sm text-black/60 dark:text-white/60">Av. Tecnología 1200, CDMX</p></div></div>
-        <div class="card flex items-center gap-3"><span class="text-2xl">📞</span><div><b class="text-sm">Teléfono</b><p class="text-sm text-black/60 dark:text-white/60">55 1234 5678</p></div></div>
-        <div class="card flex items-center gap-3"><span class="text-2xl">✉️</span><div><b class="text-sm">Correo</b><p class="text-sm text-black/60 dark:text-white/60">hola&#64;electrick-kar.com</p></div></div>
-        <div class="card flex items-center gap-3"><span class="text-2xl">🕒</span><div><b class="text-sm">Horario</b><p class="text-sm text-black/60 dark:text-white/60">Lun a Sáb · 9:00 - 19:00</p></div></div>
-      </div>
+    <div class="grid gap-6 lg:grid-cols-[1fr_1.3fr]">
+      <ul class="grid gap-3 self-start sm:grid-cols-2 lg:grid-cols-1">
+        @for (d of datos; track d.titulo; let i = $index) {
+          <li class="ek-tarjeta card flex items-center gap-3" ekReveal [ekRevealDelay]="i * 70">
+            <span class="grid h-11 w-11 shrink-0 -skew-x-6 place-items-center rounded-ek-md bg-navy-950 text-voltaje"><ek-icon [name]="d.icon" class="h-5 w-5" /></span>
+            <div class="min-w-0">
+              <b class="block text-sm">{{ d.titulo }}</b>
+              @if (d.href) {
+                <a [href]="d.href" class="break-words text-sm text-texto-suave hover:text-marca">{{ d.valor }}</a>
+              } @else {
+                <span class="text-sm text-texto-suave">{{ d.valor }}</span>
+              }
+            </div>
+          </li>
+        }
+      </ul>
 
-      <form class="card" (submit)="enviar($event)">
-        <h2 class="text-lg font-bold">Envíanos un mensaje</h2>
-        <div class="mt-4 grid gap-3">
-          <input [(ngModel)]="nombre" name="nombre" placeholder="Tu nombre" required class="ek-input" />
-          <input [(ngModel)]="correo" name="correo" type="email" placeholder="Tu correo" required class="ek-input" />
-          <textarea [(ngModel)]="mensaje" name="mensaje" rows="4" placeholder="¿En qué te ayudamos?" required class="ek-input"></textarea>
+      <form class="card sm:p-6" (submit)="enviar($event)">
+        <div class="ek-seccion"><h2>Envíanos un mensaje</h2></div>
+        <div class="grid gap-3">
+          <input [(ngModel)]="nombre" name="nombre" placeholder="Tu nombre" autocomplete="name" aria-label="Tu nombre" required class="ek-input" />
+          <input [(ngModel)]="correo" name="correo" type="email" inputmode="email" autocomplete="email" placeholder="Tu correo" aria-label="Tu correo" required class="ek-input" />
+          <textarea [(ngModel)]="mensaje" name="mensaje" rows="5" placeholder="¿En qué te ayudamos?" aria-label="Tu mensaje" required class="ek-input"></textarea>
           @if (enviado()) {
-            <p class="flex items-center gap-2 text-sm text-exito"><ek-icon name="check" class="h-4 w-4" /> ¡Gracias! Te responderemos pronto (demo).</p>
+            <p class="flex items-center gap-2 text-sm font-semibold text-exito" role="status"><ek-icon name="check" class="h-4 w-4" /> Mensaje enviado. Te responderemos pronto (demo).</p>
           }
-          <button type="submit" class="btn-primary">Enviar mensaje</button>
+          <button type="submit" class="btn-voltaje btn-lg uppercase tracking-wide">Enviar mensaje</button>
         </div>
       </form>
     </div>
   `,
 })
 export class ContactoComponent {
+  protected readonly datos: { icon: IconName; titulo: string; valor: string; href?: string }[] = [
+    { icon: 'pin', titulo: 'Dirección', valor: 'Av. Tecnología 1200, CDMX' },
+    { icon: 'phone', titulo: 'Teléfono', valor: '55 1234 5678', href: 'tel:+525512345678' },
+    { icon: 'mail', titulo: 'Correo', valor: 'hola@electrick-kar.com', href: 'mailto:hola@electrick-kar.com' },
+    { icon: 'clock', titulo: 'Horario', valor: 'Lunes a sábado, 9:00 a 19:00' },
+  ];
+
   nombre = '';
   correo = '';
   mensaje = '';

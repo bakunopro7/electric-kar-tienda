@@ -1,4 +1,4 @@
-import { DestroyRef, Component, inject, signal } from '@angular/core';
+import { DestroyRef, Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FormControl,
@@ -16,108 +16,119 @@ import { NotificationService } from '@core/notification.service';
 import { ProductosService } from '@core/productos.service';
 import { IconComponent, IconName } from '@shared/icon.component';
 import { ProductCardComponent } from '@shared/product-card.component';
+import { RevealDirective } from '@shared/reveal.directive';
 
 @Component({
   selector: 'ek-home',
-  imports: [RouterLink, ReactiveFormsModule, ProductCardComponent, IconComponent],
+  imports: [RouterLink, ReactiveFormsModule, ProductCardComponent, IconComponent, RevealDirective],
   template: `
-    <!-- ===================== HERO ===================== -->
-    <section class="relative -mx-4 overflow-hidden bg-navy-900 px-4 text-white">
+    <!-- HERO: titular de impacto + circuito con corriente en movimiento -->
+    <section class="ek-sangrado relative -mt-5 overflow-hidden bg-navy-950 text-white sm:-mt-8">
       <div class="ek-grid-overlay pointer-events-none absolute inset-0"></div>
-      <div class="pointer-events-none absolute -right-32 -top-52 h-[620px] w-[620px] rounded-full bg-azul-500/40 blur-[90px]"></div>
-      <div class="pointer-events-none absolute -bottom-64 -left-40 h-[620px] w-[620px] rounded-full bg-azul-700/40 blur-[90px]"></div>
 
-      <div class="relative mx-auto grid max-w-7xl items-center gap-10 py-16 md:grid-cols-2 md:py-20">
-        <div class="max-w-xl">
-          <span class="font-mono text-sm font-bold uppercase tracking-widest text-azul-500">Refacciones eléctricas para autos</span>
-          <h1 class="mt-3 text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">
-            Energía y tecnología para tu <span class="text-voltaje">auto</span>, en un solo lugar.
-          </h1>
-          <p class="mt-5 max-w-prose text-lg text-white/70">
-            Baterías, iluminación, audio, sensores y todo el sistema eléctrico de tu
-            vehículo. Marcas originales, garantía real y envío exprés.
-          </p>
-          <div class="mt-8 flex flex-wrap gap-3">
-            <a routerLink="/tienda" class="btn-voltaje">Comprar ahora →</a>
-            <a routerLink="/tienda" class="btn-outline border-white text-white hover:bg-white hover:text-navy-900">Ver catálogo</a>
-          </div>
-          <div class="mt-10 flex flex-wrap gap-8">
-            @for (t of heroTags; track t.titulo) {
-              <div class="flex items-center gap-3">
-                <span class="grid h-10 w-10 place-items-center rounded-ek-md bg-azul-500/15 text-azul-500">
-                  <ek-icon [name]="t.icon" class="h-5 w-5" />
-                </span>
-                <div>
-                  <b class="font-display text-sm">{{ t.titulo }}</b>
-                  <small class="block text-xs text-white/50">{{ t.sub }}</small>
-                </div>
+      <!-- Circuito vivo: la corriente va de la batería a cada sistema del auto -->
+      <svg viewBox="0 0 520 420" aria-hidden="true"
+           class="pointer-events-none absolute -right-24 top-0 h-full w-[520px] max-w-none opacity-45 md:right-[max(0px,calc(50vw-640px))] md:opacity-100">
+        <g fill="none" stroke="#1b3a66" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M150 210H70V90h110" /><path d="M150 230H40v120h150" /><path d="M370 210h80V70H300" />
+          <path d="M370 230h110v110H330" /><path d="M260 150V40" /><path d="M260 290v100" />
+        </g>
+        <g fill="none" stroke="#ffd21a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <path class="ek-corriente" d="M150 210H70V90h110" />
+          <path class="ek-corriente" style="animation-delay:-.6s" d="M150 230H40v120h150" />
+          <path class="ek-corriente" style="animation-delay:-1.1s" d="M370 210h80V70H300" />
+          <path class="ek-corriente" style="animation-delay:-1.7s" d="M370 230h110v110H330" />
+          <path class="ek-corriente" style="animation-delay:-.3s" d="M260 150V40" />
+          <path class="ek-corriente" style="animation-delay:-2s" d="M260 290v100" />
+        </g>
+        <g fill="#2f74ff">
+          <circle class="ek-nodo" cx="180" cy="90" r="7" /><circle class="ek-nodo" style="animation-delay:-.4s" cx="190" cy="350" r="7" />
+          <circle class="ek-nodo" style="animation-delay:-.8s" cx="300" cy="70" r="7" /><circle class="ek-nodo" style="animation-delay:-1.2s" cx="330" cy="340" r="7" />
+          <circle class="ek-nodo" style="animation-delay:-.2s" cx="260" cy="40" r="7" /><circle class="ek-nodo" style="animation-delay:-1s" cx="260" cy="390" r="7" />
+        </g>
+        <!-- Batería cargándose -->
+        <g>
+          <rect x="150" y="150" width="220" height="140" rx="8" fill="#071f3d" stroke="#2f74ff" stroke-width="3" />
+          <rect x="185" y="132" width="40" height="18" rx="3" fill="#2f74ff" /><rect x="295" y="132" width="40" height="18" rx="3" fill="#2f74ff" />
+          <g fill="#ffd21a">
+            <rect class="ek-celda" x="172" y="176" width="38" height="88" rx="3" />
+            <rect class="ek-celda" style="animation-delay:.3s" x="218" y="176" width="38" height="88" rx="3" />
+            <rect class="ek-celda" style="animation-delay:.6s" x="264" y="176" width="38" height="88" rx="3" />
+            <rect class="ek-celda" style="animation-delay:.9s" x="310" y="176" width="38" height="88" rx="3" />
+          </g>
+        </g>
+      </svg>
+      <div class="pointer-events-none absolute inset-0 bg-gradient-to-r from-navy-950 via-navy-950/85 to-transparent md:via-navy-950/60"></div>
+
+      <div class="relative mx-auto max-w-7xl px-4 py-10 md:py-20">
+        <p class="ek-entra flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-voltaje">
+          <span class="ek-vivo"></span> Refacciones eléctricas automotrices
+        </p>
+        <h1 class="ek-titular mt-3 max-w-2xl text-[3.25rem] sm:text-7xl lg:text-8xl">
+          <span class="ek-entra block" style="--i:1">La pieza exacta.</span>
+          <span class="ek-entra block" style="--i:2">Potencia <span class="ek-marcado">real</span>.</span>
+        </h1>
+        <p class="ek-entra mt-4 max-w-md text-white/75 sm:text-lg" style="--i:3">
+          Baterías, iluminación, audio, alternadores y sensores de marcas originales, con garantía.
+        </p>
+        <div class="ek-entra mt-6 flex gap-3" style="--i:4">
+          <a routerLink="/tienda" class="btn-voltaje btn-lg flex-1 uppercase tracking-wide sm:flex-none sm:px-8">Ver catálogo</a>
+          <a routerLink="/destacados" class="btn btn-lg flex-1 border-2 border-white/40 uppercase tracking-wide text-white hover:border-voltaje hover:text-voltaje sm:flex-none sm:px-8">Ofertas</a>
+        </div>
+
+        <ul class="ek-entra mt-8 grid max-w-xl grid-cols-3 gap-2 border-t border-white/15 pt-5" style="--i:5">
+          @for (t of heroTags; track t.titulo) {
+            <li class="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-3">
+              <ek-icon [name]="t.icon" class="h-6 w-6 shrink-0 text-voltaje" />
+              <div>
+                <b class="block font-display text-xs leading-tight sm:text-sm">{{ t.titulo }}</b>
+                <span class="block text-[11px] text-white/60 sm:text-xs">{{ t.sub }}</span>
               </div>
-            }
-          </div>
-        </div>
-
-        <div class="relative hidden md:block">
-          <div class="aspect-[4/3.4] w-full rounded-ek border border-white/15 bg-white/5 [background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.05)_0_12px,rgba(255,255,255,.02)_12px_24px)]"></div>
-          <div class="animate-floaty absolute -left-6 top-6 flex items-center gap-3 rounded-ek bg-white p-3 text-navy-900 shadow-xl">
-            <span class="grid h-9 w-9 place-items-center rounded-ek-md bg-azul-700/10 text-azul-700"><ek-icon name="box" class="h-5 w-5" /></span>
-            <div><b class="block font-display text-sm">+2,400 productos</b><small class="text-xs text-black/50">en catálogo</small></div>
-          </div>
-          <div class="animate-floaty absolute -right-4 bottom-8 flex items-center gap-3 rounded-ek bg-white p-3 text-navy-900 shadow-xl [animation-delay:1.4s]">
-            <span class="grid h-9 w-9 place-items-center rounded-ek-md bg-exito/15 text-exito"><ek-icon name="check" class="h-5 w-5" /></span>
-            <div><b class="block font-display text-sm">Compra protegida</b><small class="text-xs text-black/50">Pago 100% seguro</small></div>
-          </div>
-        </div>
+            </li>
+          }
+        </ul>
       </div>
+      <div class="ek-franja h-2"></div>
     </section>
 
-    <!-- ===================== CATEGORÍAS ===================== -->
-    <section class="mt-14">
-      <div class="mb-6 flex items-end justify-between">
-        <div>
-          <span class="font-mono text-sm font-bold uppercase tracking-widest text-azul-700">Explora por categoría</span>
-          <h2 class="mt-1 text-2xl font-bold">Todo el sistema eléctrico</h2>
-        </div>
-        <a routerLink="/tienda" class="btn-outline px-3 py-1.5 text-sm">Ver todo</a>
+    <!-- CATEGORÍAS: carrusel táctil en móvil, rejilla en escritorio -->
+    <section class="mt-8 sm:mt-12" ekReveal>
+      <div class="ek-seccion">
+        <h2>Compra por categoría</h2>
+        <a routerLink="/tienda" class="ek-enlace">Ver todo</a>
       </div>
-      <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+      <div class="ek-scroll-x lg:mx-0 lg:grid lg:grid-cols-6 lg:overflow-visible lg:px-0">
         @for (c of categorias(); track c.id) {
           <a [routerLink]="['/tienda']" [queryParams]="{ categoriaId: c.id }"
-             class="group card text-center transition-all hover:-translate-y-1 hover:border-azul-500 hover:shadow-lg">
-            <span class="mx-auto mb-3 grid h-14 w-14 place-items-center rounded-ek bg-black/5 text-azul-700 transition-colors group-hover:bg-azul-700 group-hover:text-white dark:bg-white/5">
-              <ek-icon [name]="iconoCategoria(c.slug)" class="h-7 w-7" />
+             class="group ek-tarjeta flex w-28 shrink-0 flex-col items-center gap-2 overflow-hidden rounded-ek border border-borde bg-superficie p-3 text-center lg:w-auto lg:p-4">
+            <span class="grid h-12 w-12 -skew-x-6 place-items-center rounded-ek-md bg-navy-950 text-voltaje transition-colors group-hover:bg-voltaje group-hover:text-navy-950">
+              <ek-icon [name]="iconoCategoria(c.slug)" class="h-6 w-6" />
             </span>
-            <b class="block font-display text-sm">{{ c.nombre }}</b>
-            @if (c.descripcion) {
-              <small class="text-xs text-black/50 dark:text-white/50">{{ c.descripcion }}</small>
-            }
+            <b class="font-display text-sm leading-tight">{{ c.nombre }}</b>
           </a>
         } @empty {
-          <p class="col-span-full card text-center text-sm text-black/60 dark:text-white/60">
-            Aún no hay categorías para mostrar.
-          </p>
+          <p class="text-sm text-texto-suave">Aún no hay categorías para mostrar.</p>
         }
       </div>
     </section>
 
-    <!-- ===================== DESTACADOS ===================== -->
-    <section class="mt-14">
-      <div class="mb-6 flex items-end justify-between">
-        <div>
-          <span class="font-mono text-sm font-bold uppercase tracking-widest text-azul-700">Lo más vendido</span>
-          <h2 class="mt-1 text-2xl font-bold">Productos destacados</h2>
-          <p class="mt-1 text-sm text-black/60 dark:text-white/60">Calidad comprobada y los favoritos de la comunidad.</p>
-        </div>
-        <a routerLink="/tienda" class="btn-outline px-3 py-1.5 text-sm">Ver más</a>
+    <!-- DESTACADOS -->
+    <section class="mt-8 sm:mt-12" ekReveal>
+      <div class="ek-seccion">
+        <h2>Productos destacados</h2>
+        <a routerLink="/tienda" class="ek-enlace">Ver más</a>
       </div>
 
       @if (loading()) {
-        <p class="text-black/50 dark:text-white/50">Cargando productos…</p>
-      } @else if (destacados().length === 0) {
-        <div class="card text-center text-black/60 dark:text-white/60">
-          No hay productos todavía. Inicia el backend y carga datos (<code>pnpm db:seed</code>) para verlos aquí.
+        <div class="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4" aria-busy="true" aria-label="Cargando productos">
+          @for (i of [1, 2, 3, 4]; track i) {
+            <div class="ek-skeleton aspect-[3/5]"></div>
+          }
         </div>
+      } @else if (destacados().length === 0) {
+        <div class="card text-center text-texto-suave">Todavía no hay productos publicados.</div>
       } @else {
-        <div class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+        <div class="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
           @for (p of destacados(); track p.id) {
             <ek-product-card [producto]="p" />
           }
@@ -125,74 +136,83 @@ import { ProductCardComponent } from '@shared/product-card.component';
       }
     </section>
 
-    <!-- ===================== PROMO ===================== -->
+    <!-- PROMO -->
     @if (promo(); as p) {
-      <section class="mt-14">
-        <div class="relative grid overflow-hidden rounded-ek-lg bg-gradient-to-r from-azul-700 to-navy-900 text-white md:grid-cols-2">
+      <section class="mt-8 sm:mt-12" ekReveal>
+        <div class="ek-franja h-2 rounded-t-ek-lg"></div>
+        <div class="ek-corte relative overflow-hidden rounded-b-ek-lg bg-azul-700 p-6 text-white sm:p-10">
           <div class="ek-grid-overlay pointer-events-none absolute inset-0 opacity-60"></div>
-          <div class="relative p-10 sm:p-12">
-            <span class="inline-block rounded-full bg-voltaje px-3 py-1 text-xs font-bold text-navy-900">{{ p.badge }}</span>
-            <h2 class="mt-4 text-3xl font-bold">{{ p.titulo }}</h2>
-            <p class="mt-3 max-w-md text-white/70">{{ p.texto }}</p>
-            <div class="mt-6 flex gap-2">
-              @for (b of countdown(); track b.label) {
-                <div class="min-w-16 rounded-ek-md border border-white/15 bg-white/10 px-3 py-2 text-center">
-                  <b class="block font-display text-2xl leading-none">{{ b.value }}</b>
-                  <small class="text-[10px] uppercase tracking-wide text-white/50">{{ b.label }}</small>
-                </div>
-              }
+          <div class="relative grid gap-6 md:grid-cols-[1fr_auto] md:items-center">
+            <div>
+              <span class="ek-badge -skew-x-6 rounded-none bg-voltaje uppercase text-navy-900"><span class="ek-vivo mr-2 text-peligro"></span>{{ p.badge }}</span>
+              <span class="ek-badge bg-navy-900/40 text-white">{{ p.descuento }}</span>
+              <h2 class="ek-titular mt-3 text-4xl sm:text-5xl">{{ p.titulo }}</h2>
+              <p class="mt-2 max-w-md text-white/80">{{ p.texto }}</p>
             </div>
-            <a [routerLink]="p.ctaUrl" class="btn-voltaje mt-6">{{ p.ctaTexto }}</a>
-          </div>
-          <div class="relative hidden min-h-72 md:block">
-            <span class="absolute right-6 top-6 z-10 rounded-full bg-peligro px-3 py-1 text-sm font-bold text-white">{{ p.descuento }}</span>
-            <div class="absolute inset-5 rounded-ek border border-white/15 bg-white/5"></div>
+            <div>
+              <div class="flex gap-2" role="timer" aria-label="Tiempo restante de la oferta">
+                @for (b of countdown(); track b.label) {
+                  <div class="min-w-14 flex-1 rounded-ek-md bg-navy-900/40 px-2 py-2 text-center">
+                    <b class="ek-num block text-xl leading-none sm:text-2xl">{{ b.value }}</b>
+                    <span class="text-[11px] text-white/70">{{ b.label }}</span>
+                  </div>
+                }
+              </div>
+              <a [routerLink]="p.ctaUrl" class="btn-voltaje btn-lg mt-4 w-full">{{ p.ctaTexto }}</a>
+            </div>
           </div>
         </div>
       </section>
     }
 
-    <!-- ===================== FEATURES ===================== -->
-    <section class="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-      @for (f of features(); track f.id) {
-        <div class="card flex items-start gap-4 transition-shadow hover:shadow-lg">
-          <span class="grid h-12 w-12 shrink-0 place-items-center rounded-ek-md bg-azul-700/10 text-azul-700">
-            <ek-icon [name]="$any(f.icono)" class="h-6 w-6" />
-          </span>
-          <div>
-            <b class="font-display text-base">{{ f.titulo }}</b>
-            <p class="mt-1 text-sm text-black/60 dark:text-white/60">{{ f.texto }}</p>
-          </div>
+    <!-- POR QUÉ COMPRAR AQUÍ -->
+    @if (features().length) {
+      <section class="mt-8 sm:mt-12">
+        <ul class="grid gap-x-6 gap-y-5 sm:grid-cols-2 lg:grid-cols-4">
+          @for (f of features(); track f.id; let i = $index) {
+            <li class="flex items-start gap-3" ekReveal [ekRevealDelay]="i * 80">
+              <span class="grid h-11 w-11 shrink-0 -skew-x-6 place-items-center rounded-ek-md bg-navy-950 text-voltaje">
+                <ek-icon [name]="$any(f.icono)" class="h-5 w-5" />
+              </span>
+              <div>
+                <b class="font-display">{{ f.titulo }}</b>
+                <p class="text-sm text-texto-suave">{{ f.texto }}</p>
+              </div>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    <!-- MARCAS: cinta en movimiento (se pausa al pasar el cursor) -->
+    @if (marcas().length) {
+      <section class="ek-sangrado mt-8 border-y border-borde bg-superficie py-4 sm:mt-12" aria-label="Marcas que manejamos">
+        <div class="ek-cinta" style="--ek-cinta-t: 22s">
+          @for (copia of [0, 1]; track copia) {
+            <ul [attr.aria-hidden]="copia === 1 ? 'true' : null">
+              @for (m of marcasCinta(); track $index) {
+                <li class="ek-titular flex items-center gap-6 whitespace-nowrap px-6 text-3xl text-texto-tenue">
+                  {{ m.nombre }} <ek-icon name="bolt" class="h-5 w-5 text-voltaje" />
+                </li>
+              }
+            </ul>
+          }
         </div>
-      }
-    </section>
+      </section>
+    }
 
-    <!-- ===================== MARCAS ===================== -->
-    <section class="mt-14">
-      <p class="mb-7 text-center font-mono text-xs uppercase tracking-[0.14em] text-black/50 dark:text-white/50">Trabajamos con las mejores marcas</p>
-      <div class="flex flex-wrap justify-center gap-4">
-        @for (m of marcas(); track m.id) {
-          <div class="grid h-16 w-36 place-items-center rounded-ek border border-black/10 bg-white font-display font-bold text-black/30 dark:border-white/10 dark:bg-navy-800 dark:text-white/30">{{ m.nombre }}</div>
-        } @empty {
-          <p class="text-sm text-black/50 dark:text-white/50">Próximamente.</p>
-        }
-      </div>
-    </section>
-
-    <!-- ===================== NEWSLETTER ===================== -->
-    <section class="mt-14">
-      <div class="relative grid items-center gap-10 overflow-hidden rounded-ek-lg bg-navy-900 p-10 text-white sm:p-14 md:grid-cols-2">
+    <!-- NEWSLETTER -->
+    <section class="mt-8 sm:mt-12">
+      <div class="ek-corte relative grid gap-5 overflow-hidden rounded-ek-lg bg-navy-950 p-6 text-white sm:p-10 md:grid-cols-2 md:items-center">
         <div class="ek-grid-overlay pointer-events-none absolute inset-0"></div>
         <div class="relative">
-          <span class="font-mono text-sm font-bold uppercase tracking-widest text-azul-500">Únete a la comunidad</span>
-          <h2 class="mt-3 text-3xl font-bold">Recibe ofertas y novedades eléctricas</h2>
-          <p class="mt-3 text-white/70">Suscríbete y obtén <b class="text-voltaje">10% de descuento</b> en tu primera compra.</p>
+          <h2 class="ek-titular text-4xl sm:text-5xl"><span class="text-voltaje">10% de descuento</span> en tu primera compra</h2>
+          <p class="mt-2 text-white/70">Suscríbete y recibe ofertas y novedades por correo.</p>
         </div>
-        <form class="relative flex gap-2" [formGroup]="form" (ngSubmit)="suscribir()">
-          <input type="email" placeholder="tu@correo.com" formControlName="correo"
-                 class="flex-1 rounded-full border border-white/20 bg-white/10 px-5 py-3 text-white outline-none placeholder:text-white/50 focus:border-azul-500" />
-          <button type="submit" [disabled]="enviando()"
-                  class="btn-voltaje rounded-full disabled:opacity-60">
+        <form class="relative flex flex-col gap-2 sm:flex-row" [formGroup]="form" (ngSubmit)="suscribir()">
+          <input type="email" inputmode="email" autocomplete="email" placeholder="tu@correo.com" formControlName="correo" aria-label="Correo electrónico"
+                 class="min-h-12 flex-1 rounded-ek border border-white/20 bg-white/10 px-4 text-white outline-none placeholder:text-white/50 focus:border-voltaje" />
+          <button type="submit" [disabled]="enviando()" class="btn-voltaje btn-lg uppercase tracking-wide">
             {{ enviando() ? 'Enviando…' : 'Suscribirme' }}
           </button>
         </form>
@@ -220,7 +240,7 @@ export class HomeComponent {
 
   suscribir(): void {
     if (this.form.invalid) {
-      this.notifications.error('Ingresá un correo válido.');
+      this.notifications.error('Escribe un correo válido.');
       return;
     }
     this.enviando.set(true);
@@ -232,14 +252,14 @@ export class HomeComponent {
           this.enviando.set(false);
           this.form.reset();
           if (res.nuevo) {
-            this.notifications.success('¡Listo! Te suscribiste correctamente. 🎉');
+            this.notifications.success('Te suscribiste. Revisa tu correo.');
           } else {
-            this.notifications.info('Este correo ya estaba suscrito. ¡Gracias! 👍');
+            this.notifications.info('Este correo ya estaba suscrito.');
           }
         },
         error: () => {
           this.enviando.set(false);
-          this.notifications.error('No pudimos suscribirte. Intentá de nuevo.');
+          this.notifications.error('No pudimos suscribirte. Intenta de nuevo.');
         },
       });
   }
@@ -275,6 +295,13 @@ export class HomeComponent {
   readonly promo = signal<Promo | null>(null);
 
   readonly marcas = signal<Marca[]>([]);
+
+  /** Repite las marcas hasta llenar el ancho de la cinta (con pocas marcas se vería vacía). */
+  readonly marcasCinta = computed(() => {
+    const m = this.marcas();
+    if (!m.length) return [];
+    return Array.from({ length: Math.max(8, m.length) }, (_, i) => m[i % m.length]);
+  });
 
   readonly countdown = signal<{ label: string; value: string }[]>([]);
 
@@ -345,3 +372,4 @@ export class HomeComponent {
     this.destroyRef.onDestroy(() => clearInterval(id));
   }
 }
+

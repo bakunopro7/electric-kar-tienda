@@ -5,10 +5,11 @@ import { filter } from 'rxjs';
 import { NgxSonnerToaster } from 'ngx-sonner';
 import { FooterComponent } from './layout/footer.component';
 import { HeaderComponent } from './layout/header.component';
+import { TabBarComponent } from './layout/tab-bar.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, HeaderComponent, FooterComponent, NgxSonnerToaster],
+  imports: [RouterOutlet, HeaderComponent, FooterComponent, TabBarComponent, NgxSonnerToaster],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })

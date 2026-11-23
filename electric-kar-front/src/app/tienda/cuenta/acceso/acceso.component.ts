@@ -19,25 +19,25 @@ declare const google: {
   imports: [FormsModule, RouterLink, IconComponent],
   template: `
     <div class="mx-auto max-w-md py-6">
-      <a routerLink="/" class="mb-6 inline-flex items-center gap-1 text-sm text-black/50 hover:text-azul-700 dark:text-white/50">
+      <a routerLink="/" class="mb-6 inline-flex items-center gap-1 text-sm text-texto-suave hover:text-marca">
         <ek-icon name="chevron" class="h-4 w-4 rotate-180" /> Volver a la tienda
       </a>
 
       <div class="card">
         <div class="mb-5 flex items-center gap-2.5">
-          <span class="grid h-10 w-10 place-items-center rounded-ek-md bg-voltaje text-navy-900"><ek-icon name="bolt" class="h-6 w-6" /></span>
-          <span class="font-display text-lg font-bold">electrick<span class="text-azul-700 dark:text-azul-500">-Kar</span></span>
+          <span class="grid h-10 w-10 -skew-x-6 place-items-center rounded-ek-md bg-voltaje text-navy-900"><ek-icon name="bolt" class="h-6 w-6" /></span>
+          <span class="ek-titular text-2xl">electrick<span class="text-marca">-Kar</span></span>
         </div>
 
-        <div class="mb-5 flex rounded-full bg-black/5 p-1 dark:bg-white/5">
-          <button type="button" class="flex-1 rounded-full py-2 text-sm font-semibold transition-colors"
-                  [class]="mode() === 'login' ? 'bg-azul-700 text-white' : ''" (click)="mode.set('login')">Iniciar sesión</button>
-          <button type="button" class="flex-1 rounded-full py-2 text-sm font-semibold transition-colors"
-                  [class]="mode() === 'register' ? 'bg-azul-700 text-white' : ''" (click)="mode.set('register')">Crear cuenta</button>
+        <div class="mb-5 flex rounded-full bg-superficie-2 p-1">
+          <button type="button" class="min-h-10 flex-1 rounded-full text-sm font-bold uppercase tracking-wide transition-colors"
+                  [class]="mode() === 'login' ? 'bg-navy-950 text-voltaje' : ''" (click)="mode.set('login')">Iniciar sesión</button>
+          <button type="button" class="min-h-10 flex-1 rounded-full text-sm font-bold uppercase tracking-wide transition-colors"
+                  [class]="mode() === 'register' ? 'bg-navy-950 text-voltaje' : ''" (click)="mode.set('register')">Crear cuenta</button>
         </div>
 
-        <h1 class="text-2xl font-bold">{{ mode() === 'login' ? 'Bienvenido de vuelta' : 'Crea tu cuenta' }}</h1>
-        <p class="mt-1 text-sm text-black/60 dark:text-white/60">
+        <h1 class="ek-titular text-4xl">{{ mode() === 'login' ? 'Bienvenido de vuelta' : 'Crea tu cuenta' }}</h1>
+        <p class="mt-1 text-sm text-texto-suave">
           {{ mode() === 'login' ? 'Ingresa tus datos para acceder.' : 'Únete y obtén 10% en tu primera compra.' }}
         </p>
 
@@ -46,7 +46,7 @@ declare const google: {
             <label class="block">
               <span class="text-sm font-semibold">Nombre completo</span>
               <span class="relative mt-1 block">
-                <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40"><ek-icon name="user" class="h-5 w-5" /></span>
+                <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-texto-tenue"><ek-icon name="user" class="h-5 w-5" /></span>
                 <input [(ngModel)]="nombre" name="nombre" required class="ek-input w-full pl-10" placeholder="Juan Pérez" />
               </span>
             </label>
@@ -54,16 +54,16 @@ declare const google: {
           <label class="block">
             <span class="text-sm font-semibold">Correo electrónico</span>
             <span class="relative mt-1 block">
-              <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40"><ek-icon name="user" class="h-5 w-5" /></span>
+              <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-texto-tenue"><ek-icon name="user" class="h-5 w-5" /></span>
               <input [(ngModel)]="correo" name="correo" type="email" required class="ek-input w-full pl-10" placeholder="tu@correo.com" />
             </span>
           </label>
           <label class="block">
             <span class="text-sm font-semibold">Contraseña</span>
             <span class="relative mt-1 block">
-              <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40"><ek-icon name="lock" class="h-5 w-5" /></span>
+              <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-texto-tenue"><ek-icon name="lock" class="h-5 w-5" /></span>
               <input [(ngModel)]="password" name="password" [type]="showPass() ? 'text' : 'password'" required minlength="6" class="ek-input w-full px-10" placeholder="••••••••" />
-              <button type="button" (click)="showPass.set(!showPass())" class="absolute right-3 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40" aria-label="Mostrar contraseña">
+              <button type="button" (click)="showPass.set(!showPass())" class="absolute right-3 top-1/2 -translate-y-1/2 text-texto-tenue" aria-label="Mostrar contraseña">
                 <ek-icon name="search" class="h-5 w-5" />
               </button>
             </span>
@@ -71,25 +71,25 @@ declare const google: {
 
           @if (mode() === 'login') {
             <div class="text-right">
-              <a routerLink="/recuperar" class="text-sm text-azul-700 hover:underline dark:text-azul-500">¿Olvidaste tu contraseña?</a>
+              <a routerLink="/recuperar" class="text-sm text-marca hover:underline">¿Olvidaste tu contraseña?</a>
             </div>
           }
 
           @if (error()) { <p class="text-sm text-peligro">{{ error() }}</p> }
 
-          <button type="submit" class="btn-primary w-full" [disabled]="loading()">
+          <button type="submit" class="btn-voltaje btn-lg w-full uppercase tracking-wide" [disabled]="loading()">
             {{ loading() ? 'Procesando…' : (mode() === 'login' ? 'Iniciar sesión' : 'Crear mi cuenta') }}
           </button>
         </form>
 
         <!-- Google -->
-        <div class="my-4 flex items-center gap-3 text-xs text-black/40 dark:text-white/40">
-          <span class="h-px flex-1 bg-black/10 dark:bg-white/10"></span> o continúa con <span class="h-px flex-1 bg-black/10 dark:bg-white/10"></span>
+        <div class="my-4 flex items-center gap-3 text-xs text-texto-tenue">
+          <span class="h-px flex-1 bg-borde"></span> o continúa con <span class="h-px flex-1 bg-borde"></span>
         </div>
         @if (googleHabilitado) {
           <div id="ek-google-btn" class="flex justify-center"></div>
         } @else {
-          <p class="rounded-ek-md bg-black/5 px-3 py-2 text-center text-xs text-black/50 dark:bg-white/5 dark:text-white/50">
+          <p class="rounded-ek-md bg-superficie-2 px-3 py-2 text-center text-xs text-texto-suave">
             Login con Google disponible al configurar <code>googleClientId</code>.
           </p>
         }

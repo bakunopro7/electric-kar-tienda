@@ -9,35 +9,35 @@ import { IconComponent } from '@shared/icon.component';
   imports: [FormsModule, RouterLink, IconComponent],
   template: `
     <div class="mx-auto max-w-md py-6">
-      <a routerLink="/acceso" class="mb-6 inline-flex items-center gap-1 text-sm text-black/50 hover:text-azul-700 dark:text-white/50">
+      <a routerLink="/acceso" class="mb-4 inline-flex min-h-11 items-center gap-1 text-sm text-texto-suave hover:text-marca">
         <ek-icon name="chevron" class="h-4 w-4 rotate-180" /> Volver al acceso
       </a>
 
       <div class="card">
-        <h1 class="text-2xl font-bold">Recuperar contraseña</h1>
+        <h1 class="ek-titular text-4xl">Recuperar contraseña</h1>
 
         @if (paso() === 1) {
-          <p class="mt-1 text-sm text-black/60 dark:text-white/60">Escribe tu correo y te daremos instrucciones para restablecerla.</p>
+          <p class="mt-1 text-sm text-texto-suave">Escribe tu correo y te daremos instrucciones para restablecerla.</p>
           <form (ngSubmit)="solicitar()" class="mt-4 space-y-3">
             <input [(ngModel)]="correo" name="correo" type="email" required class="ek-input w-full" placeholder="tu@correo.com" />
             @if (error()) { <p class="text-sm text-peligro">{{ error() }}</p> }
-            <button type="submit" class="btn-primary w-full" [disabled]="loading()">{{ loading() ? 'Enviando…' : 'Enviar instrucciones' }}</button>
+            <button type="submit" class="btn-voltaje btn-lg w-full" [disabled]="loading()">{{ loading() ? 'Enviando…' : 'Enviar instrucciones' }}</button>
           </form>
         } @else {
-          <p class="mt-1 text-sm text-black/60 dark:text-white/60">{{ mensaje() }}</p>
+          <p class="mt-1 text-sm text-texto-suave">{{ mensaje() }}</p>
           @if (tokenDemo()) {
             <div class="mt-3 rounded-ek-md bg-voltaje/15 px-3 py-2 text-xs">
               <b>Modo demo</b> (sin servidor de correo): tu token de recuperación es
-              <code class="break-all font-mono">{{ tokenDemo() }}</code>. Ya lo pusimos abajo.
+              <code class="break-all ek-num">{{ tokenDemo() }}</code>. Ya lo pusimos abajo.
             </div>
           }
           <form (ngSubmit)="restablecer()" class="mt-4 space-y-3">
-            <input [(ngModel)]="token" name="token" required class="ek-input w-full font-mono text-sm" placeholder="Token de recuperación" />
+            <input [(ngModel)]="token" name="token" required class="ek-input w-full ek-num text-sm" placeholder="Token de recuperación" />
             <input [(ngModel)]="password" name="password" type="password" required minlength="6" class="ek-input w-full" placeholder="Nueva contraseña" />
             @if (error()) { <p class="text-sm text-peligro">{{ error() }}</p> }
             @if (exito()) { <p class="flex items-center gap-2 text-sm text-exito"><ek-icon name="check" class="h-4 w-4" /> {{ exito() }}</p> }
             @if (!exito()) {
-              <button type="submit" class="btn-primary w-full" [disabled]="loading()">{{ loading() ? 'Guardando…' : 'Restablecer contraseña' }}</button>
+              <button type="submit" class="btn-voltaje btn-lg w-full" [disabled]="loading()">{{ loading() ? 'Guardando…' : 'Restablecer contraseña' }}</button>
             } @else {
               <a routerLink="/acceso" class="btn-primary w-full">Ir a iniciar sesión</a>
             }
